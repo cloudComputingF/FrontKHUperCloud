@@ -35,7 +35,8 @@ function ResponsiveDrawer(props) {
       <div style={{ display: "flex", alignItems: "center", padding: "10px" }}>
         <Cloud style={{ width: "100px", height: "80px", margin: "0" }} />
         <Typography variant="h15" style={{ marginLeft: "0px" }}>
-          Cloud Computing
+          KHUper
+          Cloud
         </Typography>
       </div>
       <Toolbar sx={{ mt: -8 }} />
@@ -166,11 +167,11 @@ function ResponsiveDrawer(props) {
           </Box>
           <Divider sx={{ my: 2 }} />
         </Box>
-        <Typography variant="h8" component="h4">
-          
+        <Typography variant="h8" component="h4"  sx={{ mt: 30 }}>
           저장된 파일이 없습니다.
         </Typography>
       </Box>
+      
       <Toolbar> </Toolbar>
     </Box>
   );
