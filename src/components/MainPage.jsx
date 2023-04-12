@@ -66,12 +66,16 @@ function ResponsiveAppBar() {
           padding: "100px"
         }}
       >
-        <Typography variant="h3" sx={{ color: "white", whiteSpace: "nowrap" }}>KHUper CLOUD와 함께&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</Typography>
-        <Typography variant="h3" sx={{ color: "white" }}>중요한 사진,자료를 한곳에서</Typography>
-        <br/>
-        <Typography variant="h6" sx={{ color: "white" }}>AWS와 연계한 대용량 스토리지 서비스입니다.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</Typography>
-        <Typography variant="h6" sx={{ color: "white" }}>사진과 문서자료를 안전하게 보관하고 작업할수 있습니다.</Typography>
-        <Typography variant="h6" sx={{ color: "white" }}>기존에 없던 특별한 기능을 제공합니다.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</Typography>
+     <div style={{ whiteSpace: 'pre-line' , textAlign: 'right' }}>
+     <Typography variant="h3" sx={{ color: "white" }} style={{display: 'inline-block', marginRight: '109px'}}>KHUper CLOUD와 함께</Typography>
+     <Typography variant="h3" sx={{ color: "white" }} style={{display: 'inline-block', marginRight: '6px'}}>중요한 사진,자료를 한곳에서</Typography>
+     {"\n"}
+     <Typography variant="h6" sx={{ color: "white" }} style={{display: 'inline-block', marginRight: '200px'}}>AWS와 연계한 대용량 스토리지 서비스입니다.</Typography>
+     {"\n"}
+     <Typography variant="h6" sx={{ color: "white" }} style={{display: 'inline-block', marginRight: '100px'}}>사진과 문서자료를 안전하게 보관하고 작업할수 있습니다.</Typography>
+     {"\n"}
+     <Typography variant="h6" sx={{ color: "white" }} style={{display: 'inline-block', marginRight: '265px'}}>기존에 없던 특별한 기능을 제공합니다.</Typography>
+    </div>
       </Box>
     </div>
   );

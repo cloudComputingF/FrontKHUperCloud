@@ -7,6 +7,6 @@ import ResponsiveAppBar from './components/MainPage'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ResponsiveDrawer />
+    <ResponsiveAppBar />
   </React.StrictMode>,
 )
