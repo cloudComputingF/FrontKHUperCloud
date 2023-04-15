@@ -1,12 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
-import ResponsiveDrawer from './components/Drawer'
 import Searchs from './components/Search'
-import ResponsiveAppBar from './components/MainPage'
-
+import MainPage from './components/MainPage'
+import HomePage from './components/HomePage'
+import ContentsBar from './components/ContentsBar'
+import RecipeReviewCard from './components/ImageCard'
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ResponsiveAppBar />
+    <MainPage/>
   </React.StrictMode>,
 )

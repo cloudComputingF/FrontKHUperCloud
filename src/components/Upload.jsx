@@ -1,58 +1,64 @@
-import * as React from 'react';
-import Button from '@mui/material/Button';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
+import * as React from "react";
+import Button from "@mui/material/Button";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+import ImageCard from "./ImageCard";
+import { useDropzone } from 'react-dropzone';
 
-export default function Upload() {
+export default function Upload({ onCreateContents }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [uploading, setUploading] = React.useState(false);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-  const handleFileUpload = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.multiple = true;
 
-    input.onchange = (e) => {
-      const files = e.target.files;
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: 'image/*',
+    onDrop: (acceptedFiles) => {
+      const validFiles = acceptedFiles.filter((file) => {
+        const isImage = file.type && file.type.split("/")[0] === "image";
+        const isSmallEnough = file.size <= 5000000; // 5MB 이하로 제한
+      
+        return isImage && isSmallEnough;
+      });
       setUploading(true);
+      validFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          onCreateContents(validFiles);
+          URL.revokeObjectURL(reader.result);
+        }
+        reader.readAsDataURL(file);
+      });
       setUploading(false);
-    };
-
-    input.click();
-    handleClose();
-  };
+    }
+  });
 
   return (
-    <div>
+    <form>
       <Button
         id="basic-button"
-        startIcon={<FileUploadIcon />} variant="contained"
-        aria-controls={open ? 'basic-menu' : undefined}
+        startIcon={<FileUploadIcon />}
+        variant="contained"
+        aria-controls={open ? "basic-menu" : undefined}
         aria-haspopup="true"
-        aria-expanded={open ? 'true' : undefined}
-        onClick={handleClick}
+        aria-expanded={open ? "true" : undefined}
+        onClick={(event) => setAnchorEl(event.currentTarget)}
       >
-        {uploading ? '업로드 중...' : '올리기'}
+        {uploading ? "업로드 중..." : "올리기"}
       </Button>
       <Menu
         id="basic-menu"
         anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
+        open={Boolean(anchorEl)}
+        onClose={() => setAnchorEl(null)}
         MenuListProps={{
-          'aria-labelledby': 'basic-button',
+          "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem onClick={handleFileUpload}>파일 올리기</MenuItem>
-        <MenuItem onClick={handleFileUpload}>폴더 올리기</MenuItem>
+        <MenuItem {...getRootProps()}>파일 올리기</MenuItem>
+        <MenuItem>폴더 올리기</MenuItem>
       </Menu>
-    </div>
+      <input {...getInputProps()} />
+    </form>
   );
 }
+

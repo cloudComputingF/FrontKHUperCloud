@@ -1,83 +1,94 @@
-import React from "react";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
-import CloudIcon from "@mui/icons-material/Cloud";
-import { Divider } from "@mui/material";
+import * as React from "react";
+import {
+  Box,
+  CssBaseline,
+  AppBar,
+  Toolbar,
+  Drawer,
+  Divider,
+  Typography,
+} from "@mui/material";
+import PropTypes from "prop-types";
 
-function ResponsiveAppBar() {
+import ToolBar from "./ToolBar";
+import ContentsBar from "./ContentsBar";
+import {useState} from 'react';
+import ImageCard from "./ImageCard";
+import ImageList from "./ImageList";
+
+function MainPage(props) {
+  const { window } = props;
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const drawerWidth = 200;
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const container =
+    window !== undefined ? () => window().document.body : undefined;
+
   return (
-    <div>
+    <Box sx={{ display: "flex" }}>
+      <CssBaseline />
       <AppBar
-        position="static"
-        sx={{ position: "fixed", top: 0, left: 0, right: 0, bgcolor: "white" }}
-      >
-        <Toolbar
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              bgcolor: "white",
-              flex: 1,
-            }}
-          >
-            <CloudIcon
-              sx={{ fontSize: "5rem", marginRight: "0.5rem", fill: "black" }}
-            />
-            <Typography
-              variant="h6"
-              noWrap
-              sx={{ display: "flex", alignItems: "center", color: "black" }}
-            >
-              KHUperCloud
-            </Typography>
-            <Divider
-              orientation="vertical"
-              sx={{ height: "50px", margin: "0 1rem" }}
-            />
-          </Box>
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button sx={{ color: "black" }}>로그인</Button>
-            <Button sx={{ color: "black", marginLeft: "1rem" }}>
-              회원가입
-            </Button>
-          </Box>
-        </Toolbar>
-      </AppBar>
-      <Box
+        position="fixed"
         sx={{
-          backgroundImage:
-            "url(/images/my-images.jpg)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-start",
-          alignItems: "flex-end",
-          minHeight: "100vh",
-          padding: "100px"
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
         }}
       >
-     <div style={{ whiteSpace: 'pre-line' , textAlign: 'right' }}>
-     <Typography variant="h3" sx={{ color: "white" }} style={{display: 'inline-block', marginRight: '109px'}}>KHUper CLOUD와 함께</Typography>
-     <Typography variant="h3" sx={{ color: "white" }} style={{display: 'inline-block', marginRight: '6px'}}>중요한 사진,자료를 한곳에서</Typography>
-     {"\n"}
-     <Typography variant="h6" sx={{ color: "white" }} style={{display: 'inline-block', marginRight: '200px'}}>AWS와 연계한 대용량 스토리지 서비스입니다.</Typography>
-     {"\n"}
-     <Typography variant="h6" sx={{ color: "white" }} style={{display: 'inline-block', marginRight: '100px'}}>사진과 문서자료를 안전하게 보관하고 작업할수 있습니다.</Typography>
-     {"\n"}
-     <Typography variant="h6" sx={{ color: "white" }} style={{display: 'inline-block', marginRight: '265px'}}>기존에 없던 특별한 기능을 제공합니다.</Typography>
-    </div>
+        <ToolBar setMobileOpen={handleDrawerToggle} />
+      </AppBar>
+      <Box
+        component="nav"
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        aria-label="mailbox folders"
+      >
+        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+        <Drawer
+          container={container}
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile.
+          }}
+          sx={{
+            display: { xs: "block", sm: "none" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
+          }}
+        >
+          {ContentsBar}
+        </Drawer>
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: "none", sm: "block" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
+          }}
+          open
+        >
+          {ContentsBar}
+        </Drawer>
       </Box>
-    </div>
+      <ImageList/>
+    </Box>
   );
 }
-export default ResponsiveAppBar;
+
+MainPage.propTypes = {
+  /**
+   * Injected by the documentation to work in an iframe.
+   * You won't need it on your project.
+   */
+  window: PropTypes.func,
+};
+
+export default MainPage;
