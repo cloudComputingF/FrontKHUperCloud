@@ -23,20 +23,23 @@ export default function ImageList() {
       return isImage && isSmallEnough;
     });
     const urls = validFiles.map((file) => URL.createObjectURL(file));
-    setImageUrls((prevUrls) => [...prevUrls, ...urls]);
+    setImageUrls((prevUrls) => [
+      ...urls.map((url, index) => ({
+        url,
+        fileName: validFiles[index].name,
+        fileSize: validFiles[index].size,
+      })),
+      ...prevUrls,
+    ]);
   };
 
   return (
     <Box
       component="main"
       sx={{
-        flexGrow: 1,
         p: 3,
-        width: { sm: `calc(100% - ${drawerWidth}px)` },
         display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        height: "auto",
+        maxWidth: "100%",
       }}
     >
       <Box sx={{ position: "absolute", top: 80, left: 200, width: "100%" }}>
@@ -55,13 +58,32 @@ export default function ImageList() {
         </Box>
         <Divider sx={{ my: 2 }} />
       </Box>
-      {imageUrls.length > 0 ? (
-        imageUrls.map((url, index) => <ImageCard key={index} imgUrl={url} />)
-      ) : (
-        <Typography variant="h6" component="h4" sx={{ mt: 30 }}>
-          저장된 파일이 없습니다.
-        </Typography>
-      )}
+      <Box
+        sx={{
+          mt: 12,
+          display: "flex",
+          marginLeft: "-120px",
+          width:"140%",
+          flexWrap: 'wrap',
+        }}
+      >
+        {imageUrls.length > 0 ? (
+          imageUrls.map((image, index) => {
+            return (
+              <ImageCard
+                key={index}
+                imgUrl={image.url}
+                fileName={image.fileName}
+                fileSize={image.fileSize}
+              />
+            );
+          })
+        ) : (
+          <Typography variant="h6" component="h4" sx={{ mt: 25, ml: 70 }}>
+            저장된 파일이 없습니다.
+          </Typography>
+        )}
+      </Box>
     </Box>
   );
 }

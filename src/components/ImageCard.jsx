@@ -1,15 +1,20 @@
 import * as React from "react";
-import Card from "@mui/material/Card";
+import {
+  Card,
+  CardContent,
+  CardMedia,
+  CardActions,
+  IconButton,
+  Typography,
+  Box,
+} from "@mui/material";
 import CardHeader from "@mui/material/CardHeader";
-import CardMedia from "@mui/material/CardMedia";
-import CardActions from "@mui/material/CardActions";
-import IconButton from "@mui/material/IconButton";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Checkboxes from "./CheckBox";
 import { styled } from "@mui/system";
-import {useState,useEffect} from 'react';
+import { useState, useEffect } from "react";
 
-export default function ImageCard({ imgKey,imgUrl }) {
+export default function ImageCard({ imgKey, imgUrl, fileName, fileSize }) {
   const [imageSrc, setImageSrc] = useState(imgUrl);
   useEffect(() => {
     console.log(imgUrl);
@@ -17,7 +22,15 @@ export default function ImageCard({ imgKey,imgUrl }) {
   }, [imgUrl]);
 
   return (
-    <Card  key={imgKey} sx={{ maxWidth: 200, height: "200px", position: "relative" }}>
+    <Card
+      key={imgKey}
+      sx={{
+        maxWidth: 200,
+        height: "150px",
+        position: "relative",
+        m: 1,   
+         }}
+    >
       <CardHeader
         avatar={<Checkboxes sx={{ paddingLeft: 0 }} />}
         sx={{
@@ -27,13 +40,34 @@ export default function ImageCard({ imgKey,imgUrl }) {
           padding: "0px 0px",
         }}
       />
+      <CardContent
+        sx={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          bgcolor: "rgba(0, 0, 0, 0.6)",
+          padding: "4px",
+        }}
+      >
+        <Typography sx={{ color: "white", fontSize: "15px" }}>
+          {fileName}
+        </Typography>
+        <Typography sx={{ color: "white", fontSize: "10px" }}>{`${(
+          fileSize / 1024
+        ).toFixed(2)}KB`}</Typography>
+      </CardContent>
       <CardMedia
         component="img"
-        sx={{ height: "100%", objectFit: "cover" }}
+        sx={{
+          maxWidth: "auto",
+          height: "auto",
+          objectFit: "cover",
+        }}
         image={imageSrc}
-      />
-      <CardActions sx={{ position: "absolute", bottom: 0, right: 0 }}>
-        <IconButton aria-label="add to favorites">
+      ></CardMedia>
+      <CardActions sx={{ position: "absolute",display: "flex", bottom: -10, right: -10}}>
+        <IconButton aria-label="add to favorites" >
           <FavoriteIcon color="white" />
         </IconButton>
       </CardActions>

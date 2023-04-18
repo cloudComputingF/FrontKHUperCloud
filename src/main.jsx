@@ -9,5 +9,5 @@ import RecipeReviewCard from './components/ImageCard'
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <MainPage/>
-  </React.StrictMode>,
+  </React.StrictMode>
 )
