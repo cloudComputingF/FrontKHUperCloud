@@ -12,12 +12,11 @@ import CardHeader from "@mui/material/CardHeader";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Checkboxes from "./CheckBox";
 import { styled } from "@mui/system";
-import { useState, useEffect } from "react";
+import { useState, useEffect,useRef} from "react";
 
 export default function ImageCard({ imgKey, imgUrl, fileName, fileSize }) {
   const [imageSrc, setImageSrc] = useState(imgUrl);
   useEffect(() => {
-    console.log(imgUrl);
     setImageSrc(imgUrl);
   }, [imgUrl]);
 
@@ -25,7 +24,7 @@ export default function ImageCard({ imgKey, imgUrl, fileName, fileSize }) {
     <Card
       key={imgKey}
       sx={{
-        maxWidth: 200,
+        maxWidth: 245,
         height: "150px",
         position: "relative",
         m: 1,   
@@ -61,8 +60,8 @@ export default function ImageCard({ imgKey, imgUrl, fileName, fileSize }) {
         component="img"
         sx={{
           maxWidth: "auto",
-          height: "auto",
-          objectFit: "cover",
+          height: "auto%",
+          objectFit: "contain",
         }}
         image={imageSrc}
       ></CardMedia>

@@ -42,7 +42,7 @@ export default function ImageList() {
         maxWidth: "100%",
       }}
     >
-      <Box sx={{ position: "absolute", top: 80, left: 200, width: "100%" }}>
+      <Box sx={{ position: "absolute", top: 80, left: 200, width: "85%" }}>
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Checkboxes />
           <Box
@@ -79,7 +79,7 @@ export default function ImageList() {
             );
           })
         ) : (
-          <Typography variant="h6" component="h4" sx={{ mt: 25, ml: 70 }}>
+          <Typography variant="h6" component="h4" sx={{ mt: 25, ml: 61 }}>
             저장된 파일이 없습니다.
           </Typography>
         )}

@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 import PropTypes from "prop-types";
 
-import ToolBar from "./ToolBar";
-import ContentsBar from "./ContentsBar";
+import Header from "./Header";
+import SideBar from "./SideBar";
 import {useState} from 'react';
 import ImageCard from "./ImageCard";
 import ImageList from "./ImageList";
@@ -38,7 +38,7 @@ function MainPage(props) {
           ml: { sm: `${drawerWidth}px` },
         }}
       >
-        <ToolBar setMobileOpen={handleDrawerToggle} />
+        <Header setMobileOpen={handleDrawerToggle} />
       </AppBar>
       <Box
         component="nav"
@@ -62,7 +62,7 @@ function MainPage(props) {
             },
           }}
         >
-          {ContentsBar}
+          {SideBar}
         </Drawer>
         <Drawer
           variant="permanent"
@@ -75,7 +75,7 @@ function MainPage(props) {
           }}
           open
         >
-          {ContentsBar}
+          {SideBar}
         </Drawer>
       </Box>
       <ImageList/>

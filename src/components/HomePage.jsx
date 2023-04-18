@@ -32,7 +32,7 @@ function HomePage() {
               noWrap
               sx={{ display: "flex", alignItems: "center", color: "black" }}
             >
-              KHUperCloud
+              KHUperCLOUD
             </Typography>
             <Divider
               orientation="vertical"

@@ -4,19 +4,20 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import ImageCard from "./ImageCard";
-import { useDropzone } from 'react-dropzone';
+import { useDropzone } from "react-dropzone";
 
 export default function Upload({ onCreateContents }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [uploading, setUploading] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: 'image/*',
+    accept: "image/*",
     onDrop: (acceptedFiles) => {
       const validFiles = acceptedFiles.filter((file) => {
         const isImage = file.type && file.type.split("/")[0] === "image";
         const isSmallEnough = file.size <= 5000000; // 5MB 이하로 제한
-      
+
         return isImage && isSmallEnough;
       });
       setUploading(true);
@@ -25,11 +26,11 @@ export default function Upload({ onCreateContents }) {
         reader.onload = () => {
           onCreateContents(validFiles);
           URL.revokeObjectURL(reader.result);
-        }
+        };
         reader.readAsDataURL(file);
       });
       setUploading(false);
-    }
+    },
   });
 
   return (
@@ -54,11 +55,24 @@ export default function Upload({ onCreateContents }) {
           "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem {...getRootProps()}>파일 올리기</MenuItem>
-        <MenuItem>폴더 올리기</MenuItem>
+        <MenuItem
+          {...getRootProps({
+            onClick: () => {
+              setAnchorEl(null);
+            },
+          })}
+        >
+          파일 올리기
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            setAnchorEl(null);
+          }}
+        >
+          폴더 올리기
+        </MenuItem>
       </Menu>
       <input {...getInputProps()} />
     </form>
   );
 }
-

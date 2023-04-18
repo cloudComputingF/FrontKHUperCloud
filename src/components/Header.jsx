@@ -4,7 +4,7 @@ import * as React from "react";
 import Searchs from './Search'
 
 
-export default function ToolBar({setMobileOpen}) {
+export default function Header({setMobileOpen}) {
   return (
     <Toolbar>
       <IconButton

@@ -4,8 +4,7 @@ import App from './App'
 import Searchs from './components/Search'
 import MainPage from './components/MainPage'
 import HomePage from './components/HomePage'
-import ContentsBar from './components/ContentsBar'
-import RecipeReviewCard from './components/ImageCard'
+import SideBar from './components/SideBar'
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <MainPage/>
