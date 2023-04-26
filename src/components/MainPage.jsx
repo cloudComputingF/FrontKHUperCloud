@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import PropTypes from "prop-types";
 
-import Header from "./Header";
+import Header from "./MainHeader";
 import SideBar from "./SideBar";
 import {useState} from 'react';
 import ImageCard from "./ImageCard";

@@ -1,52 +1,10 @@
 import React from "react";
-import { Divider,Box,Button,Typography,Toolbar,AppBar   } from "@mui/material";
-import CloudIcon from "@mui/icons-material/Cloud";
-
+import { Box,Button,Typography,Toolbar,AppBar   } from "@mui/material";
+import HomeHeader from "./HomeHeader";
 function HomePage() {
   return (
     <div>
-      <AppBar
-        position="static"
-        sx={{ position: "fixed", top: 0, left: 0, right: 0, bgcolor: "white" }}
-      >
-        <Toolbar
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              bgcolor: "white",
-              flex: 1,
-            }}
-          >
-            <CloudIcon
-              sx={{ fontSize: "5rem", marginRight: "0.5rem", fill: "black" }}
-            />
-            <Typography
-              variant="h6"
-              noWrap
-              sx={{ display: "flex", alignItems: "center", color: "black" }}
-            >
-              KHUperCLOUD
-            </Typography>
-            <Divider
-              orientation="vertical"
-              sx={{ height: "50px", margin: "0 1rem" }}
-            />
-          </Box>
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button sx={{ color: "black" }}>로그인</Button>
-            <Button sx={{ color: "black", marginLeft: "1rem" }}>
-              회원가입
-            </Button>
-          </Box>
-        </Toolbar>
-      </AppBar>
+      <HomeHeader/>
       <Box
         sx={{
           backgroundImage:
@@ -72,6 +30,7 @@ function HomePage() {
      <Typography variant="h6" sx={{ color: "white" }} style={{display: 'inline-block', marginRight: '265px'}}>기존에 없던 특별한 기능을 제공합니다.</Typography>
     </div>
       </Box>
+      
     </div>
   );
 }

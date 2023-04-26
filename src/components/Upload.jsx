@@ -44,7 +44,7 @@ export default function Upload({ onCreateContents }) {
         aria-expanded={open ? "true" : undefined}
         onClick={(event) => setAnchorEl(event.currentTarget)}
       >
-        {uploading ? "업로드 중..." : "올리기"}
+        {"올리기"}
       </Button>
       <Menu
         id="basic-menu"
