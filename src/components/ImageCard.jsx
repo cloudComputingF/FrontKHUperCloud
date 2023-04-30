@@ -49,12 +49,14 @@ export default function ImageCard({ imgKey, imgUrl, fileName, fileSize }) {
           padding: "4px",
         }}
       >
-        <Typography sx={{ color: "white", fontSize: "15px" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <Typography sx={{ color: "white", fontSize: "15px", textAlign: "center" }}>
           {fileName}
         </Typography>
-        <Typography sx={{ color: "white", fontSize: "10px" }}>{`${(
+        <Typography sx={{ color: "white", fontSize: "10px", textAlign: "center" }}>{`${(
           fileSize / 1024
         ).toFixed(2)}KB`}</Typography>
+        </div>
       </CardContent>
       <CardMedia
         component="img"

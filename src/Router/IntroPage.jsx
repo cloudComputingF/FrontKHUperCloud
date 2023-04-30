@@ -164,8 +164,8 @@ export default function Introduce() {
           </Typography>
         </Box>
       </Box>
-      <Box sx={{ marginTop: "200px" }}>
-        <Typography variant="h3" sx={{ marginRight: 115, marginBottom: "5px" }}>
+      <Box sx={{ display:"flex",marginTop: "200px",alignItems: "flex-start",marginLeft:10  }}>
+        <Typography variant="h3" >
           2.AWS 연계
         </Typography>
       </Box>
@@ -177,9 +177,9 @@ export default function Introduce() {
           justifyContent: "flex-start",
         }}
       >
-        <img src="images/AWS.png" style={{ marginRight: "10px" }} />
-        <div>
-          <Typography sx={{ fontSize: 35 }}>안정성</Typography>
+        <img src="images/AWS.png"  />
+        <div sx={{display:"flex",alignItems:'center'}}>
+          <Typography sx={{ fontSize: 35,marginLeft:57 }}>안정성</Typography>
           <ul>
             <li>
               AWS는 전 세계적으로 막대한 인프라를 보유하고 있어, 빠르고 안정적인
@@ -187,7 +187,7 @@ export default function Introduce() {
               사용자들에게 높은 수준의 안정성을 제공합니다.
             </li>
           </ul>
-          <Typography sx={{ fontSize: 35 }}>속도</Typography>
+          <Typography sx={{ fontSize: 35,marginLeft:60  }}>속도</Typography>
           <ul>
             <li>
               AWS는 빠른 속도로 데이터를 전송하고 저장할 수 있습니다. 이는 웹
@@ -196,7 +196,7 @@ export default function Introduce() {
             </li>
           </ul>
 
-          <Typography sx={{ fontSize: 35 }}>보안</Typography>
+          <Typography sx={{ fontSize: 35 ,marginLeft:60 }}>보안</Typography>
           <ul>
             <li>
               AWS는 높은 보안 수준을 유지하며 데이터 보호를 위해 다양한 보안

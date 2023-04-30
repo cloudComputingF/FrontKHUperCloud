@@ -61,9 +61,8 @@ export default function ImageList() {
       </Box>
       <Box
         sx={{
-          mt: 12,
+          mt: 19,
           display: "flex",
-          marginLeft: "-200px",
           flexWrap: "wrap",
         }}
       >
