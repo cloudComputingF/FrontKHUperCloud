@@ -11,15 +11,15 @@ import {
 import PropTypes from "prop-types";
 
 import Header from "./MainHeader";
-import SideBar from "./SideBar";
+import SideBar from './SideBar'
 import {useState} from 'react';
-import ImageCard from "./ImageCard";
-import ImageList from "./ImageList";
+import ImageList from "../components/ImageList";
 
 function MainPage(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const drawerWidth = 200;
+  
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);

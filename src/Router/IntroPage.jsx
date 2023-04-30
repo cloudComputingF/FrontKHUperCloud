@@ -206,9 +206,6 @@ export default function Introduce() {
           </ul>
         </div>
       </Box>
-      <Typography style={{ color: "white", fontSize: "2.4rem" }}>
-        KHUperCLOUD를 이용해야 하는 이유
-      </Typography>
       <Box
         sx={{
          

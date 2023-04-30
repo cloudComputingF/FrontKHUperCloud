@@ -1,10 +1,10 @@
 import { Box, Typography, Toolbar, IconButton, Button } from "@mui/material";
 import { Menu } from "@mui/icons-material";
 import * as React from "react";
-import Searchs from './Search'
+import Searchs from "../components/Search";
+import { Link } from "react-router-dom";
 
-
-export default function Header({setMobileOpen}) {
+export default function Header({ setMobileOpen }) {
   return (
     <Toolbar>
       <IconButton
@@ -25,9 +25,11 @@ export default function Header({setMobileOpen}) {
         <Searchs />
       </Typography>
       <Box sx={{ flexGrow: 1 }} />
-      <Button variant="outlined" color="inherit">
-        Log Out
-      </Button>
+      <Link to="/">
+        <Button variant="contained" color="inherit">
+          Log Out
+        </Button>
+      </Link>
     </Toolbar>
   );
 }

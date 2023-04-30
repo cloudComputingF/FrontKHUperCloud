@@ -18,11 +18,11 @@ export default function ImageList() {
   const handleCreateContents = (files) => {
     const validFiles = Array.from(files).filter((file) => {
       const isImage = file.type && file.type.split("/")[0] === "image";
-      const isSmallEnough = file.size <= 5000000; // 5MB 이하로 제한
 
-      return isImage && isSmallEnough;
+      return isImage;
     });
     const urls = validFiles.map((file) => URL.createObjectURL(file));
+   
     setImageUrls((prevUrls) => [
       ...urls.map((url, index) => ({
         url,
@@ -31,6 +31,7 @@ export default function ImageList() {
       })),
       ...prevUrls,
     ]);
+    
   };
 
   return (
@@ -54,7 +55,7 @@ export default function ImageList() {
           >
             <Divider orientation="vertical" sx={{ height: "100%" }} />
           </Box>
-          <Upload onCreateContents={handleCreateContents} />
+          <Upload onCreateImage={handleCreateContents} />
         </Box>
         <Divider sx={{ my: 2 }} />
       </Box>
@@ -62,9 +63,8 @@ export default function ImageList() {
         sx={{
           mt: 12,
           display: "flex",
-          marginLeft: "-120px",
-          width:"140%",
-          flexWrap: 'wrap',
+          marginLeft: "-200px",
+          flexWrap: "wrap",
         }}
       >
         {imageUrls.length > 0 ? (
@@ -79,7 +79,7 @@ export default function ImageList() {
             );
           })
         ) : (
-          <Typography variant="h6" component="h4" sx={{ mt: 25, ml: 61 }}>
+          <Typography variant="h6" component="h4" sx={{ mt: 25, ml: 80 }}>
             저장된 파일이 없습니다.
           </Typography>
         )}

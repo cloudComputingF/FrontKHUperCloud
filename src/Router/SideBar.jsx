@@ -18,6 +18,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
+import { Link } from "react-router-dom";
 
 const listItemStyle = {
   display: "flex",
@@ -25,13 +26,38 @@ const listItemStyle = {
 };
 
 const SideBar = (
-  <div>
-    <div style={{ display: "flex", alignItems: "center", padding: "10px" }}>
-      <Cloud style={{ width: "100px", height: "80px", margin: "0" }} />
-      <Typography variant="h15" style={{ marginLeft: "0px" }}>
-        KHUper CLOUD
-      </Typography>
-    </div>
+  <>
+    <Link
+      to="/"
+      style={{
+        textDecoration: "none",
+        display: "flex",
+        alignItems: "center",
+        color: "black",
+        width: "100px",
+        height: "150px",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginLeft: 20,
+          marginTop: -15,
+        }}
+      >
+        <Cloud
+          style={{
+            width: "100px",
+            height: "100px",
+            marginTop: 7,
+          }}
+        />
+        <Typography variant="h15" style={{ marginTop: 10, marginLeft: "7px" }}>
+          KHUper CLOUD
+        </Typography>
+      </div>
+    </Link>
     <Toolbar sx={{ mt: -8 }} />
     <Divider />
     <List>
@@ -123,6 +149,6 @@ const SideBar = (
         </ListItemButton>
       </ListItem>
     </List>
-  </div>
+  </>
 );
 export default SideBar;
