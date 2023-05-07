@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import ImageCard from "./ImageCard";
+
 import { useDropzone } from "react-dropzone";
 
 export default function Upload({
@@ -17,11 +17,13 @@ export default function Upload({
   const [uploading, setUploading] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const { getRootProps, getInputProps } = useDropzone({
-    multiple: false,
+    multiple: true,
     webkitdirectory: true,
     onDrop: (acceptedFiles) => {
+      setUploading(true);
       if (acceptedFiles[0].type === "") {
         onCreateFolder(acceptedFiles);
+        setUploading(false);  
       } else {
         const validFiles = acceptedFiles.filter((file) => {
           const isImage = file.type && file.type.split("/")[0] === "image";
@@ -38,12 +40,11 @@ export default function Upload({
           return (isImage || isDocument || isAudio || isVideo) && isSmallEnough;
         });
 
-        setUploading(true);
-        validFiles.forEach((file) => {
+        validFiles.forEach((file,index) => {
           const reader = new FileReader();
           reader.onload = () => {
-            if (file.type && file.type.split("/")[0] === "image") {
-              onCreateImage(validFiles);
+            if (file.type && file.type.split("/")[0] === "image") {   
+              onCreateImage(file);
             } else if (
               file.type &&
               (file.type.startsWith("application/pdf") ||
@@ -51,11 +52,11 @@ export default function Upload({
                 file.type.startsWith("application/vnd.ms-excel") ||
                 file.type.startsWith("application/vnd.ms-powerpoint"))
             ) {
-              onCreateDocument(validFiles);
+              onCreateDocument(file);
             } else if (file.type && file.type.split("/")[0] === "audio") {
-              onCreateMusic(validFiles);
+              onCreateMusic(file);
             } else if (file.type && file.type.split("/")[0] === "video") {
-              onCreateVideo(validFiles);
+              onCreateVideo(file);
             }
             URL.revokeObjectURL(reader.result);
           };
@@ -79,8 +80,9 @@ export default function Upload({
         aria-expanded={open ? "true" : undefined}
         onClick={(event) => setAnchorEl(event.currentTarget)}
       >
-        {"올리기"}
+        올리기
       </Button>
+      
       <Menu
         id="basic-menu"
         anchorEl={anchorEl}

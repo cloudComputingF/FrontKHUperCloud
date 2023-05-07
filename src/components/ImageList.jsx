@@ -1,88 +1,59 @@
 import * as React from "react";
 import ImageCard from "./ImageCard";
-import { useState } from "react";
-import Checkboxes from "./CheckBox";
-import {
-  Box,
-  CssBaseline,
-  AppBar,
-  Toolbar,
-  Drawer,
-  Divider,
-  Typography,
-} from "@mui/material";
-import Upload from "./Upload";
-export default function ImageList() {
-  const [imageUrls, setImageUrls] = useState([]);
-  const drawerWidth = 200;
-  const handleCreateContents = (files) => {
-    const validFiles = Array.from(files).filter((file) => {
-      const isImage = file.type && file.type.split("/")[0] === "image";
+import { useState, useEffect } from "react";
+import { Box, Typography } from "@mui/material";
 
-      return isImage;
-    });
-    const urls = validFiles.map((file) => URL.createObjectURL(file));
-   
-    setImageUrls((prevUrls) => [
-      ...urls.map((url, index) => ({
-        url,
-        fileName: validFiles[index].name,
-        fileSize: validFiles[index].size,
-      })),
-      ...prevUrls,
-    ]);
-    
+export default function ImageList({
+  imageUrls,
+  parentcheck,
+  childChecked,
+  onChildCheckboxChange,
+}) {
+  const [checkedImages, setCheckedImages] = useState({});
+
+  const handleChildCheckboxChange = (imgKey, isChecked) => {
+    setCheckedImages((prevState) => ({
+      ...prevState,
+      [imgKey]: isChecked,
+    }));
+    //console.log(isChecked);
+    onChildCheckboxChange(imgKey, isChecked);
   };
+  //childchecked 는 각각의 객체
+  useEffect(() => {
+    setCheckedImages(childChecked);
+    //console.log(checkedImages);
+  }, [childChecked]);
+
 
   return (
     <Box
-      component="main"
       sx={{
-        p: 3,
+        mt: 19,
         display: "flex",
-        maxWidth: "100%",
+        flexWrap: "wrap",
       }}
     >
-      <Box sx={{ position: "absolute", top: 80, left: 200, width: "85%" }}>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Checkboxes />
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              position: "relative",
-            }}
-          >
-            <Divider orientation="vertical" sx={{ height: "100%" }} />
-          </Box>
-          <Upload onCreateImage={handleCreateContents} />
-        </Box>
-        <Divider sx={{ my: 2 }} />
-      </Box>
-      <Box
-        sx={{
-          mt: 19,
-          display: "flex",
-          flexWrap: "wrap",
-        }}
-      >
-        {imageUrls.length > 0 ? (
-          imageUrls.map((image, index) => {
-            return (
-              <ImageCard
-                key={index}
-                imgUrl={image.url}
-                fileName={image.fileName}
-                fileSize={image.fileSize}
-              />
-            );
-          })
-        ) : (
-          <Typography variant="h6" component="h4" sx={{ mt: 25, ml: 80 }}>
-            저장된 파일이 없습니다.
-          </Typography>
-        )}
-      </Box>
+      {imageUrls.length > 0 ? (
+        imageUrls.map((image, index) => {
+          return (
+            <ImageCard
+              key={index}
+              imgKey={image.imgKey}
+              imgUrl={image.url}
+              fileName={image.fileName}
+              fileSize={image.fileSize}
+              checked={checkedImages[image.imgKey]?.checked || false}
+              onChildCheckboxChange={handleChildCheckboxChange}
+              parentcheck={parentcheck}
+            />
+          );
+        })
+      ) : (
+        <Typography variant="h6" component="h4" sx={{ mt: 25, ml: 60 }}>
+          저장된 파일이 없습니다.
+        </Typography>
+      )}
     </Box>
   );
 }

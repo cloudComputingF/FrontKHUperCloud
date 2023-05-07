@@ -10,16 +10,31 @@ import {
 } from "@mui/material";
 import CardHeader from "@mui/material/CardHeader";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import Checkboxes from "./CheckBox";
 import { styled } from "@mui/system";
-import { useState, useEffect,useRef} from "react";
+import { useState, useEffect } from "react";
+import ChildCheckboxes from "./ChildCheckbox";
 
-export default function ImageCard({ imgKey, imgUrl, fileName, fileSize }) {
+export default function ImageCard({
+  key,
+  imgKey,
+  imgUrl,
+  fileName,
+  fileSize,
+  parentcheck,
+  checked,
+  onChildCheckboxChange,
+}) {
   const [imageSrc, setImageSrc] = useState(imgUrl);
+  const [ischecked, setChecked] = useState(checked);
   useEffect(() => {
+    //console.log(ischecked);
     setImageSrc(imgUrl);
-  }, [imgUrl]);
+  }, [imgUrl, ischecked]);
 
+  const handleChildCheckboxChange = (imgKey, newChecked) => {
+    setChecked(newChecked);
+    onChildCheckboxChange(imgKey, newChecked);
+  };
   return (
     <Card
       key={imgKey}
@@ -27,11 +42,20 @@ export default function ImageCard({ imgKey, imgUrl, fileName, fileSize }) {
         maxWidth: 245,
         height: "150px",
         position: "relative",
-        m: 1,   
-         }}
+        m: 1,
+      }}
     >
       <CardHeader
-        avatar={<Checkboxes sx={{ paddingLeft: 0 }} />}
+        avatar={
+          <Box sx={{ display: "flex", alignItems: "center",marginLeft:1.5 }}>
+            <ChildCheckboxes
+              imgKey={imgKey}
+              parentcheck={parentcheck}
+              checked={ischecked}
+              onChange={handleChildCheckboxChange}
+            />
+          </Box>
+        }
         sx={{
           position: "absolute",
           display: "flex",
@@ -49,13 +73,21 @@ export default function ImageCard({ imgKey, imgUrl, fileName, fileSize }) {
           padding: "4px",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <Typography sx={{ color: "white", fontSize: "15px", textAlign: "center" }}>
-          {fileName}
-        </Typography>
-        <Typography sx={{ color: "white", fontSize: "10px", textAlign: "center" }}>{`${(
-          fileSize / 1024
-        ).toFixed(2)}KB`}</Typography>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Typography
+            sx={{ color: "white", fontSize: "15px", textAlign: "center" }}
+          >
+            {fileName}
+          </Typography>
+          <Typography
+            sx={{ color: "white", fontSize: "10px", textAlign: "center" }}
+          >{`${(fileSize / 1024).toFixed(2)}KB`}</Typography>
         </div>
       </CardContent>
       <CardMedia
@@ -67,8 +99,10 @@ export default function ImageCard({ imgKey, imgUrl, fileName, fileSize }) {
         }}
         image={imageSrc}
       ></CardMedia>
-      <CardActions sx={{ position: "absolute",display: "flex", bottom: -10, right: -10}}>
-        <IconButton aria-label="add to favorites" >
+      <CardActions
+        sx={{ position: "absolute", display: "flex", bottom: -10, right: -10 }}
+      >
+        <IconButton aria-label="add to favorites">
           <FavoriteIcon color="white" />
         </IconButton>
       </CardActions>
