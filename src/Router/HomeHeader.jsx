@@ -30,25 +30,17 @@ export default function HomeHeader() {
           sx={{ display: "flex", alignItems: "center", textDecoration: "none" }}
         >
           <Link to="/" sx={{ textDecoration: "none", color: "black" }}>
-            <div
+            <img
+              src="/images/Logo.PNG"
+              alt="Cloud Icon"
               style={{
-                display: "flex",
-                alignItems: "center",
-                marginRight: "2rem",
-                textDecoration: "none",
+                width: "220px",
+                height: "100px",
+                marginLeft: "-1rem",
+                marginRight: "3rem",
+                fill: "black",
               }}
-            >
-              <CloudIcon
-                sx={{ fontSize: "5rem", marginRight: "0.5rem", fill: "black" }}
-              />
-              <Typography
-                variant="h6"
-                noWrap
-                sx={{ display: "flex", alignItems: "center", color: "black" }}
-              >
-                KHUperCLOUD
-              </Typography>
-            </div>
+            />
           </Link>
           <Link
             to="/Intro"
@@ -68,8 +60,8 @@ export default function HomeHeader() {
               display: "flex",
               alignItems: "center",
               color: "blue",
-              marginLeft:700,
-              marginRight:30
+              marginLeft: 700,
+              marginRight: 30,
             }}
           >
             KHUperCLOUD 바로가기

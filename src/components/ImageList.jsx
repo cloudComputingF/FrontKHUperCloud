@@ -16,13 +16,13 @@ export default function ImageList({
       ...prevState,
       [imgKey]: isChecked,
     }));
-    //console.log(isChecked);
+
     onChildCheckboxChange(imgKey, isChecked);
   };
   //childchecked 는 각각의 객체
   useEffect(() => {
     setCheckedImages(childChecked);
-    //console.log(checkedImages);
+    
   }, [childChecked]);
 
 

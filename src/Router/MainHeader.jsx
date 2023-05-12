@@ -27,7 +27,7 @@ export default function Header({ setMobileOpen }) {
       <Box sx={{ flexGrow: 1 }} />
       <Link to="/">
         <Button variant="contained" color="inherit">
-          Log Out
+          로그아웃
         </Button>
       </Link>
     </Toolbar>

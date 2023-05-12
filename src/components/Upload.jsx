@@ -23,15 +23,22 @@ export default function Upload({
       setUploading(true);
       if (acceptedFiles[0].type === "") {
         onCreateFolder(acceptedFiles);
-        setUploading(false);  
+        setUploading(false);
       } else {
         const validFiles = acceptedFiles.filter((file) => {
           const isImage = file.type && file.type.split("/")[0] === "image";
           const isDocument =
             file.type &&
             (file.type.startsWith("application/pdf") ||
+              file.name.endsWith(".doc") ||
+              file.name.endsWith(".docx") ||
               file.type.startsWith("application/msword") ||
               file.type.startsWith("application/vnd.ms-excel") ||
+              file.name.endsWith(".xls") ||
+              file.name.endsWith(".xlsx") ||
+              file.name.endsWith(".csv") ||
+              file.name.endsWith(".ppt") ||
+                file.name.endsWith(".pptx") ||
               file.type.startsWith("application/vnd.ms-powerpoint"));
           const isAudio = file.type && file.type.split("/")[0] === "audio";
           const isVideo = file.type && file.type.split("/")[0] === "video";
@@ -40,16 +47,23 @@ export default function Upload({
           return (isImage || isDocument || isAudio || isVideo) && isSmallEnough;
         });
 
-        validFiles.forEach((file,index) => {
+        validFiles.forEach((file, index) => {
           const reader = new FileReader();
           reader.onload = () => {
-            if (file.type && file.type.split("/")[0] === "image") {   
+            if (file.type && file.type.split("/")[0] === "image") {
               onCreateImage(file);
             } else if (
               file.type &&
               (file.type.startsWith("application/pdf") ||
+                file.name.endsWith(".doc") ||
+                file.name.endsWith(".docx") ||
                 file.type.startsWith("application/msword") ||
                 file.type.startsWith("application/vnd.ms-excel") ||
+                file.name.endsWith(".xls") ||
+                file.name.endsWith(".xlsx") ||
+                file.name.endsWith(".csv") ||
+                file.name.endsWith(".ppt") ||
+                file.name.endsWith(".pptx") ||
                 file.type.startsWith("application/vnd.ms-powerpoint"))
             ) {
               onCreateDocument(file);
@@ -82,7 +96,7 @@ export default function Upload({
       >
         올리기
       </Button>
-      
+
       <Menu
         id="basic-menu"
         anchorEl={anchorEl}

@@ -19,7 +19,7 @@ import Button from "@mui/material/Button";
 import DocumentList from "../components/DocumentList"
 
 
-function MainPage({ window }) {
+function DocumentPage({ window }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const drawerWidth = 200;
   const [imageUrls, setImageUrls] = useState([]);
@@ -29,10 +29,10 @@ function MainPage({ window }) {
   const [parentChecked, setParentChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
 
-  const handleChildCheckboxChange = (imgKey, newChecked) => {
+  const handleChildCheckboxChange = (docKey, newChecked) => {
     setChildChecked((prevChecked) => ({
       ...prevChecked,
-      [imgKey.toString()]: { checked: newChecked, value: "some value" },
+      [docKey.toString()]: { checked: newChecked, value: "some value" },
     }));
     const allChecked = Object.values(childChecked).every(
       (checked) => checked.checked
@@ -54,8 +54,8 @@ function MainPage({ window }) {
     const newChecked = event.target.checked;
     //각각  imgkey,bool 값 할당
     const newChildChecked = Object.keys(childChecked).reduce(
-      (result, imgKey) => {
-        result[imgKey] = newChecked;
+      (result, docKey) => {
+        result[docKey] = newChecked;
         return result;
       },
       {}
@@ -63,8 +63,8 @@ function MainPage({ window }) {
     //console.log(newChildChecked);
 
     //변화된 child값 함수 호출 해서 변화
-    Object.keys(newChildChecked).forEach((imgKey) => {
-      handleChildCheckboxChange(imgKey, newChecked);
+    Object.keys(newChildChecked).forEach((docKey) => {
+      handleChildCheckboxChange(docKey, newChecked);
     });
 
     // Update state variables
@@ -89,15 +89,23 @@ function MainPage({ window }) {
       (key) => childChecked[key].checked
     );
     checkedKeys.forEach((key) => {
-      const imageData = imageUrls.find((image) => image.imgKey === key);
-      if (imageData) {
+      const documentData = documentUrls.find(
+        (document) => document.docKey === key
+      );
+      if (documentData) {
         const downloadLink = document.createElement("a");
-        downloadLink.href = imageData.url;
-        downloadLink.download = imageData.fileName;
+        downloadLink.href = documentData.url;
+        downloadLink.target = "_blank"; // Open in a new tab/window
+        downloadLink.download = documentData.fileName;
+  
+        // Trigger the download link
+        document.body.appendChild(downloadLink);
         downloadLink.click();
+        document.body.removeChild(downloadLink);
       }
     });
   };
+  
   //childcheck 상태 기반 부수효과
   useEffect(() => {
     const allChecked =
@@ -198,15 +206,6 @@ function MainPage({ window }) {
             >
               <Divider orientation="vertical" sx={{ height: "100%" }} />
               <Upload
-                onCreateImage={(file) => {
-                  const imageData = {
-                    url: URL.createObjectURL(file),
-                    fileName: file.name,
-                    fileSize: file.size,
-                    imgKey: `img-${Date.now()}`,
-                  };
-                  setImageUrls((prevUrls) => [...prevUrls, imageData]);
-                }}
                 onCreateDocument={(file) => {
                   const documentData = {
                     url: URL.createObjectURL(file),
@@ -241,20 +240,26 @@ function MainPage({ window }) {
             flexWrap: "wrap",
           }}
         >
-        
+        {/*
           <ImageList
             imageUrls={imageUrls}
             parentcheck={selfcheck}
             childChecked={childChecked}
             onChildCheckboxChange={handleChildCheckboxChange}
-        />
+        />*/}
+          <DocumentList
+          documentUrls={documentUrls}
+          parentcheck={selfcheck}
+          childChecked={childChecked}
+          onChildCheckboxChange={handleChildCheckboxChange}
+          />
         </Box>
       </Box>
     </Box>
   );
 }
 
-MainPage.propTypes = {
+DocumentPage.propTypes = {
   /**
    * Injected by the documentation to work in an iframe.
    * You won't need it on your project.
@@ -262,4 +267,4 @@ MainPage.propTypes = {
   window: PropTypes.func,
 };
 
-export default MainPage;
+export default DocumentPage;

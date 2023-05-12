@@ -13,9 +13,9 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import { styled } from "@mui/system";
 import { useState, useEffect } from "react";
 import ChildCheckboxes from "./ChildCheckbox";
-
+import Modal from "./Modal";
+import ImageViewer from "./DocumentViewer/ImageViewer";
 export default function ImageCard({
-  key,
   imgKey,
   imgUrl,
   fileName,
@@ -26,6 +26,16 @@ export default function ImageCard({
 }) {
   const [imageSrc, setImageSrc] = useState(imgUrl);
   const [ischecked, setChecked] = useState(checked);
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedImgUrl, setSelectedImgUrl] = useState(null);
+  
+  const handleModalClose = () => {
+    setOpenModal(false);
+  };
+  const handleCardClick = () => {
+    setSelectedImgUrl(imgUrl);
+    setOpenModal(true);
+  };
   useEffect(() => {
     //console.log(ischecked);
     setImageSrc(imgUrl);
@@ -35,7 +45,14 @@ export default function ImageCard({
     setChecked(newChecked);
     onChildCheckboxChange(imgKey, newChecked);
   };
+  
   return (
+    <div>
+       {openModal && (
+        <Modal filename={fileName} url={imgUrl} open={openModal} onClose={handleModalClose}>
+          <ImageViewer imgUrl={selectedImgUrl} />
+        </Modal>
+      )}
     <Card
       key={imgKey}
       sx={{
@@ -43,7 +60,9 @@ export default function ImageCard({
         height: "150px",
         position: "relative",
         m: 1,
+        cursor: "pointer",
       }}
+      onClick={handleCardClick}
     >
       <CardHeader
         avatar={
@@ -107,5 +126,6 @@ export default function ImageCard({
         </IconButton>
       </CardActions>
     </Card>
+    </div>
   );
 }

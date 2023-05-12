@@ -25,7 +25,8 @@ const listItemStyle = {
   alignItems: "center",
 };
 
-const SideBar = (
+export default function SideBar(){
+  return(
   <>
     <Link
       to="/"
@@ -34,29 +35,20 @@ const SideBar = (
         display: "flex",
         alignItems: "center",
         color: "black",
-        width: "100px",
+        width: "200px",
         height: "150px",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          marginLeft: 20,
-          marginTop: -15,
-        }}
-      >
-        <Cloud
-          style={{
-            width: "100px",
-            height: "100px",
-            marginTop: 7,
-          }}
-        />
-        <Typography variant="h15" style={{ marginTop: 10, marginLeft: "7px" }}>
-          KHUper CLOUD
-        </Typography>
-      </div>
+     <img
+              src="/images/Logo.PNG"
+              alt="Cloud Icon"
+              style={{
+                width: "220px",
+                height: "100px",
+                marginLeft: "-0.5rem",
+                fill: "black",
+              }}
+            />
     </Link>
     <Toolbar sx={{ mt: -8 }} />
     <Divider />
@@ -85,18 +77,6 @@ const SideBar = (
           />
         </ListItemButton>
       </ListItem>
-      {/*동영상*/}
-      <ListItem disablePadding sx={listItemStyle}>
-        <ListItemButton sx={{ py: "7px" }}>
-          <ListItemIcon>
-            <LiveTv />
-          </ListItemIcon>
-          <ListItemText
-            primary="동영상"
-            sx={{ textAlign: "center", marginLeft: "-32px" }}
-          />
-        </ListItemButton>
-      </ListItem>
       {/*문서*/}
       <ListItem disablePadding sx={listItemStyle}>
         <ListItemButton sx={{ py: "7px" }}>
@@ -105,6 +85,18 @@ const SideBar = (
           </ListItemIcon>
           <ListItemText
             primary="문서"
+            sx={{ textAlign: "center", marginLeft: "-32px" }}
+          />
+        </ListItemButton>
+      </ListItem>
+      {/*동영상*/}
+      <ListItem disablePadding sx={listItemStyle}>
+        <ListItemButton sx={{ py: "7px" }}>
+          <ListItemIcon>
+            <LiveTv />
+          </ListItemIcon>
+          <ListItemText
+            primary="동영상"
             sx={{ textAlign: "center", marginLeft: "-32px" }}
           />
         </ListItemButton>
@@ -150,5 +142,6 @@ const SideBar = (
       </ListItem>
     </List>
   </>
-);
-export default SideBar;
+  );
+        }
+
