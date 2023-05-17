@@ -7,11 +7,13 @@ import MainPage from './Router/MainPage';
 import PdfViewer from './components/DocumentViewer/PdfViewer';
 import DocumentPage from './Router/DocumentPage';
 import SignupForm from './Router/SignUp';
+import SignIn from './Router/SignIn';
 const router=createBrowserRouter([
   {path:'/',element:<HomePage/>},
   {path:'/Intro',element:<IntroPage/>},
   {path:'/Main',element:<DocumentPage/>},
-  {path:'/Sign',element:<SignupForm/>},
+  {path:'/SignUp',element:<SignupForm/>},
+  {path:'/SignIn',element:<SignIn/>},
 ])
 
 ReactDOM.createRoot(document.getElementById('root')).render(

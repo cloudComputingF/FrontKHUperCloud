@@ -134,7 +134,7 @@ function SignupForm() {
               </label>
             </div>
             <div className="mb-4"></div>
-            <button className="btn btn-primary btn-lg btn-block" type="submit">SIGN UP</button>
+            <button className="btn btn-primary btn-lg btn-block" type="submit">회원가입</button>
           </form>
         </div>
       </div>

@@ -3,7 +3,7 @@
     img{   
         display: block;
         margin: 0px auto;
-        margin-top: 20%;
+        margin-top: 10%;
         margin-left: 33%;
        }
 
@@ -23,10 +23,10 @@
     }  
 
     .btn {
-        background-color: #3a5fd7;
+        
         border-radius: 20px;
         border: 1px solid #3a5fd7;
-        background-color: #3a5fd7;
+        background-color: #1b71e1;
         color: #FFFFFF;
         font-size: 17px;
         font-weight: bold;
