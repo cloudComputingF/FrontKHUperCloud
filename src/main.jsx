@@ -6,10 +6,12 @@ import IntroPage from './Router/IntroPage'
 import MainPage from './Router/MainPage';
 import PdfViewer from './components/DocumentViewer/PdfViewer';
 import DocumentPage from './Router/DocumentPage';
+import SignupForm from './Router/SignUp';
 const router=createBrowserRouter([
   {path:'/',element:<HomePage/>},
   {path:'/Intro',element:<IntroPage/>},
   {path:'/Main',element:<DocumentPage/>},
+  {path:'/Sign',element:<SignupForm/>},
 ])
 
 ReactDOM.createRoot(document.getElementById('root')).render(
