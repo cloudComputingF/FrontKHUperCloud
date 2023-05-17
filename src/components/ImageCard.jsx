@@ -47,7 +47,9 @@ export default function ImageCard({
   };
   
   return (
+
     <div>
+      console.log("m");
        {openModal && (
         <Modal filename={fileName} url={imgUrl} open={openModal} onClose={handleModalClose}>
           <ImageViewer imgUrl={selectedImgUrl} />
