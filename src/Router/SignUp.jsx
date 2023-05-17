@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-//import "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css";
-// import "./SignUp.css"
+import "./SignUp.css"
 
 function SignupForm() {
   const [name, setName] = useState('');
@@ -42,7 +41,10 @@ function SignupForm() {
   };
 
   return (
+    
+  
     <div className="container">
+      <img className="images" src="/images/Logo.PNG" alt="Cloud Icon" />
       <div className="input-form-backgroud row">
         <div className="input-form col-md-12 mx-auto">
           <h4 className="mb-3">회원가입</h4>
