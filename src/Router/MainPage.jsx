@@ -32,7 +32,7 @@ function MainPage({ window }) {
   const handleChildCheckboxChange = (imgKey, newChecked) => {
     setChildChecked((prevChecked) => ({
       ...prevChecked,
-      [imgKey.toString()]: { checked: newChecked, value: "some value" },
+      [imgKey]: { checked: newChecked, value: "some value" },
     }));
     const allChecked = Object.values(childChecked).every(
       (checked) => checked.checked
@@ -80,7 +80,33 @@ function MainPage({ window }) {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-
+  const handleUpload = async (file) => {
+    const imageData = new FormData();
+    imageData.append('url', URL.createObjectURL(file));
+  
+    try {
+      const response = await fetch('http://43.207.224.148:8000/upload/file', {
+        method: 'POST',
+        body: imageData,
+      });
+  
+      if (!response.ok) {
+        throw new Error('Image upload failed.');
+      }
+  
+      const newImageData = {
+        url: URL.createObjectURL(file),
+        fileName: file.name,
+        fileSize: file.size,
+        imgKey: `img-${Date.now()}`,
+      };
+  
+      setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
+  };
+  
   {
     /*체크된 이미지 다운로드 */
   }
@@ -198,24 +224,7 @@ function MainPage({ window }) {
             >
               <Divider orientation="vertical" sx={{ height: "100%" }} />
               <Upload
-                onCreateImage={(file) => {
-                  const imageData = {
-                    url: URL.createObjectURL(file),
-                    fileName: file.name,
-                    fileSize: file.size,
-                    imgKey: `img-${Date.now()}`,
-                  };
-                  setImageUrls((prevUrls) => [...prevUrls, imageData]);
-                }}
-                onCreateDocument={(file) => {
-                  const documentData = {
-                    url: URL.createObjectURL(file),
-                    fileName: file.name,
-                    fileSize: file.size,
-                    docKey: `doc-${Date.now()}`,
-                  };
-                  setDocumentUrls((prevUrls)=>[...prevUrls,documentData])
-                }}
+                onCreateImage={handleUpload}
               />
               <Button sx={{ marginTop: 0.3, marginLeft: 1 }} variant="outlined">
                 새폴더

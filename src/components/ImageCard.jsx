@@ -75,6 +75,7 @@ export default function ImageCard({
             />
           </Box>
         }
+        onClick={(event) => event.stopPropagation()} 
         sx={{
           position: "absolute",
           display: "flex",

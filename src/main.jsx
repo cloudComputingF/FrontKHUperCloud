@@ -9,7 +9,7 @@ import DocumentPage from './Router/DocumentPage';
 const router=createBrowserRouter([
   {path:'/',element:<HomePage/>},
   {path:'/Intro',element:<IntroPage/>},
-  {path:'/Main',element:<DocumentPage/>},
+  {path:'/Main',element:<MainPage/>},
 ])
 
 ReactDOM.createRoot(document.getElementById('root')).render(

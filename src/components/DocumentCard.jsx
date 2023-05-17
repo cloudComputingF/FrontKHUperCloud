@@ -100,6 +100,7 @@ export default function DocumentCard({
               />
             </Box>
           }
+          onClick={(event) => event.stopPropagation()} 
           sx={{
             position: "absolute",
             display: "flex",
