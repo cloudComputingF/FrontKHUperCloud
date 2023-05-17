@@ -1,6 +1,13 @@
 
     
-    img{   
+    /* img{   
+        display: block;
+        margin: 0px auto;
+        margin-top: 10%;
+        margin-left: 33%;
+       } */
+
+       .SignUpImage{
         display: block;
         margin: 0px auto;
         margin-top: 10%;

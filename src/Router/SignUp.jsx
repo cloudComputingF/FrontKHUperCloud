@@ -44,7 +44,9 @@ function SignupForm() {
     
   
     <div className="container">
-      <img className="images" src="/images/Logo.PNG" alt="Cloud Icon" />
+      <div className="SignUpImage">
+      <img src="/images/Logo.PNG" alt="Cloud Icon" />
+      </div>
       <div className="input-form-backgroud row">
         <div className="input-form col-md-12 mx-auto">
           <h4 className="mb-3">회원가입</h4>

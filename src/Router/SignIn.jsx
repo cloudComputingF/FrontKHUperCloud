@@ -105,9 +105,9 @@ export default function SignIn() {
     if(id == User.Id && password == User.Pw) {
           document.location.href = '/Main'
         
-        } else {
+    } else {
             alert('등록되지 않은 회원입니다.')
-        }
+      }
   }; 
 
   return (
