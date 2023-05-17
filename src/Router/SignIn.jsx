@@ -103,11 +103,11 @@ export default function SignIn() {
     //현재 더미 데이터로 임의 연결, 추후 백엔드와 연결할 로직
     //로그인 아이디,비번은 상단의 유저 데이터
     if(id == User.Id && password == User.Pw) {
-          document.location.href = '/Main'
+          document.location.href = '/Doc'
         
-        } else {
+    } else {
             alert('등록되지 않은 회원입니다.')
-        }
+      }
   }; 
 
   return (
