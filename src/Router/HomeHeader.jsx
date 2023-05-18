@@ -67,10 +67,20 @@ export default function HomeHeader() {
             KHUperCLOUD 바로가기
           </Link>
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button sx={{ color: "black", fontSize: 15 }}>로그인</Button>
+          <Link
+            to="SignIn">
+            <Button sx={{ color: "black", fontSize: 15 }}>
+              로그인
+            </Button>
+            </Link>
+
+            <Link
+            to="/SignUp">
             <Button sx={{ color: "black", marginLeft: "1rem", fontSize: 15 }}>
               회원가입
             </Button>
+
+            </Link>
           </Box>
         </Box>
       </Toolbar>

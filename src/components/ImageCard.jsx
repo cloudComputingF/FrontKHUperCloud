@@ -28,7 +28,7 @@ export default function ImageCard({
   const [ischecked, setChecked] = useState(checked);
   const [openModal, setOpenModal] = useState(false);
   const [selectedImgUrl, setSelectedImgUrl] = useState(null);
-  
+  console.log("merge");
   const handleModalClose = () => {
     setOpenModal(false);
   };
@@ -47,7 +47,9 @@ export default function ImageCard({
   };
   
   return (
+
     <div>
+      console.log("m");
        {openModal && (
         <Modal filename={fileName} url={imgUrl} open={openModal} onClose={handleModalClose}>
           <ImageViewer imgUrl={selectedImgUrl} />

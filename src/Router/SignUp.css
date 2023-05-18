@@ -1,0 +1,45 @@
+
+    
+    /* img{   
+        display: block;
+        margin: 0px auto;
+        margin-top: 10%;
+        margin-left: 33%;
+       } */
+
+       .SignUpImage{
+        display: block;
+        margin: 0px auto;
+        margin-top: 10%;
+        margin-left: 33%;
+       }
+
+    .input-form {
+        margin-top: 3%;
+        margin-bottom: 20%;
+
+       max-width: 70%;
+        padding: 32px; 
+       background: #fff;
+      -webkit-border-radius: 10px;
+      -moz-border-radius: 10px;
+      border-radius: 10px;
+      -webkit-box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.15);
+      -moz-box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.15);
+      box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.15) 
+    }  
+
+    .btn {
+        
+        border-radius: 20px;
+        border: 1px solid #3a5fd7;
+        background-color: #1b71e1;
+        color: #FFFFFF;
+        font-size: 17px;
+        font-weight: bold;
+        padding: 12px 45px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        transition: transform 80ms ease-in;
+        
+    }
