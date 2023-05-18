@@ -34,7 +34,7 @@ const onClickLogin = () => {
     console.log('click login')
     console.log('ID : ', inputId)
     console.log('PW : ', inputPw)
-    axios.post('/api/login/local', {
+    axios.post('http://43.207.224.148:8000/api/login/local', { //백으로 요청
         'user_id': id,
         'user_pw': password
     })
@@ -56,7 +56,7 @@ const onClickLogin = () => {
             console.log('======================','로그인 성공')
             sessionStorage.setItem('user_id', inputId)
         }
-        // 작업 완료 되면 페이지 이동(새로고침)
+        // 작업 완료 되면 Main페이지 이동
         document.location.href = '/Main'
     })
     .catch()
@@ -126,7 +126,7 @@ export default function SignIn() {
             <img src="/images/Logo.PNG" alt="Cloud Icon" />
           </div>
           
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}> 
             <TextField
               onChange={handleInputId}
               margin="normal"
