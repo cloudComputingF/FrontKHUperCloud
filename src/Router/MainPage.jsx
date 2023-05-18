@@ -16,8 +16,7 @@ import ImageList from "../components/ImageList";
 import Upload from "../components/Upload";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Button from "@mui/material/Button";
-import DocumentList from "../components/DocumentList"
-
+import DocumentList from "../components/DocumentList";
 
 function MainPage({ window }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -80,9 +79,16 @@ function MainPage({ window }) {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
+
+  {/*이미지 업로드*/}
   const handleUpload = async (file) => {
     const imageData = new FormData();
-    imageData.append('url', URL.createObjectURL(file));
+    const imgKey = `img-${Date.now()}`; // Unique key for the image
+  
+    imageData.append('key', imgKey);
+    imageData.append('dir', '/Main');
+    imageData.append('file', file); // Append the file directly, not the object URL
   
     try {
       const response = await fetch('http://43.207.224.148:8000/upload/file', {
@@ -94,36 +100,38 @@ function MainPage({ window }) {
         throw new Error('Image upload failed.');
       }
   
+      const responseData = await response.json(); // Parse the response data as JSON
       const newImageData = {
-        url: URL.createObjectURL(file),
+        url: responseData.url, // Use the URL returned by the server
         fileName: file.name,
         fileSize: file.size,
-        imgKey: `img-${Date.now()}`,
+        imgKey: imgKey,
       };
   
       setImageUrls((prevUrls) => [...prevUrls, newImageData]);
     } catch (error) {
       console.error('Error uploading image:', error);
+      // Additional error handling if needed
     }
   };
   
+
   {
     /*체크된 이미지 다운로드 */
   }
-  const handleDownload = () => {
-    const checkedKeys = Object.keys(childChecked).filter(
-      (key) => childChecked[key].checked
-    );
-    checkedKeys.forEach((key) => {
-      const imageData = imageUrls.find((image) => image.imgKey === key);
-      if (imageData) {
-        const downloadLink = document.createElement("a");
-        downloadLink.href = imageData.url;
-        downloadLink.download = imageData.fileName;
-        downloadLink.click();
-      }
-    });
-  };
+ const handleDownload = () => {
+  const checkedKeys = Object.keys(childChecked).filter(
+    (key) => childChecked[key].checked
+  );
+  checkedKeys.forEach((key) => {
+    const imageData = imageUrls.find((image) => image.imgKey === key);
+    if (imageData) {
+      const fileName = 'test.txt'; // Set the desired file name
+      const downloadUrl = `http://43.207.224.148:8000/download/file?file_name=${encodeURIComponent(fileName)}`; // Construct the download URL
+      window.open(downloadUrl); // Open the download URL in a new window/tab
+    }
+  });
+};
   //childcheck 상태 기반 부수효과
   useEffect(() => {
     const allChecked =
@@ -223,9 +231,7 @@ function MainPage({ window }) {
               }}
             >
               <Divider orientation="vertical" sx={{ height: "100%" }} />
-              <Upload
-                onCreateImage={handleUpload}
-              />
+              <Upload onCreateImage={handleUpload} />
               <Button sx={{ marginTop: 0.3, marginLeft: 1 }} variant="outlined">
                 새폴더
               </Button>
@@ -250,13 +256,12 @@ function MainPage({ window }) {
             flexWrap: "wrap",
           }}
         >
-        
           <ImageList
             imageUrls={imageUrls}
             parentcheck={selfcheck}
             childChecked={childChecked}
             onChildCheckboxChange={handleChildCheckboxChange}
-        />
+          />
         </Box>
       </Box>
     </Box>
