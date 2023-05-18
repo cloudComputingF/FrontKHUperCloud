@@ -68,7 +68,7 @@ export default function HomeHeader() {
           </Link>
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
           <Link
-            to="SignIn">
+            to="/SignIn">
             <Button sx={{ color: "black", fontSize: 15 }}>
               로그인
             </Button>
