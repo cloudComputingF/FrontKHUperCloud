@@ -28,7 +28,7 @@ function MainPage({ window }) {
   const [parentChecked, setParentChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedOption, setSelectedOption] = useState("all");
-  console.log(selectedOption);
+  
   const handleAllFilesClick = () => {
     setSelectedOption("all");
   };
