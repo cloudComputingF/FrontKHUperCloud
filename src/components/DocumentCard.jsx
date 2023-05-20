@@ -13,7 +13,6 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import { styled } from "@mui/system";
 import { useState, useEffect } from "react";
 import ChildCheckboxes from "./ChildCheckbox";
-import PDFViewer from "./DocumentViewer/PdfViewer";
 import Modal from "./Modal";
 export default function DocumentCard({
   docKey,
@@ -32,7 +31,7 @@ export default function DocumentCard({
     fileName.endsWith(".docx") ||
     fileName.startsWith("application/msword")
   ) {
-    images = "/images/Word.PNG";
+    images = "/images/Word.png";
   } else if (
     fileName.endsWith(".xls") ||
     fileName.endsWith(".xlsx") ||
@@ -68,12 +67,12 @@ export default function DocumentCard({
     onChildCheckboxChange(docKey, newChecked);
   };
 
+const isimage=false;
 
   return (
     <div>
       {openModal && (
-        <Modal filename={fileName} url={docUrl} open={openModal} onClose={handleModalClose}>
-          <PDFViewer docUrl={selectedDocumentUrl} />
+        <Modal filename={fileName} url={docUrl} open={openModal} onClose={handleModalClose} isimage={isimage}>
         </Modal>
       )}
       <Card
