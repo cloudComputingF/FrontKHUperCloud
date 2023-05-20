@@ -16,7 +16,7 @@ function ChildCheckboxes({ imgKey,docKey, checked, onChange,parentcheck }) {
       onChange(docKey, newChecked);
     }
   };
-  
+
   useEffect(() => {
     setIsChecked(parentcheck);
   }, [parentcheck]);
@@ -34,6 +34,5 @@ function ChildCheckboxes({ imgKey,docKey, checked, onChange,parentcheck }) {
     />
   );
 }
-
 
 export default ChildCheckboxes;

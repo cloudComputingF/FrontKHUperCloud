@@ -84,7 +84,6 @@ const isimage=false;
           m: 1,
           cursor: "pointer",
         }}
-        onClick={handleCardClick}
       >
         <CardHeader
           avatar={
@@ -99,7 +98,7 @@ const isimage=false;
               />
             </Box>
           }
-          onClick={(event) => event.stopPropagation()} 
+          //onClick={(event) => event.stopPropagation()} 
           sx={{
             position: "absolute",
             display: "flex",
@@ -143,6 +142,7 @@ const isimage=false;
             marginTop: "-10px",
           }}
           image={images}
+          onClick={handleCardClick}
         ></CardMedia>
         <CardActions
           sx={{

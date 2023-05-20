@@ -28,6 +28,7 @@ export default function ImageCard({
   const [ischecked, setChecked] = useState(checked);
   const [openModal, setOpenModal] = useState(false);
   const [selectedImgUrl, setSelectedImgUrl] = useState(null);
+
   const handleModalClose = () => {
     setOpenModal(false);
   };
@@ -81,6 +82,7 @@ export default function ImageCard({
           padding: "0px 0px",
         }}
       />
+       
       <CardContent
         sx={{
           position: "absolute",
@@ -90,6 +92,7 @@ export default function ImageCard({
           bgcolor: "rgba(0, 0, 0, 0.6)",
           padding: "4px",
         }}
+       
       >
         <div
           style={{
@@ -97,6 +100,7 @@ export default function ImageCard({
             flexDirection: "column",
             alignItems: "center",
           }}
+          
         >
           <Typography
             sx={{ color: "white", fontSize: "15px", textAlign: "center" }}
@@ -117,6 +121,7 @@ export default function ImageCard({
         }}
         onClick={handleCardClick}
         image={imageSrc}
+        
       ></CardMedia>
       <CardActions
         sx={{ position: "absolute", display: "flex", bottom: -10, right: -10 }}

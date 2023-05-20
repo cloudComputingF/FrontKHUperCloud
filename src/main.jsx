@@ -6,6 +6,7 @@ import IntroPage from './Router/IntroPage'
 import MainPage from './Router/MainPage';
 import SignupForm from './Router/SignUp';
 import SignIn from './Router/SignIn';
+
 const router=createBrowserRouter([
   {path:'/',element:<HomePage/>},
   {path:'/Intro',element:<IntroPage/>},
@@ -16,6 +17,6 @@ const router=createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router}/>
+     <RouterProvider router={router}/>
   </React.StrictMode>
 )

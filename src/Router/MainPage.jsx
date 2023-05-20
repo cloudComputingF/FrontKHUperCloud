@@ -94,6 +94,10 @@ function MainPage({ window }) {
     setMobileOpen(!mobileOpen);
   };
 
+
+
+
+  {/*서버에 보낼 함수*/}
   const handleUpload = (file) => {
     if (file.type.includes("image")) {
       const imageData = {
@@ -121,11 +125,14 @@ function MainPage({ window }) {
         url: URL.createObjectURL(file),
         fileName: file.name,
         fileSize: file.size,
-        docKey: `doc-${Date.now()}`,
+        imgKey: imgKey,
       };
-
-      setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
+  
+      setImageUrls((prevUrls) => [...prevUrls, newImageData]);
     }
+   };
+ 
+  
   };
 
   {
@@ -152,10 +159,7 @@ function MainPage({ window }) {
 
 */
 
-  {
-    /*체크된 이미지 다운로드 */
-  }
-
+ 
   {
     /*서버 파일 다운로드 */
   }
@@ -315,12 +319,12 @@ function MainPage({ window }) {
               />
             </>
           ) : selectedOption === "photo" ? (
-            <ImageList
-              imageUrls={imageUrls}
-              parentcheck={selfcheck}
-              childChecked={childChecked}
-              onChildCheckboxChange={handleChildCheckboxChange}
-            />
+          <ImageList
+            imageUrls={imageUrls}
+            parentcheck={selfcheck}
+            childChecked={childChecked}
+            onChildCheckboxChange={handleChildCheckboxChange}
+          />
           ) : (
             <DocumentList
               documentUrls={documentUrls}
@@ -333,7 +337,7 @@ function MainPage({ window }) {
       </Box>
     </Box>
   );
-}
+
 
 MainPage.propTypes = {
   /**

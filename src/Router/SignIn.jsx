@@ -1,11 +1,11 @@
-// import * as React from 'react';
+//import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
+import { Link } from "react-router-dom";
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -18,7 +18,7 @@ function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
+      <Link to="https://mui.com/" color="inherit">
         Your Website
       </Link>{' '}
       {new Date().getFullYear()}
@@ -165,12 +165,12 @@ export default function SignIn() {
             </Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
+                <Link to="#" variant="body2">
                   비밀번호 찾기
                 </Link>
               </Grid>
               <Grid item>
-                <Link href ="/SignUp" variant="body2">
+                <Link to ="/SignUp" variant="body2">
                   {"회원가입"}
                 </Link>
               </Grid>
