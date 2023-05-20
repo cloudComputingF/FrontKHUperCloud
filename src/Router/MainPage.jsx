@@ -28,7 +28,7 @@ function MainPage({ window }) {
   const [parentChecked, setParentChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedOption, setSelectedOption] = useState("all");
-  
+
   const handleAllFilesClick = () => {
     setSelectedOption("all");
   };
@@ -42,7 +42,6 @@ function MainPage({ window }) {
   };
 
   const handleChildCheckboxChange = (imgKey, newChecked) => {
-
     setChildChecked((prevChecked) => ({
       ...prevChecked,
       [imgKey.toString()]: { checked: newChecked, value: "some value" },
@@ -94,10 +93,9 @@ function MainPage({ window }) {
     setMobileOpen(!mobileOpen);
   };
 
-
-
-
-  {/*서버에 보낼 함수*/}
+  {
+    /*서버에 보낼 함수*/
+  }
   const handleUpload = (file) => {
     if (file.type.includes("image")) {
       const imageData = {
@@ -125,14 +123,11 @@ function MainPage({ window }) {
         url: URL.createObjectURL(file),
         fileName: file.name,
         fileSize: file.size,
-        imgKey: imgKey,
+        docKey: `doc-${Date.now()}`,
       };
-  
-      setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+
+      setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
     }
-   };
- 
-  
   };
 
   {
@@ -159,7 +154,6 @@ function MainPage({ window }) {
 
 */
 
- 
   {
     /*서버 파일 다운로드 */
   }
@@ -319,12 +313,12 @@ function MainPage({ window }) {
               />
             </>
           ) : selectedOption === "photo" ? (
-          <ImageList
-            imageUrls={imageUrls}
-            parentcheck={selfcheck}
-            childChecked={childChecked}
-            onChildCheckboxChange={handleChildCheckboxChange}
-          />
+            <ImageList
+              imageUrls={imageUrls}
+              parentcheck={selfcheck}
+              childChecked={childChecked}
+              onChildCheckboxChange={handleChildCheckboxChange}
+            />
           ) : (
             <DocumentList
               documentUrls={documentUrls}
@@ -337,7 +331,7 @@ function MainPage({ window }) {
       </Box>
     </Box>
   );
-
+}
 
 MainPage.propTypes = {
   /**
