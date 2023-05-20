@@ -28,7 +28,7 @@ export default function ImageCard({
   const [ischecked, setChecked] = useState(checked);
   const [openModal, setOpenModal] = useState(false);
   const [selectedImgUrl, setSelectedImgUrl] = useState(null);
-  console.log("merge");
+
   const handleModalClose = () => {
     setOpenModal(false);
   };
@@ -49,9 +49,8 @@ export default function ImageCard({
   return (
 
     <div>
-      console.log("m");
        {openModal && (
-        <Modal filename={fileName} url={imgUrl} open={openModal} onClose={handleModalClose}>
+        <Modal filename={fileName} url={selectedImgUrl} open={openModal} onClose={handleModalClose}>
           <ImageViewer imgUrl={selectedImgUrl} />
         </Modal>
       )}
@@ -64,7 +63,6 @@ export default function ImageCard({
         m: 1,
         cursor: "pointer",
       }}
-      onClick={handleCardClick}
     >
       <CardHeader
         avatar={
@@ -85,6 +83,7 @@ export default function ImageCard({
           padding: "0px 0px",
         }}
       />
+       
       <CardContent
         sx={{
           position: "absolute",
@@ -94,6 +93,7 @@ export default function ImageCard({
           bgcolor: "rgba(0, 0, 0, 0.6)",
           padding: "4px",
         }}
+       
       >
         <div
           style={{
@@ -101,6 +101,7 @@ export default function ImageCard({
             flexDirection: "column",
             alignItems: "center",
           }}
+          
         >
           <Typography
             sx={{ color: "white", fontSize: "15px", textAlign: "center" }}
@@ -120,6 +121,7 @@ export default function ImageCard({
           objectFit: "contain",
         }}
         image={imageSrc}
+        onClick={handleCardClick}
       ></CardMedia>
       <CardActions
         sx={{ position: "absolute", display: "flex", bottom: -10, right: -10 }}

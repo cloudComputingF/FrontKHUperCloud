@@ -85,7 +85,6 @@ export default function DocumentCard({
           m: 1,
           cursor: "pointer",
         }}
-        onClick={handleCardClick}
       >
         <CardHeader
           avatar={
@@ -100,7 +99,7 @@ export default function DocumentCard({
               />
             </Box>
           }
-          onClick={(event) => event.stopPropagation()} 
+          //onClick={(event) => event.stopPropagation()} 
           sx={{
             position: "absolute",
             display: "flex",
@@ -144,6 +143,7 @@ export default function DocumentCard({
             marginTop: "-10px",
           }}
           image={images}
+          onClick={handleCardClick}
         ></CardMedia>
         <CardActions
           sx={{

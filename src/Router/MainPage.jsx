@@ -29,9 +29,10 @@ function MainPage({ window }) {
   const [indeterminate, setIndeterminate] = useState(false);
 
   const handleChildCheckboxChange = (imgKey, newChecked) => {
+
     setChildChecked((prevChecked) => ({
       ...prevChecked,
-      [imgKey]: { checked: newChecked, value: "some value" },
+      [imgKey.toString()]: { checked: newChecked, value: "some value" },
     }));
     const allChecked = Object.values(childChecked).every(
       (checked) => checked.checked
@@ -81,8 +82,12 @@ function MainPage({ window }) {
   };
 
 
-  {/*이미지 업로드*/}
+
+
+  {/*서버에 보낼 함수*/}
+/*
   const handleUpload = async (file) => {
+    
     const imageData = new FormData();
     const imgKey = `img-${Date.now()}`; // Unique key for the image
   
@@ -113,12 +118,14 @@ function MainPage({ window }) {
       console.error('Error uploading image:', error);
       // Additional error handling if needed
     }
-  };
+   };
+ */
   
 
   {
     /*체크된 이미지 다운로드 */
   }
+  
  const handleDownload = () => {
   const checkedKeys = Object.keys(childChecked).filter(
     (key) => childChecked[key].checked
@@ -231,7 +238,15 @@ function MainPage({ window }) {
               }}
             >
               <Divider orientation="vertical" sx={{ height: "100%" }} />
-              <Upload onCreateImage={handleUpload} />
+              <Upload onCreateImage={(file) => {
+                  const ImageData = {
+                    url: URL.createObjectURL(file),
+                    fileName: file.name,
+                    fileSize: file.size,
+                    imgKey: `img-${Date.now()}`,
+                  };
+                  setImageUrls((prevUrls)=>[...prevUrls,ImageData])
+                }} />
               <Button sx={{ marginTop: 0.3, marginLeft: 1 }} variant="outlined">
                 새폴더
               </Button>
