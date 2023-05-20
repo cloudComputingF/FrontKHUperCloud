@@ -17,6 +17,7 @@ import Upload from "../components/Upload";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Button from "@mui/material/Button";
 import DocumentList from "../components/DocumentList";
+import DeleteList from "../components/DeleteList";
 
 function MainPage({ window }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -28,6 +29,7 @@ function MainPage({ window }) {
   const [parentChecked, setParentChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedOption, setSelectedOption] = useState("all");
+  const [deleteList, setDeleteList] = useState([]);
 
   const handleAllFilesClick = () => {
     setSelectedOption("all");
@@ -39,6 +41,9 @@ function MainPage({ window }) {
 
   const handleDocumentsClick = () => {
     setSelectedOption("documents");
+  };
+  const handleDeleteFilesClick = () => {
+    setSelectedOption("delete");
   };
 
   const handleChildCheckboxChange = (imgKey, newChecked) => {
@@ -130,6 +135,43 @@ function MainPage({ window }) {
     }
   };
 
+  const handleDelete = () => {
+    const selectedImages = Object.entries(childChecked)
+      .filter(([_, checked]) => checked.checked)
+      .map(([key]) => key);
+
+    const selectedDocuments = Object.entries(childChecked)
+      .filter(([_, checked]) => checked.checked)
+      .map(([key]) => key);
+
+    // Remove selected images from the imageUrls array
+    setImageUrls((prevImageUrls) =>
+      prevImageUrls.filter(
+        (imageUrl) => !selectedImages.includes(imageUrl.imgKey)
+      )
+    );
+
+    // Remove selected documents from the documentUrls array
+    setDocumentUrls((prevDocumentUrls) =>
+      prevDocumentUrls.filter(
+        (documentUrl) => !selectedDocuments.includes(documentUrl.docKey)
+      )
+    );
+
+    // Create an array of deleted items with their details
+    const deletedItems = [
+      ...imageUrls.filter((imageUrl) =>
+        selectedImages.includes(imageUrl.imgKey)
+      ),
+      ...documentUrls.filter((documentUrl) =>
+        selectedDocuments.includes(documentUrl.docKey)
+      ),
+    ];
+
+    // Update the deleteList state
+    setDeleteList((prevDeleteList) => [...prevDeleteList, ...deletedItems]);
+  };
+
   {
     /*서버 호출 업로드*/
   }
@@ -188,7 +230,7 @@ function MainPage({ window }) {
     } else {
       setIndeterminate(false);
     }
-  }, [childChecked]);
+  }, [childChecked, handleDelete]);
 
   const container =
     window !== undefined ? () => window().document.body : undefined;
@@ -242,6 +284,7 @@ function MainPage({ window }) {
             onAllFilesClick={handleAllFilesClick}
             onPhotoClick={handlePhotoClick}
             onDocumentsClick={handleDocumentsClick}
+            onDeleteClick={handleDeleteFilesClick}
           />
         </Drawer>
       </Box>
@@ -275,23 +318,43 @@ function MainPage({ window }) {
               }}
             >
               <Divider orientation="vertical" sx={{ height: "100%" }} />
-              <Upload
-                onCreateImage={handleUpload}
-                onCreateDocument={handleUpload}
-              />
-              <Button sx={{ marginTop: 0.3, marginLeft: 1 }} variant="outlined">
-                새폴더
-              </Button>
-              <Button
-                sx={{ marginTop: 0.3, marginLeft: 1 }}
-                onClick={handleDownload}
-                variant="outlined"
-              >
-                내려받기
-              </Button>
-              <Button sx={{ marginTop: 0.3, marginLeft: 1 }} variant="outlined">
-                삭제
-              </Button>
+              {/*서버에 삭제 요청 handleEmptyTrash 정의 필요*/}
+              {selectedOption === "delete" ? (
+                <Button
+                  sx={{ marginTop: 0.3, marginLeft: 1 }}
+                  variant="outlined"
+                  /*onClick={handleEmptyTrash}*/
+                >
+                  휴지통 비우기
+                </Button>
+              ) : (
+                <>
+                  <Upload
+                    onCreateImage={handleUpload}
+                    onCreateDocument={handleUpload}
+                  />
+                  <Button
+                    sx={{ marginTop: 0.3, marginLeft: 1 }}
+                    variant="outlined"
+                  >
+                    새폴더
+                  </Button>
+                  <Button
+                    sx={{ marginTop: 0.3, marginLeft: 1 }}
+                    onClick={handleDownload}
+                    variant="outlined"
+                  >
+                    내려받기
+                  </Button>
+                  <Button
+                    sx={{ marginTop: 0.3, marginLeft: 1 }}
+                    variant="outlined"
+                    onClick={handleDelete}
+                  >
+                    삭제
+                  </Button>
+                </>
+              )}
             </Box>
           </Box>
           <Divider sx={{ my: 2.3 }} />
@@ -322,6 +385,15 @@ function MainPage({ window }) {
           ) : (
             <DocumentList
               documentUrls={documentUrls}
+              parentcheck={selfcheck}
+              childChecked={childChecked}
+              onChildCheckboxChange={handleChildCheckboxChange}
+            />
+          )}
+
+          {selectedOption === "delete" && (
+            <DeleteList
+              deleteList={deleteList}
               parentcheck={selfcheck}
               childChecked={childChecked}
               onChildCheckboxChange={handleChildCheckboxChange}

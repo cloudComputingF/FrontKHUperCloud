@@ -10,7 +10,6 @@ import {
 } from "@mui/material";
 import CardHeader from "@mui/material/CardHeader";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { styled } from "@mui/system";
 import { useState, useEffect } from "react";
 import ChildCheckboxes from "./ChildCheckbox";
 import Modal from "./Modal";
@@ -98,7 +97,7 @@ const isimage=false;
               />
             </Box>
           }
-          //onClick={(event) => event.stopPropagation()} 
+           
           sx={{
             position: "absolute",
             display: "flex",
