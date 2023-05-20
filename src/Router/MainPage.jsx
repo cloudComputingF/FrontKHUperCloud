@@ -42,9 +42,10 @@ function MainPage({ window }) {
   };
 
   const handleChildCheckboxChange = (imgKey, newChecked) => {
+
     setChildChecked((prevChecked) => ({
       ...prevChecked,
-      [imgKey]: { checked: newChecked, value: "some value" },
+      [imgKey.toString()]: { checked: newChecked, value: "some value" },
     }));
     const allChecked = Object.values(childChecked).every(
       (checked) => checked.checked
