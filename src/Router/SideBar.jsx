@@ -1,6 +1,5 @@
 import {
   Mail,
-  Cloud,
   FolderOpen,
   Description,
   FolderSpecial,
@@ -9,7 +8,6 @@ import {
   LiveTv,
 } from "@mui/icons-material";
 import {
-  Typography,
   Toolbar,
   Divider,
   List,
@@ -25,7 +23,18 @@ const listItemStyle = {
   alignItems: "center",
 };
 
-export default function SideBar(){
+export default function SideBar({ onAllFilesClick, onPhotoClick, onDocumentsClick }){
+  const handleAllFilesClick = () => {
+    onAllFilesClick();
+  };
+
+  const handlePhotoClick = () => {
+    onPhotoClick();
+  };
+
+  const handleDocumentsClick = () => {
+    onDocumentsClick();
+  };
   return(
   <>
     <Link
@@ -55,7 +64,7 @@ export default function SideBar(){
     <List>
       {/*모든파일*/}
       <ListItem disablePadding sx={listItemStyle}>
-        <ListItemButton sx={{ py: "7px" }}>
+        <ListItemButton sx={{ py: "7px" }} onClick={handleAllFilesClick}>
           <ListItemIcon>
             <FolderOpen />
           </ListItemIcon>
@@ -67,7 +76,7 @@ export default function SideBar(){
       </ListItem>
       {/*사진*/}
       <ListItem disablePadding sx={listItemStyle}>
-        <ListItemButton sx={{ py: "7px" }}>
+        <ListItemButton sx={{ py: "7px" }} onClick={handlePhotoClick}>
           <ListItemIcon>
             <Photo />
           </ListItemIcon>
@@ -78,7 +87,7 @@ export default function SideBar(){
         </ListItemButton>
       </ListItem>
       {/*문서*/}
-      <ListItem disablePadding sx={listItemStyle}>
+      <ListItem disablePadding sx={listItemStyle} onClick={handleDocumentsClick}>
         <ListItemButton sx={{ py: "7px" }}>
           <ListItemIcon>
             <Description />

@@ -108,6 +108,31 @@ function MainPage({ window }) {
       const responseData = await response.json(); // Parse the response data as JSON
       const newImageData = {
         url: responseData.url, // Use the URL returned by the server
+  const handleUpload = (file) => {
+    if (file.type.includes("image")) {
+      const imageData = {
+        url: URL.createObjectURL(file),
+        fileName: file.name,
+        fileSize: file.size,
+        imgKey: `img-${Date.now()}`,
+      };
+
+      setImageUrls((prevUrls) => [...prevUrls, imageData]);
+    } else if (
+      file.type.includes("application/pdf") ||
+      file.type.includes(".doc") ||
+      file.type.includes(".docx") ||
+      file.type.includes("application/msword") ||
+      file.type.includes("application/vnd.ms-excel") ||
+      file.type.includes(".xls") ||
+      file.type.includes(".xlsx") ||
+      file.type.includes(".csv") ||
+      file.type.includes(".ppt") ||
+      file.type.includes(".pptx") ||
+      file.type.includes("application/vnd.ms-powerpoint")
+    ) {
+      const documentData = {
+        url: URL.createObjectURL(file),
         fileName: file.name,
         fileSize: file.size,
         imgKey: imgKey,
@@ -121,6 +146,31 @@ function MainPage({ window }) {
    };
  */
   
+  };
+
+  {
+    /*서버 호출 업로드*/
+  }
+  /*
+ const handleUpload = (file) => {
+    const imageData = new FormData();
+    imageData.append('url', URL.createObjectURL(file));
+  
+    // 서버로 전송
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://43.207.224.148:8000/upload/file', true);
+    xhr.send(imageData);
+  
+    const newImageData = {
+      url: URL.createObjectURL(file),
+      fileName: file.name,
+      fileSize: file.size,
+      imgKey: `img-${Date.now()}`,
+    };
+    setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+  };
+
+*/
 
   {
     /*체크된 이미지 다운로드 */
@@ -139,6 +189,27 @@ function MainPage({ window }) {
     }
   });
 };
+
+  {
+    /*서버 파일 다운로드 */
+  }
+
+  const handleDownload = () => {
+    const checkedKeys = Object.keys(childChecked).filter(
+      (key) => childChecked[key].checked
+    );
+    checkedKeys.forEach((key) => {
+      const imageData = imageUrls.find((image) => image.imgKey === key);
+      if (imageData) {
+        const fileName = imageData.fileName; // Set the file name based on the imageData
+        const downloadUrl = `http://43.207.224.148:8000/download/file?file_name=${encodeURIComponent(
+          fileName
+        )}`; // Construct the download URL
+        window.open(downloadUrl); // Open the download URL in a new window/tab
+      }
+    });
+  };
+
   //childcheck 상태 기반 부수효과
   useEffect(() => {
     const allChecked =
@@ -247,6 +318,10 @@ function MainPage({ window }) {
                   };
                   setImageUrls((prevUrls)=>[...prevUrls,ImageData])
                 }} />
+              <Upload
+                onCreateImage={handleUpload}
+                onCreateDocument={handleUpload}
+              />
               <Button sx={{ marginTop: 0.3, marginLeft: 1 }} variant="outlined">
                 새폴더
               </Button>

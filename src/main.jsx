@@ -4,8 +4,6 @@ import {RouterProvider,createBrowserRouter} from 'react-router-dom';
 import HomePage from './Router/HomePage';
 import IntroPage from './Router/IntroPage'
 import MainPage from './Router/MainPage';
-import PdfViewer from './components/DocumentViewer/PdfViewer';
-import DocumentPage from './Router/DocumentPage';
 import SignupForm from './Router/SignUp';
 import SignIn from './Router/SignIn';
 
