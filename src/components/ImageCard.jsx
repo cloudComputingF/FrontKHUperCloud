@@ -121,7 +121,7 @@ export default function ImageCard({
         }}
         onClick={handleCardClick}
         image={imageSrc}
-        onClick={handleCardClick}
+        
       ></CardMedia>
       <CardActions
         sx={{ position: "absolute", display: "flex", bottom: -10, right: -10 }}
