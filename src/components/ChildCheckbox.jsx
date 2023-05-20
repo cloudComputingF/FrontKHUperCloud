@@ -3,15 +3,20 @@ import Box from "@mui/material/Box";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import { useState,useEffect } from "react";
-function ChildCheckboxes({ docKey, checked, onChange,parentcheck }) {
+function ChildCheckboxes({ imgKey,docKey, checked, onChange,parentcheck }) {
   const [isChecked, setIsChecked] = useState(checked);
 
   const handleCheckboxChange = (event) => {
     const newChecked = event.target.checked;
     setIsChecked(newChecked);
-    onChange(docKey, newChecked);
+
+    if (imgKey) {
+      onChange(imgKey, newChecked);
+    } else {
+      onChange(docKey, newChecked);
+    }
   };
-  
+
   useEffect(() => {
     setIsChecked(parentcheck);
   }, [parentcheck]);
@@ -29,6 +34,5 @@ function ChildCheckboxes({ docKey, checked, onChange,parentcheck }) {
     />
   );
 }
-
 
 export default ChildCheckboxes;

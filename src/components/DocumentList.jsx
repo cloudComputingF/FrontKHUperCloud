@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import DocumentCard from "./DocumentCard";
 import Modal from "./Modal";
-import PDFViewer from "./DocumentViewer/PdfViewer";
+
 export default function DocumentList({
   documentUrls,
   parentcheck,
@@ -20,7 +20,7 @@ export default function DocumentList({
     onChildCheckboxChange(dockey, isChecked);
   };
   return (
-    <Box sx={{ mt: 19, display: "flex", flexWrap: "wrap" }}>
+    <Box sx={{ mt: 20, display: "flex", flexWrap: "wrap" }}>
       {documentUrls.length > 0 ? (
         documentUrls.map((document, index) => (
           <DocumentCard
@@ -34,13 +34,7 @@ export default function DocumentList({
             parentcheck={parentcheck}
           />
         ))
-      ) : (
-        <>
-          <Typography variant="h6" component="h4" sx={{ mt: 25, ml: 60 }}>
-            저장된 파일이 없습니다.
-          </Typography>
-        </>
-      )}
+      ) : null}
     </Box>
   );
 }
