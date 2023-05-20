@@ -2,7 +2,7 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import DocumentCard from "./DocumentCard";
-import Modal from "./Modal";
+
 
 export default function DocumentList({
   documentUrls,

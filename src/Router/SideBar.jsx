@@ -23,7 +23,7 @@ const listItemStyle = {
   alignItems: "center",
 };
 
-export default function SideBar({ onAllFilesClick, onPhotoClick, onDocumentsClick }){
+export default function SideBar({ onAllFilesClick, onPhotoClick, onDocumentsClick,onDeleteClick }){
   const handleAllFilesClick = () => {
     onAllFilesClick();
   };
@@ -35,6 +35,9 @@ export default function SideBar({ onAllFilesClick, onPhotoClick, onDocumentsClic
   const handleDocumentsClick = () => {
     onDocumentsClick();
   };
+  const handleDeleteClick=()=>{
+    onDeleteClick();
+  }
   return(
   <>
     <Link
@@ -87,8 +90,8 @@ export default function SideBar({ onAllFilesClick, onPhotoClick, onDocumentsClic
         </ListItemButton>
       </ListItem>
       {/*문서*/}
-      <ListItem disablePadding sx={listItemStyle} onClick={handleDocumentsClick}>
-        <ListItemButton sx={{ py: "7px" }}>
+      <ListItem disablePadding sx={listItemStyle} >
+        <ListItemButton sx={{ py: "7px" }} onClick={handleDocumentsClick}>
           <ListItemIcon>
             <Description />
           </ListItemIcon>
@@ -139,7 +142,7 @@ export default function SideBar({ onAllFilesClick, onPhotoClick, onDocumentsClic
       </ListItem>
       {/*휴지통*/}
       <ListItem disablePadding sx={listItemStyle}>
-        <ListItemButton sx={{ py: "7px" }}>
+        <ListItemButton sx={{ py: "7px" }} onClick={handleDeleteClick}>
           <ListItemIcon>
             <DeleteForever />
           </ListItemIcon>
