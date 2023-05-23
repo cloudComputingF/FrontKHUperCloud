@@ -14,7 +14,7 @@ import { styled } from "@mui/system";
 import { useState, useEffect } from "react";
 import ChildCheckboxes from "./ChildCheckbox";
 import Modal from "./Modal";
-import ImageViewer from "./DocumentViewer/ImageViewer";
+
 export default function ImageCard({
   imgKey,
   imgUrl,
@@ -28,7 +28,7 @@ export default function ImageCard({
   const [ischecked, setChecked] = useState(checked);
   const [openModal, setOpenModal] = useState(false);
   const [selectedImgUrl, setSelectedImgUrl] = useState(null);
-  console.log("merge");
+
   const handleModalClose = () => {
     setOpenModal(false);
   };
@@ -37,7 +37,6 @@ export default function ImageCard({
     setOpenModal(true);
   };
   useEffect(() => {
-    //console.log(ischecked);
     setImageSrc(imgUrl);
   }, [imgUrl, ischecked]);
 
@@ -45,14 +44,13 @@ export default function ImageCard({
     setChecked(newChecked);
     onChildCheckboxChange(imgKey, newChecked);
   };
-  
+  const isimage=true;
   return (
 
     <div>
-      console.log("m");
        {openModal && (
-        <Modal filename={fileName} url={imgUrl} open={openModal} onClose={handleModalClose}>
-          <ImageViewer imgUrl={selectedImgUrl} />
+        <Modal filename={fileName} url={imgUrl} open={openModal} onClose={handleModalClose} isimage={isimage}>
+          
         </Modal>
       )}
     <Card
@@ -64,7 +62,7 @@ export default function ImageCard({
         m: 1,
         cursor: "pointer",
       }}
-      onClick={handleCardClick}
+  
     >
       <CardHeader
         avatar={
@@ -76,8 +74,7 @@ export default function ImageCard({
               onChange={handleChildCheckboxChange}
             />
           </Box>
-        }
-        onClick={(event) => event.stopPropagation()} 
+        } 
         sx={{
           position: "absolute",
           display: "flex",
@@ -85,6 +82,7 @@ export default function ImageCard({
           padding: "0px 0px",
         }}
       />
+       
       <CardContent
         sx={{
           position: "absolute",
@@ -94,6 +92,7 @@ export default function ImageCard({
           bgcolor: "rgba(0, 0, 0, 0.6)",
           padding: "4px",
         }}
+       
       >
         <div
           style={{
@@ -101,6 +100,7 @@ export default function ImageCard({
             flexDirection: "column",
             alignItems: "center",
           }}
+          
         >
           <Typography
             sx={{ color: "white", fontSize: "15px", textAlign: "center" }}
@@ -119,7 +119,9 @@ export default function ImageCard({
           height: "auto%",
           objectFit: "contain",
         }}
+        onClick={handleCardClick}
         image={imageSrc}
+        
       ></CardMedia>
       <CardActions
         sx={{ position: "absolute", display: "flex", bottom: -10, right: -10 }}

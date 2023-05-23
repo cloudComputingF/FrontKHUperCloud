@@ -16,8 +16,8 @@ import ImageList from "../components/ImageList";
 import Upload from "../components/Upload";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Button from "@mui/material/Button";
-import DocumentList from "../components/DocumentList"
-
+import DocumentList from "../components/DocumentList";
+import DeleteList from "../components/DeleteList";
 
 function MainPage({ window }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -28,25 +28,28 @@ function MainPage({ window }) {
   const [selfcheck, setselfcheck] = useState(false);
   const [parentChecked, setParentChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
-  
-  const [isLogin, setIsLogin] = useState(false); //로그인 관리
+  const [selectedOption, setSelectedOption] = useState("all");
+  const [deleteList, setDeleteList] = useState([]);
 
-  useEffect(() => {
-    if (sessionStorage.getItem('user_id') === null) {
-      // sessionStorage 에 name 라는 key 값으로 저장된 값이 없다면
-      console.log("isLogin ?? :: ", isLogin);
-    } else {
-      // sessionStorage 에 name 라는 key 값으로 저장된 값이 있다면
-      // 로그인 상태 변경
-      setIsLogin(true); // 후에 setIsLogin true면 아이디? 닉네임? 메인페이지에 뜨게 해야 함
-      console.log("isLogin ?? :: ", isLogin);
-    }
-  });
+  const handleAllFilesClick = () => {
+    setSelectedOption("all");
+  };
+
+  const handlePhotoClick = () => {
+    setSelectedOption("photo");
+  };
+
+  const handleDocumentsClick = () => {
+    setSelectedOption("documents");
+  };
+  const handleDeleteFilesClick = () => {
+    setSelectedOption("delete");
+  };
 
   const handleChildCheckboxChange = (imgKey, newChecked) => {
     setChildChecked((prevChecked) => ({
       ...prevChecked,
-      [imgKey]: { checked: newChecked, value: "some value" },
+      [imgKey.toString()]: { checked: newChecked, value: "some value" },
     }));
     const allChecked = Object.values(childChecked).every(
       (checked) => checked.checked
@@ -94,36 +97,109 @@ function MainPage({ window }) {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-  const handleUpload = async (file) => {
-    const imageData = new FormData();
-    imageData.append('url', URL.createObjectURL(file));
-  
-    try {
-      const response = await fetch('http://43.207.224.148:8000/upload/file', {
-        method: 'POST',
-        body: imageData,
-      });
-  
-      if (!response.ok) {
-        throw new Error('Image upload failed.');
-      }
-  
-      const newImageData = {
+
+  {
+    /*서버에 보낼 함수*/
+  }
+  const handleUpload = (file) => {
+    if (file.type.includes("image")) {
+      const imageData = {
         url: URL.createObjectURL(file),
         fileName: file.name,
         fileSize: file.size,
         imgKey: `img-${Date.now()}`,
       };
-  
-      setImageUrls((prevUrls) => [...prevUrls, newImageData]);
-    } catch (error) {
-      console.error('Error uploading image:', error);
+
+      setImageUrls((prevUrls) => [...prevUrls, imageData]);
+    } else if (
+      file.type.includes("application/pdf") ||
+      file.type.includes(".doc") ||
+      file.type.includes(".docx") ||
+      file.type.includes("application/msword") ||
+      file.type.includes("application/vnd.ms-excel") ||
+      file.type.includes(".xls") ||
+      file.type.includes(".xlsx") ||
+      file.type.includes(".csv") ||
+      file.type.includes(".ppt") ||
+      file.type.includes(".pptx") ||
+      file.type.includes("application/vnd.ms-powerpoint")
+    ) {
+      const documentData = {
+        url: URL.createObjectURL(file),
+        fileName: file.name,
+        fileSize: file.size,
+        docKey: `doc-${Date.now()}`,
+      };
+
+      setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
     }
   };
-  
+
+  const handleDelete = () => {
+    const selectedImages = Object.entries(childChecked)
+      .filter(([_, checked]) => checked.checked)
+      .map(([key]) => key);
+
+    const selectedDocuments = Object.entries(childChecked)
+      .filter(([_, checked]) => checked.checked)
+      .map(([key]) => key);
+
+    // Remove selected images from the imageUrls array
+    setImageUrls((prevImageUrls) =>
+      prevImageUrls.filter(
+        (imageUrl) => !selectedImages.includes(imageUrl.imgKey)
+      )
+    );
+
+    // Remove selected documents from the documentUrls array
+    setDocumentUrls((prevDocumentUrls) =>
+      prevDocumentUrls.filter(
+        (documentUrl) => !selectedDocuments.includes(documentUrl.docKey)
+      )
+    );
+
+    // Create an array of deleted items with their details
+    const deletedItems = [
+      ...imageUrls.filter((imageUrl) =>
+        selectedImages.includes(imageUrl.imgKey)
+      ),
+      ...documentUrls.filter((documentUrl) =>
+        selectedDocuments.includes(documentUrl.docKey)
+      ),
+    ];
+
+    // Update the deleteList state
+    setDeleteList((prevDeleteList) => [...prevDeleteList, ...deletedItems]);
+  };
+
   {
-    /*체크된 이미지 다운로드 */
+    /*서버 호출 업로드*/
   }
+  /*
+ const handleUpload = (file) => {
+    const imageData = new FormData();
+    imageData.append('url', URL.createObjectURL(file));
+  
+    // 서버로 전송
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://43.207.224.148:8000/upload/file', true);
+    xhr.send(imageData);
+  
+    const newImageData = {
+      url: URL.createObjectURL(file),
+      fileName: file.name,
+      fileSize: file.size,
+      imgKey: `img-${Date.now()}`,
+    };
+    setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+  };
+
+*/
+
+  {
+    /*서버 파일 다운로드 */
+  }
+
   const handleDownload = () => {
     const checkedKeys = Object.keys(childChecked).filter(
       (key) => childChecked[key].checked
@@ -131,13 +207,15 @@ function MainPage({ window }) {
     checkedKeys.forEach((key) => {
       const imageData = imageUrls.find((image) => image.imgKey === key);
       if (imageData) {
-        const downloadLink = document.createElement("a");
-        downloadLink.href = imageData.url;
-        downloadLink.download = imageData.fileName;
-        downloadLink.click();
+        const fileName = imageData.fileName; // Set the file name based on the imageData
+        const downloadUrl = `http://43.207.224.148:8000/download/file?file_name=${encodeURIComponent(
+          fileName
+        )}`; // Construct the download URL
+        window.open(downloadUrl); // Open the download URL in a new window/tab
       }
     });
   };
+
   //childcheck 상태 기반 부수효과
   useEffect(() => {
     const allChecked =
@@ -152,7 +230,7 @@ function MainPage({ window }) {
     } else {
       setIndeterminate(false);
     }
-  }, [childChecked]);
+  }, [childChecked, handleDelete]);
 
   const container =
     window !== undefined ? () => window().document.body : undefined;
@@ -190,9 +268,7 @@ function MainPage({ window }) {
               width: drawerWidth,
             },
           }}
-        >
-          <SideBar />
-        </Drawer>
+        ></Drawer>
         <Drawer
           variant="permanent"
           sx={{
@@ -204,7 +280,12 @@ function MainPage({ window }) {
           }}
           open
         >
-          <SideBar />
+          <SideBar
+            onAllFilesClick={handleAllFilesClick}
+            onPhotoClick={handlePhotoClick}
+            onDocumentsClick={handleDocumentsClick}
+            onDeleteClick={handleDeleteFilesClick}
+          />
         </Drawer>
       </Box>
       <Box
@@ -215,7 +296,7 @@ function MainPage({ window }) {
           maxWidth: "100%",
         }}
       >
-        <Box sx={{ position: "absolute", top: 90, left: 200, width: "85%" }}>
+        <Box sx={{ position: "absolute", top: 82, left: 200, width: "85%" }}>
           <Box
             sx={{ display: "flex", alignItems: "center", marginLeft: "14px" }}
           >
@@ -237,40 +318,87 @@ function MainPage({ window }) {
               }}
             >
               <Divider orientation="vertical" sx={{ height: "100%" }} />
-              <Upload
-                onCreateImage={handleUpload}
-              />
-              <Button sx={{ marginTop: 0.3, marginLeft: 1 }} variant="outlined">
-                새폴더
-              </Button>
-              <Button
-                sx={{ marginTop: 0.3, marginLeft: 1 }}
-                onClick={handleDownload}
-                variant="outlined"
-              >
-                내려받기
-              </Button>
-              <Button sx={{ marginTop: 0.3, marginLeft: 1 }} variant="outlined">
-                삭제
-              </Button>
+              {/*서버에 삭제 요청 handleEmptyTrash 정의 필요*/}
+              {selectedOption === "delete" ? (
+                <Button
+                  sx={{ marginTop: 0.3, marginLeft: 1 }}
+                  variant="outlined"
+                  /*onClick={handleEmptyTrash}*/
+                >
+                  휴지통 비우기
+                </Button>
+              ) : (
+                <>
+                  <Upload
+                    onCreateImage={handleUpload}
+                    onCreateDocument={handleUpload}
+                  />
+                  <Button
+                    sx={{ marginTop: 0.3, marginLeft: 1 }}
+                    variant="outlined"
+                  >
+                    새폴더
+                  </Button>
+                  <Button
+                    sx={{ marginTop: 0.3, marginLeft: 1 }}
+                    onClick={handleDownload}
+                    variant="outlined"
+                  >
+                    내려받기
+                  </Button>
+                  <Button
+                    sx={{ marginTop: 0.3, marginLeft: 1 }}
+                    variant="outlined"
+                    onClick={handleDelete}
+                  >
+                    삭제
+                  </Button>
+                </>
+              )}
             </Box>
           </Box>
           <Divider sx={{ my: 2.3 }} />
         </Box>
-        <Box
-          sx={{
-            mt: -2,
-            display: "flex",
-            flexWrap: "wrap",
-          }}
-        >
-        
-          <ImageList
-            imageUrls={imageUrls}
-            parentcheck={selfcheck}
-            childChecked={childChecked}
-            onChildCheckboxChange={handleChildCheckboxChange}
-        />
+        <Box sx={{ mt: -2, display: "flex", flexWrap: "wrap" }}>
+          {selectedOption === "all" ? (
+            <>
+              <ImageList
+                imageUrls={imageUrls}
+                parentcheck={selfcheck}
+                childChecked={childChecked}
+                onChildCheckboxChange={handleChildCheckboxChange}
+              />
+              <DocumentList
+                documentUrls={documentUrls}
+                parentcheck={selfcheck}
+                childChecked={childChecked}
+                onChildCheckboxChange={handleChildCheckboxChange}
+              />
+            </>
+          ) : selectedOption === "photo" ? (
+            <ImageList
+              imageUrls={imageUrls}
+              parentcheck={selfcheck}
+              childChecked={childChecked}
+              onChildCheckboxChange={handleChildCheckboxChange}
+            />
+          ) : (
+            <DocumentList
+              documentUrls={documentUrls}
+              parentcheck={selfcheck}
+              childChecked={childChecked}
+              onChildCheckboxChange={handleChildCheckboxChange}
+            />
+          )}
+
+          {selectedOption === "delete" && (
+            <DeleteList
+              deleteList={deleteList}
+              parentcheck={selfcheck}
+              childChecked={childChecked}
+              onChildCheckboxChange={handleChildCheckboxChange}
+            />
+          )}
         </Box>
       </Box>
     </Box>
