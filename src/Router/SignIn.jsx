@@ -30,38 +30,37 @@ function Copyright(props) {
 // TODO remove, this demo shouldn't need to reset the theme.
 
 
-// const onClickLogin = () => {
-//     console.log('click login')
-//     console.log('ID : ', inputId)
-//     console.log('PW : ', inputPw)
-//     axios.post('/user_inform/onLogin', null, {
-//         params: {
-//         'user_id': inputId,
-//         'user_pw': inputPw
-//         }
-//     })
-//     .then(res => {
-//         console.log(res)
-//         console.log('res.data.userId :: ', res.data.userId)
-//         console.log('res.data.msg :: ', res.data.msg)
-//         if(res.data.userId === undefined){
-//             // id 일치하지 않는 경우 userId = undefined, msg = '입력하신 id 가 일치하지 않습니다.'
-//             console.log('======================',res.data.msg)
-//             alert('입력하신 id 가 일치하지 않습니다.')
-//         } else if(res.data.userId === null){
-//             // id는 있지만, pw 는 다른 경우 userId = null , msg = undefined
-//             console.log('======================','입력하신 비밀번호 가 일치하지 않습니다.')
-//             alert('입력하신 비밀번호 가 일치하지 않습니다.')
-//         } else if(res.data.userId === inputId) {
-//             // id, pw 모두 일치 userId = userId1, msg = undefined
-//             console.log('======================','로그인 성공')
-//             sessionStorage.setItem('user_id', inputId)
-//         }
-//         // 작업 완료 되면 페이지 이동(새로고침)
-//         document.location.href = '/'
-//     })
-//     .catch()
-// }
+const onClickLogin = () => {
+    console.log('click login')
+    console.log('ID : ', inputId)
+    console.log('PW : ', inputPw)
+    axios.post('http://43.207.224.148:8000/api/login/local', { //백으로 요청
+        'user_id': id,
+        'user_pw': password
+    })
+    .then(res => {
+        console.log(res)
+        console.log('res.data.userId :: ', res.data.userId) //백에서 받을 response
+        console.log('res.data.msg :: ', res.data.msg)
+
+        if(res.data.userId === undefined){
+            // id 일치하지 않는 경우 userId = undefined, msg = '입력하신 id 가 일치하지 않습니다.'
+            console.log('======================',res.data.msg)
+            alert('등록되지 않은 회원입니다.')
+        } else if(res.data.userId === null){
+            // id는 있지만, pw 는 다른 경우 userId = null , msg = undefined
+            console.log('======================','입력하신 비밀번호 가 일치하지 않습니다.')
+            alert('입력하신 비밀번호 가 일치하지 않습니다.')
+        } else if(res.data.userId === inputId) {
+            // id, pw 모두 일치 userId = userId1, msg = undefined
+            console.log('======================','로그인 성공')
+            sessionStorage.setItem('user_id', inputId)
+        }
+        // 작업 완료 되면 Main페이지 이동
+        document.location.href = '/Main'
+    })
+    .catch()
+};
 
 //  useEffect(() => {
 //      axios.get('/user_inform/login')
@@ -122,13 +121,12 @@ export default function SignIn() {
             alignItems: 'center',
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            로그인
-          </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+       
+          <div className="SignInImage">
+            <img src="/images/Logo.PNG" alt="Cloud Icon" />
+          </div>
+          
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}> 
             <TextField
               onChange={handleInputId}
               margin="normal"

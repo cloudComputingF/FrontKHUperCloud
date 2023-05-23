@@ -3,14 +3,45 @@ import "./SignUp.css"
 
 function SignupForm() {
   const [name, setName] = useState('');
-  const [nickname, setNickname] = useState('');
+  const [id, setId] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [password1, setPassword1] = useState('');
-  const [root, setRoot] = useState('');
-  const [code, setCode] = useState('');
   const [agreement, setAgreement] = useState(false);
   const [validated, setValidated] = useState(false);
+
+
+  const onClickSubmit = () => {
+    axios.post("http://43.207.224.148:8000/api/register/local", {
+            userId: id,
+            password: password,
+            username: name,
+            email: email
+        }).then(function (response) {
+            if(response.data.code == 0){
+                setPopup({
+                    open: true,
+                    title: "Confirm",
+                    message: "Join Success!", 
+                    callback: function(){
+                        navigate("/login");
+                    }
+                });
+            } else {
+                let message = response.data.message;
+                if(response.data.code == 10000){
+                    message = "User ID is duplicated. Please enter a different User ID. "
+                }
+                setPopup({
+                    open: true,
+                    title: "Error",
+                    message: message
+                });
+            }
+        }).catch(function (error) {
+            console.log(error);
+        });
+  }
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -27,18 +58,15 @@ function SignupForm() {
 
       console.log('Form submitted:', {
         name,
-        nickname,
+        id,
         email,
         password,
-        password1,
-        root,
-        code,
-        agreement,
       }); //백엔드 DB로 넘겨줄 것들
 
     }
     setValidated(true);
   };
+
 
   return (
     
@@ -66,14 +94,14 @@ function SignupForm() {
                 <div className="invalid-feedback">이름을 입력해주세요.</div>
               </div>
               <div className="col-md-6 mb-3">
-                <label htmlFor="nickname">아이디</label>
+                <label htmlFor="id">아이디</label>
                 <input
                   type="text"
                   className="form-control"
-                  id="nickname"
+                  id="id"
                   placeholder=""
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
+                  value={id}
+                  onChange={(e) => setId(e.target.value)}
                   required
                 />
                 <div className="invalid-feedback">아이디를 입력해주세요.</div>
