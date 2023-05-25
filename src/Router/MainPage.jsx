@@ -107,39 +107,39 @@ function MainPage({ window }) {
   {
     /*서버에 보낼 함수*/
   }
-  // const handleUpload = (file) => {
-  //   if (file.type.includes("image")) {
-  //     const imageData = {
-  //       url: URL.createObjectURL(file),
-  //       fileName: file.name,
-  //       fileSize: file.size,
-  //       imgKey: `img-${Date.now()}`,
-  //     };
+   const handleUpload = (file) => {
+    if (file.type.includes("image")) {
+      const imageData = {
+        url: URL.createObjectURL(file),
+       fileName: file.name,
+         fileSize: file.size,
+         imgKey: `img-${Date.now()}`,
+       };
 
-  //     setImageUrls((prevUrls) => [...prevUrls, imageData]);
-  //   } else if (
-  //     file.type.includes("application/pdf") ||
-  //     file.type.includes(".doc") ||
-  //     file.type.includes(".docx") ||
-  //     file.type.includes("application/msword") ||
-  //     file.type.includes("application/vnd.ms-excel") ||
-  //     file.type.includes(".xls") ||
-  //     file.type.includes(".xlsx") ||
-  //     file.type.includes(".csv") ||
-  //     file.type.includes(".ppt") ||
-  //     file.type.includes(".pptx") ||
-  //     file.type.includes("application/vnd.ms-powerpoint")
-  //   ) {
-  //     const documentData = {
-  //       url: URL.createObjectURL(file),
-  //       fileName: file.name,
-  //       fileSize: file.size,
-  //       docKey: `doc-${Date.now()}`,
-  //     };
+       setImageUrls((prevUrls) => [...prevUrls, imageData]);
+     } else if (
+       file.type.includes("application/pdf") ||
+       file.type.includes(".doc") ||
+       file.type.includes(".docx") ||
+       file.type.includes("application/msword") ||
+       file.type.includes("application/vnd.ms-excel") ||
+       file.type.includes(".xls") ||
+       file.type.includes(".xlsx") ||
+       file.type.includes(".csv") ||
+       file.type.includes(".ppt") ||
+       file.type.includes(".pptx") ||
+       file.type.includes("application/vnd.ms-powerpoint")
+     ) {
+       const documentData = {
+       url: URL.createObjectURL(file),
+         fileName: file.name,
+         fileSize: file.size,
+         docKey: `doc-${Date.now()}`,
+       };
 
-  //     setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
-  //   }
-  // };
+       setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
+     }
+   };
 
   const handleDelete = () => {
     const selectedImages = Object.entries(childChecked)
@@ -182,7 +182,7 @@ function MainPage({ window }) {
     /*서버 호출 업로드*/
   }
 
-
+/*
  const handleUpload = (file) => {
     const imageData = new FormData();
     imageData.append('url', URL.createObjectURL(file));
@@ -201,7 +201,7 @@ function MainPage({ window }) {
     setImageUrls((prevUrls) => [...prevUrls, newImageData]);
   };
 
-
+*/
   {
     /*서버 파일 다운로드 */
   }
@@ -244,11 +244,11 @@ function MainPage({ window }) {
 
 
 
-    //새폴더생성
-    const [showModal, setShowModal] = useState(false);
-    const [newFolderName, setNewFolderName] = useState('');
-    const [folders, setFolders] = useState([]);
   
+     //새폴더생성
+     const [showModal, setShowModal] = useState(false);
+     const [newFolderName, setNewFolderName] = useState('');
+     const [folders, setFolders] = useState([]);
     const openModal = () => {
       setShowModal(true);
     };
