@@ -21,9 +21,6 @@ import DeleteList from "../components/DeleteList";
 import { Link } from 'react-router-dom';
 
 
-
-
-
 function MainPage({ window }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const drawerWidth = 200;
@@ -72,6 +69,7 @@ function MainPage({ window }) {
       setIndeterminate(someChecked);
     }
   };
+  
 
   const parentchange = (event) => {
     const newChecked = event.target.checked;
@@ -173,9 +171,11 @@ function MainPage({ window }) {
         selectedDocuments.includes(documentUrl.docKey)
       ),
     ];
+    console.log("jeongwon");
 
     // Update the deleteList state
     setDeleteList((prevDeleteList) => [...prevDeleteList, ...deletedItems]);
+    parentchange({ target: { checked: false } });
   };
 
   {
@@ -485,34 +485,25 @@ function MainPage({ window }) {
               childChecked={childChecked}
               onChildCheckboxChange={handleChildCheckboxChange}
             />
-          ) : (
+          ) : selectedOption === "documents" ?(
             <DocumentList
               documentUrls={documentUrls}
               parentcheck={selfcheck}
               childChecked={childChecked}
               onChildCheckboxChange={handleChildCheckboxChange}
             />
-          )}
-
-          {selectedOption === "delete" && (
+          ):selectedOption === "delete" ?(
             <DeleteList
               deleteList={deleteList}
               parentcheck={selfcheck}
               childChecked={childChecked}
               onChildCheckboxChange={handleChildCheckboxChange}
             />
-          )}
+          ):null
+        }
         </Box>
       </Box>
     </Box>
-
-    
-    
-
-  
-    
-  
-  
     );
 }
 
