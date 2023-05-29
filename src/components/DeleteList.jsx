@@ -10,6 +10,7 @@ export default function DeleteList({
 }) {
   const [checkedItems, setCheckedItems] = useState({});
 
+
   const handleChildCheckboxChange = (itemId, isChecked) => {
     setCheckedItems((prevState) => ({
       ...prevState,

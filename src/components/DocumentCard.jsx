@@ -22,29 +22,34 @@ export default function DocumentCard({
   checked,
   onChildCheckboxChange,
 }) {
-  let images;
-  if (fileName.endsWith(".pdf")) {
-    images = "/images/PDF.PNG";
-  } else if (
-    fileName.endsWith(".doc") ||
+  let images = ""; // Set a default value for images
+
+if (fileName && fileName.endsWith(".pdf")) {
+  images = "/images/PDF.PNG";
+} else if (
+  fileName &&
+  (fileName.endsWith(".doc") ||
     fileName.endsWith(".docx") ||
-    fileName.startsWith("application/msword")
-  ) {
-    images = "/images/Word.png";
-  } else if (
-    fileName.endsWith(".xls") ||
+    fileName.startsWith("application/msword"))
+) {
+  images = "/images/Word.png";
+} else if (
+  fileName &&
+  (fileName.endsWith(".xls") ||
     fileName.endsWith(".xlsx") ||
     fileName.endsWith(".csv") ||
-    fileName.startsWith("application/vnd.ms-excel")
-  ) {
-    images = "/images/Excel.PNG";
-  } else if (
-    fileName.endsWith(".ppt") ||
+    fileName.startsWith("application/vnd.ms-excel"))
+) {
+  images = "/images/Excel.PNG";
+} else if (
+  fileName &&
+  (fileName.endsWith(".ppt") ||
     fileName.endsWith(".pptx") ||
-    fileName.startsWith("application/vnd.ms-powerpoint")
-  ) {
-    images = "/images/PowerPoint.PNG";
-  }
+    fileName.startsWith("application/vnd.ms-powerpoint"))
+) {
+  images = "/images/PowerPoint.PNG";
+}
+
   const [imageSrc, setImageSrc] = useState(docUrl);
   const [ischecked, setChecked] = useState(checked);
   const [openModal, setOpenModal] = useState(false);
