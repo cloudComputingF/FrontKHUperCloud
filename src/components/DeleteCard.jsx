@@ -23,37 +23,37 @@ const DeleteCard = ({
   parentcheck,
 }) => {
     const [ischecked, setChecked] = useState(checked);
-
-    console.log(itemId)
-    let images;
-    if (fileName.endsWith(".pdf")) {
-      images = "/images/PDF.PNG";
-    } else if (
-      fileName.endsWith(".doc") ||
-      fileName.endsWith(".docx") ||
-      fileName.startsWith("application/msword")
-    ) {
-      images = "/images/Word.png";
-    } else if (
-      fileName.endsWith(".xls") ||
-      fileName.endsWith(".xlsx") ||
-      fileName.endsWith(".csv") ||
-      fileName.startsWith("application/vnd.ms-excel")
-    ) {
-      images = "/images/Excel.PNG";
-    } else if (
-      fileName.endsWith(".ppt") ||
-      fileName.endsWith(".pptx") ||
-      fileName.startsWith("application/vnd.ms-powerpoint")
-    ) {
-      images = "/images/PowerPoint.PNG";
-    }
+    const [imageSrc, setImageSrc] = useState(itemUrl);
+    const [documentUrl, setDocumentUrl] = useState(null);
+  let images;
+  if (fileName.endsWith(".pdf")) {
+    images = "/images/PDF.PNG";
+  } else if (
+    fileName.endsWith(".doc") ||
+    fileName.endsWith(".docx") ||
+    fileName.startsWith("application/msword")
+  ) {
+    images = "/images/Word.png";
+  } else if (
+    fileName.endsWith(".xls") ||
+    fileName.endsWith(".xlsx") ||
+    fileName.endsWith(".csv") ||
+    fileName.startsWith("application/vnd.ms-excel")
+  ) {
+    images = "/images/Excel.PNG";
+  } else if (
+    fileName.endsWith(".ppt") ||
+    fileName.endsWith(".pptx") ||
+    fileName.startsWith("application/vnd.ms-powerpoint")
+  ) {
+    images = "/images/PowerPoint.PNG";
+  }
     
     const fileExtension = fileName.split(".").pop();
     const itemType = fileExtension === "png" || fileExtension === "jpg" ? "image" : "document";
 
   const handleCheckboxChange = (event) => {
-    const isChecked = event.target.checked;
+    const isChecked = event.target.newChecked;
     onChildCheckboxChange(itemId, isChecked);
   };
   return (

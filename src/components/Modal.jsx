@@ -30,14 +30,17 @@ const Modal = ({ open, onClose, filename, url }) => {
     setEncrypt(true);
   };
   useEffect(() => {
-    const fileExtension = filename.split(".").pop().toLowerCase();
-    const imageExtensions = ["png", "jpg", "jpeg", "gif"];
-    setIsImage(imageExtensions.includes(fileExtension));
+    if (filename) {
+      const fileExtension = filename.split(".").pop().toLowerCase();
+      const imageExtensions = ["png", "jpg", "jpeg", "gif"];
+      setIsImage(imageExtensions.includes(fileExtension));
+    }
   }, [filename]);
+  
 
   let wordImage = "/images/DOCX.png";
   let content;
-
+  
   if (isImage && !isEncrypt) {
     content = (
       <img src={url} alt={filename} style={{ width: "100%", height: "100%" }} />
@@ -50,7 +53,7 @@ const Modal = ({ open, onClose, filename, url }) => {
         style={{ width: "100%", height: "100%" }}
       />
     );
-  } else if (filename.endsWith(".pdf")) {
+  } else if (filename && filename.endsWith(".pdf")) {
     content = (
       <iframe
         src={url}
@@ -59,9 +62,10 @@ const Modal = ({ open, onClose, filename, url }) => {
       />
     );
   } else if (
-    filename.endsWith(".doc") ||
-    filename.endsWith(".docx") ||
-    filename.startsWith("application/msword")
+    filename &&
+    (filename.endsWith(".doc") ||
+      filename.endsWith(".docx") ||
+      filename.startsWith("application/msword"))
   ) {
     content = (
       <div
@@ -80,6 +84,7 @@ const Modal = ({ open, onClose, filename, url }) => {
       </div>
     );
   }
+  
 
   const handleTranslate = () => {
     // Handle translation logic here
