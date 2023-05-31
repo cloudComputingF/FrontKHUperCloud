@@ -107,39 +107,43 @@ function MainPage({ window }) {
   {
     /*서버에 보낼 함수*/
   }
-  // const handleUpload = (file) => {
-  //   if (file.type.includes("image")) {
-  //     const imageData = {
-  //       url: URL.createObjectURL(file),
-  //       fileName: file.name,
-  //       fileSize: file.size,
-  //       imgKey: `img-${Date.now()}`,
-  //     };
+  
+  
+  const handleUpload = (file) => {
+    
+    if (file.type.includes("image")) {
+      const imageData = {
+        url: URL.createObjectURL(file),
+        fileName: file.name,
+        fileSize: file.size,
+        imgKey: `img-${Date.now()}`,
+      };
 
-  //     setImageUrls((prevUrls) => [...prevUrls, imageData]);
-  //   } else if (
-  //     file.type.includes("application/pdf") ||
-  //     file.type.includes(".doc") ||
-  //     file.type.includes(".docx") ||
-  //     file.type.includes("application/msword") ||
-  //     file.type.includes("application/vnd.ms-excel") ||
-  //     file.type.includes(".xls") ||
-  //     file.type.includes(".xlsx") ||
-  //     file.type.includes(".csv") ||
-  //     file.type.includes(".ppt") ||
-  //     file.type.includes(".pptx") ||
-  //     file.type.includes("application/vnd.ms-powerpoint")
-  //   ) {
-  //     const documentData = {
-  //       url: URL.createObjectURL(file),
-  //       fileName: file.name,
-  //       fileSize: file.size,
-  //       docKey: `doc-${Date.now()}`,
-  //     };
+      setImageUrls((prevUrls) => [...prevUrls, imageData]);
+    } else if (
+      file.type.includes("application/pdf") ||
+      file.type.includes(".doc") ||
+      file.type.includes(".docx") ||
+      file.type.includes("application/msword") ||
+      file.type.includes("application/vnd.ms-excel") ||
+      file.type.includes(".xls") ||
+      file.type.includes(".xlsx") ||
+      file.type.includes(".csv") ||
+      file.type.includes(".ppt") ||
+      file.type.includes(".pptx") ||
+      file.type.includes("application/vnd.ms-powerpoint")
+    ) {
+      const documentData = {
+        url: URL.createObjectURL(file),
+        fileName: file.name,
+        fileSize: file.size,
+        docKey: `doc-${Date.now()}`,
+      };
 
-  //     setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
-  //   }
-  // };
+      setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
+      
+    }
+  };
 
   const handleDelete = () => {
     const selectedImages = Object.entries(childChecked)
@@ -183,23 +187,23 @@ function MainPage({ window }) {
   }
 
 
- const handleUpload = (file) => {
-    const imageData = new FormData();
-    imageData.append('url', URL.createObjectURL(file));
+//  const handleUpload = (file) => {
+//     const imageData = new FormData();
+//     imageData.append('url', URL.createObjectURL(file));
   
   
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'http://43.207.224.148:8000/upload/file', true);
-    xhr.send(imageData);
+//     const xhr = new XMLHttpRequest();
+//     xhr.open('POST', 'http://43.207.224.148:8000/upload/file', true);
+//     xhr.send(imageData);
   
-    const newImageData = {
-      url: URL.createObjectURL(file),
-      fileName: file.name,
-      fileSize: file.size,
-      imgKey: `img-${Date.now()}`,
-    };
-    setImageUrls((prevUrls) => [...prevUrls, newImageData]);
-  };
+//     const newImageData = {
+//       url: URL.createObjectURL(file),
+//       fileName: file.name,
+//       fileSize: file.size,
+//       imgKey: `img-${Date.now()}`,
+//     };
+//     setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+//   };
 
 
   {
@@ -281,23 +285,6 @@ function MainPage({ window }) {
     };
 
     
-     
-    
-    //폴더 페이지 라우팅
-    // const FolderRouting = () => {
-    //   return (
-    //     <Router>
-    //       <Switch>
-    //         <Route exact path="/Main" component={Dropzone} />
-    //         <Route path="/folder/:folderId" component={FolderPage} />
-    //       </Switch>
-    //     </Router>
-    //   );
-    // };
-
-
-
-
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -425,6 +412,8 @@ function MainPage({ window }) {
                     </div>
                   )}
 
+                
+
 
                   <Button
                     sx={{ marginTop: 0.3, marginLeft: 1 }}
@@ -445,12 +434,17 @@ function MainPage({ window }) {
             </Box>
           </Box>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+          
+          <Divider sx={{ my: 2.3 }} />
+        </Box>
+        <Box sx={{ mt: 16}}>
+          
+          <div style={{display: 'flex', flexWrap: 'wrap' }}>
           {folders.map((folder) => (
-            <div key={folder.id}>
-              <Link to={`/folder/${folder.id}`}>
+            <div key={folder.name}>
+              <Link to={`/folder/${folder.name}`}>
             <img 
-              key={folder.id} 
+              key={folder.name} 
               src="/images/Folder.png" 
               alt={folder.name} 
               style={{ width: '100px', height: '100px', margin: "20px" }}
@@ -459,10 +453,9 @@ function MainPage({ window }) {
               <p style={{textAlign: 'center'}}>{folder.name}</p> {/* 폴더 이름 표시 */}
               </div>
            ))}
-        </div>
-          <Divider sx={{ my: 2.3 }} />
-        </Box>
-        <Box sx={{ mt: -2, display: "flex", flexWrap: "wrap" }}>
+            </div>
+          
+          <div style={{display: 'flex', flexWrap: 'wrap' }}>
           {selectedOption === "all" ? (
             <>
               <ImageList
@@ -492,6 +485,10 @@ function MainPage({ window }) {
               childChecked={childChecked}
               onChildCheckboxChange={handleChildCheckboxChange}
             />
+
+            
+
+
           )}
 
           {selectedOption === "delete" && (
@@ -502,18 +499,13 @@ function MainPage({ window }) {
               onChildCheckboxChange={handleChildCheckboxChange}
             />
           )}
+          </div>
         </Box>
       </Box>
     </Box>
-
     
-    
-
-  
-    
-  
-  
     );
+    
 }
 
 MainPage.propTypes = {

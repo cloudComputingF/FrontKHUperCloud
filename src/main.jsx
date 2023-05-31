@@ -16,7 +16,7 @@ const router=createBrowserRouter([
   {path:'/Main',element:<MainPage/>},
   {path:'/SignUp',element:<SignupForm/>},
   {path:'/SignIn',element:<SignIn/>},
-  {path: "/folder/:folderId", element:<FolderPage/>},
+  {path: "/folder/:folderName", element:<FolderPage/>},
 ])
 
 ReactDOM.createRoot(document.getElementById('root')).render(
