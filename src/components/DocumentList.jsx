@@ -20,7 +20,7 @@ export default function DocumentList({
     onChildCheckboxChange(dockey, isChecked);
   };
   return (
-    <Box sx={{ mt: 5, display: "flex", flexWrap: "wrap" }}>
+    <Box sx={{ mt: 0, display: "flex", flexWrap: "wrap" }}>
       {documentUrls.length > 0 ? (
         documentUrls.map((document, index) => (
           <DocumentCard

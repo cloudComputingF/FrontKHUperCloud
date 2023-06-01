@@ -359,16 +359,6 @@ function MainPage({ window }) {
     };
 
 
-      if (newFolderName.trim() === '') {
-        alert('폴더 이름을 입력해주세요.');
-        return;
-      }
-  
-      // 기존 폴더 목록에 새 폴더 추가
-      const newFolder = {
-        id: Math.random().toString(36).substring(7), // 무작위 ID 생성
-        name: newFolderName,
-      };
   
       // 기존 폴더 목록에 새 폴더를 추가한 후, 업데이트된 폴더 목록으로 상태를 업데이트합니다.
       setFolders((prevFolders) => [...prevFolders, newFolder]);
@@ -379,17 +369,7 @@ function MainPage({ window }) {
       // 모달 닫기
     };
 
-    
-
-    // 기존 폴더 목록에 새 폴더를 추가한 후, 업데이트된 폴더 목록으로 상태를 업데이트합니다.
-    setFolders((prevFolders) => [...prevFolders, newFolder]);
-
-    // 폴더 생성 후 입력 필드 초기화
-    setNewFolderName("");
-
-    // 모달 닫기
-  };
-
+  
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -543,16 +523,19 @@ function MainPage({ window }) {
               )}
             </Box>
           </Box>
-
-          
           <Divider sx={{ my: 2.3 }} />
-        </Box>
-        <Box sx={{ mt: 16}}>
-          <div style={{display: 'flex', flexWrap: 'wrap' }}>
-          {folders.map((folder) => ( //이때 이 folders 는 백에서 가지고 와서 mappping ?
-            <div key={folder.name}>
+        </Box>  
+        
+          
+          <Box>
+            {selectedOption === "all" ? (
+              <>
+              <Box sx={{mt: 16}}>
+              <div style={{display: 'flex', flexWrap: 'wrap' }}>
+              {folders.map((folder) => ( //이때 이 folders 는 백에서 가지고 와서 mappping ?
+              <div key={folder.name}>
               <Link to={`/folder/${folder.name}`}>
-            <img 
+              <img 
               key={folder.name} 
               src="/images/Folder.png" 
               alt={folder.name} 
@@ -561,12 +544,11 @@ function MainPage({ window }) {
               </Link>
               <p style={{textAlign: 'center'}}>{folder.name}</p> {/* 폴더 이름 표시 */}
               </div>
-           ))}
+               ))}
             </div>
-          
-          <div style={{ display: "flex", flexWrap: "wrap" }}>
-            {selectedOption === "all" ? (
-              <>
+            </Box>
+
+
               <div style={{ margin: '5px', flexBasis: '100%' }}>
                 <ImageList
                   imageUrls={imageUrls}
@@ -575,7 +557,7 @@ function MainPage({ window }) {
                   onChildCheckboxChange={handleChildCheckboxChange}
                 />
               </div>
-              <Divider orientation="horizontal" sx={{ borderBottom: '2px solid black' }} />
+              {/* <Divider orientation="horizontal" sx={{ borderBottom: '2px solid black' }} />  */}
               <div style={{ margin: '0px', flexBasis: '100%', paddingTop: '0', marginTop:-130 }}>
                 <DocumentList
                   documentUrls={documentUrls}
@@ -607,11 +589,14 @@ function MainPage({ window }) {
               onChildCheckboxChange={handleChildCheckboxChange}
             />
           ) : null}
+          </Box>
         </Box>
       </Box>
-    </Box>
+  
   );
-}
+          }
+
+          
 
 MainPage.propTypes = {
   /**
