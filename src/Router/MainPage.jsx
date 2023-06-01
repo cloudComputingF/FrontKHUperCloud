@@ -440,7 +440,7 @@ function MainPage({ window }) {
         <Box sx={{ mt: 16}}>
           
           <div style={{display: 'flex', flexWrap: 'wrap' }}>
-          {folders.map((folder) => (
+          {folders.map((folder) => ( //이때 이 folders 는 백에서 가지고 와서 mappping ?
             <div key={folder.name}>
               <Link to={`/folder/${folder.name}`}>
             <img 
