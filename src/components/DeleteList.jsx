@@ -8,8 +8,8 @@ export default function DeleteList({
   childChecked,
   onChildCheckboxChange,
 }) {
-  console.log(deleteList);
   const [checkedItems, setCheckedItems] = useState({});
+
 
   const handleChildCheckboxChange = (itemId, isChecked) => {
     setCheckedItems((prevState) => ({

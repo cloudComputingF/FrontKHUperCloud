@@ -18,11 +18,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Button from "@mui/material/Button";
 import DocumentList from "../components/DocumentList";
 import DeleteList from "../components/DeleteList";
-import { Link } from 'react-router-dom';
-
-
-
-
+import { Link } from "react-router-dom";
 
 function MainPage({ window }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -35,7 +31,6 @@ function MainPage({ window }) {
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedOption, setSelectedOption] = useState("all");
   const [deleteList, setDeleteList] = useState([]);
-  
 
   const handleAllFilesClick = () => {
     setSelectedOption("all");
@@ -104,13 +99,13 @@ function MainPage({ window }) {
     setMobileOpen(!mobileOpen);
   };
 
+
   {
     /*서버에 보낼 함수*/
   }
   
-  
-  const handleUpload = (file) => {
-    
+    const handleUpload = (file) => {
+
     if (file.type.includes("image")) {
       const imageData = {
         url: URL.createObjectURL(file),
@@ -141,6 +136,7 @@ function MainPage({ window }) {
       };
 
       setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
+
       
     }
   };
@@ -149,26 +145,19 @@ function MainPage({ window }) {
     const selectedImages = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
       .map(([key]) => key);
-
     const selectedDocuments = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
       .map(([key]) => key);
-
-    // Remove selected images from the imageUrls array
     setImageUrls((prevImageUrls) =>
       prevImageUrls.filter(
         (imageUrl) => !selectedImages.includes(imageUrl.imgKey)
       )
     );
-
-    // Remove selected documents from the documentUrls array
     setDocumentUrls((prevDocumentUrls) =>
       prevDocumentUrls.filter(
         (documentUrl) => !selectedDocuments.includes(documentUrl.docKey)
       )
     );
-
-    // Create an array of deleted items with their details
     const deletedItems = [
       ...imageUrls.filter((imageUrl) =>
         selectedImages.includes(imageUrl.imgKey)
@@ -177,10 +166,11 @@ function MainPage({ window }) {
         selectedDocuments.includes(documentUrl.docKey)
       ),
     ];
-
-    // Update the deleteList state
     setDeleteList((prevDeleteList) => [...prevDeleteList, ...deletedItems]);
+    parentchange({ target: { checked: false } });
+    setChildChecked({});
   };
+
 
   {
     /*서버 호출 업로드*/
@@ -190,8 +180,6 @@ function MainPage({ window }) {
 //  const handleUpload = (file) => {
 //     const imageData = new FormData();
 //     imageData.append('url', URL.createObjectURL(file));
-  
-  
 //     const xhr = new XMLHttpRequest();
 //     xhr.open('POST', 'http://43.207.224.148:8000/upload/file', true);
 //     xhr.send(imageData);
@@ -205,6 +193,107 @@ function MainPage({ window }) {
 //     setImageUrls((prevUrls) => [...prevUrls, newImageData]);
 //   };
 
+  const handleRestore = () => {
+    const selectedImages = Object.entries(childChecked)
+      .filter(([_, checked]) => checked.checked)
+      .map(([key]) => key);
+  
+    const selectedDocuments = Object.entries(childChecked)
+      .filter(([_, checked]) => checked.checked)
+      .map(([key]) => key);
+    setImageUrls((prevImageUrls) => {
+      const restoredImages = selectedImages.map((imageKey) => {
+        const restoredImage = deleteList.find((item) => item.imgKey === imageKey);
+        if (restoredImage) {
+          //console.log(restoredImage);
+          return {
+            fileName: restoredImage.fileName,
+            fileSize:restoredImage.fileSize,
+            imgKey: imageKey,
+            url: restoredImage.url, 
+          };
+        }  
+        return null;
+      });
+      const filteredRestoredImages = restoredImages.filter(Boolean);
+      return [...prevImageUrls, ...filteredRestoredImages];
+    });
+    setDocumentUrls((prevDocumentUrls) => {
+      const restoredDocuments = selectedDocuments.map((documentKey) => {
+        // Find the restored document details based on the documentKey
+        const restoredDocument = deleteList.find(
+          (item) => item.docKey === documentKey
+        );
+       
+        if (restoredDocument) {
+          // Return the restored document with correct details
+          //console.log(restoredDocument);
+          return {
+            fileName: restoredDocument.fileName,
+            fileSize:restoredDocument.fileSize,
+            docKey: documentKey,
+            url: restoredDocument.url, // Update with the correct URL for the document
+             // Update with the correct filename for the document
+          };
+        }
+  
+        return null;
+      });
+  
+      const filteredRestoredDocuments = restoredDocuments.filter(Boolean);
+      console.log(filteredRestoredDocuments);
+  
+      return [...prevDocumentUrls, ...filteredRestoredDocuments];
+    });
+  
+  
+    setDeleteList((prevDeleteList) =>
+      prevDeleteList.filter(
+        (item) =>
+          !(
+            selectedImages.includes(item.imgKey) ||
+            selectedDocuments.includes(item.docKey)
+          )
+      )
+    );
+    parentchange({ target: { checked: false } });
+    setChildChecked({});
+  };
+  
+  
+  {
+    /*서버 호출 업로드*/
+  }
+  /*
+  const handleUpload = (file) => {
+  const imageData = new FormData();
+  imageData.append('file', file);
+
+  fetch('http://43.207.224.148:8000/upload/file', {
+    method: 'POST',
+    body: imageData,
+  })
+    .then((response) => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('파일 업로드에 실패했습니다.');
+      }
+    })
+    .then((data) => {
+      const newImageData = {
+        url: data.url,
+        fileName: file.name,
+        fileSize: file.size,
+        imgKey: `img-${Date.now()}`,
+      };
+      setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+};
+*/
 
   {
     /*서버 파일 다운로드 */
@@ -240,29 +329,35 @@ function MainPage({ window }) {
     } else {
       setIndeterminate(false);
     }
-  }, [childChecked, handleDelete]);
+  }, [childChecked],handleAllFilesClick,handleDeleteFilesClick);
 
   const container =
     window !== undefined ? () => window().document.body : undefined;
 
+  //새폴더생성
+  const [showModal, setShowModal] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [folders, setFolders] = useState([]);
+  const openModal = () => {
+    setShowModal(true);
+  };
 
+  const closeModal = () => {
+    setShowModal(false);
+  };
 
+  const createFolder = () => {
+    if (newFolderName.trim() === "") {
+      alert("폴더 이름을 입력해주세요.");
+      return;
+    }
 
-    //새폴더생성
-    const [showModal, setShowModal] = useState(false);
-    const [newFolderName, setNewFolderName] = useState('');
-    const [folders, setFolders] = useState([]);
-  
-    const openModal = () => {
-      setShowModal(true);
+    // 기존 폴더 목록에 새 폴더 추가
+    const newFolder = {
+      id: Math.random().toString(36).substring(7), // 무작위 ID 생성
+      name: newFolderName,
     };
-  
-    const closeModal = () => {
-      setShowModal(false);
-    };
-  
-    const createFolder = () => {
-      
+
 
       if (newFolderName.trim() === '') {
         alert('폴더 이름을 입력해주세요.');
@@ -285,6 +380,16 @@ function MainPage({ window }) {
     };
 
     
+
+    // 기존 폴더 목록에 새 폴더를 추가한 후, 업데이트된 폴더 목록으로 상태를 업데이트합니다.
+    setFolders((prevFolders) => [...prevFolders, newFolder]);
+
+    // 폴더 생성 후 입력 필드 초기화
+    setNewFolderName("");
+
+    // 모달 닫기
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -370,29 +475,37 @@ function MainPage({ window }) {
               <Divider orientation="vertical" sx={{ height: "100%" }} />
               {/*서버에 삭제 요청 handleEmptyTrash 정의 필요*/}
               {selectedOption === "delete" ? (
-                <Button
-                  sx={{ marginTop: 0.3, marginLeft: 1 }}
-                  variant="outlined"
-                  /*onClick={handleEmptyTrash}*/
-                >
-                  휴지통 비우기
-                </Button>
+                <>
+                  <Button
+                    sx={{ marginTop: 0.3, marginLeft: 1 }}
+                    variant="contained"
+                    /*onClick={handleEmptyTrash}*/
+                  >
+                    휴지통 비우기
+                  </Button>
+                  <Button
+                    sx={{ marginTop: 0.3, marginLeft: 1 }}
+                    variant="outlined"
+                    onClick={handleRestore}
+                  >
+                    복원
+                  </Button>
+                </>
               ) : (
                 <>
                   <Upload
                     onCreateImage={handleUpload}
                     onCreateDocument={handleUpload}
                   />
-                  
+
                   <Button
                     sx={{ marginTop: 0.3, marginLeft: 1 }}
                     variant="outlined"
                     onClick={openModal}
                   >
                     새폴더
-                  
                   </Button>
-                  
+
                   {/* 모달 */}
                   {showModal && (
                     <div className="modal-overlay2">
@@ -411,9 +524,6 @@ function MainPage({ window }) {
                       </div>
                     </div>
                   )}
-
-                
-
 
                   <Button
                     sx={{ marginTop: 0.3, marginLeft: 1 }}
@@ -438,7 +548,6 @@ function MainPage({ window }) {
           <Divider sx={{ my: 2.3 }} />
         </Box>
         <Box sx={{ mt: 16}}>
-          
           <div style={{display: 'flex', flexWrap: 'wrap' }}>
           {folders.map((folder) => ( //이때 이 folders 는 백에서 가지고 와서 mappping ?
             <div key={folder.name}>
@@ -455,21 +564,26 @@ function MainPage({ window }) {
            ))}
             </div>
           
-          <div style={{display: 'flex', flexWrap: 'wrap' }}>
-          {selectedOption === "all" ? (
-            <>
-              <ImageList
-                imageUrls={imageUrls}
-                parentcheck={selfcheck}
-                childChecked={childChecked}
-                onChildCheckboxChange={handleChildCheckboxChange}
-              />
-              <DocumentList
-                documentUrls={documentUrls}
-                parentcheck={selfcheck}
-                childChecked={childChecked}
-                onChildCheckboxChange={handleChildCheckboxChange}
-              />
+          <div style={{ display: "flex", flexWrap: "wrap" }}>
+            {selectedOption === "all" ? (
+              <>
+              <div style={{ margin: '5px', flexBasis: '100%' }}>
+                <ImageList
+                  imageUrls={imageUrls}
+                  parentcheck={selfcheck}
+                  childChecked={childChecked}
+                  onChildCheckboxChange={handleChildCheckboxChange}
+                />
+              </div>
+              <Divider orientation="horizontal" sx={{ borderBottom: '2px solid black' }} />
+              <div style={{ margin: '0px', flexBasis: '100%', paddingTop: '0', marginTop:-130 }}>
+                <DocumentList
+                  documentUrls={documentUrls}
+                  parentcheck={selfcheck}
+                  childChecked={childChecked}
+                  onChildCheckboxChange={handleChildCheckboxChange}
+                />
+              </div>
             </>
           ) : selectedOption === "photo" ? (
             <ImageList
@@ -478,34 +592,25 @@ function MainPage({ window }) {
               childChecked={childChecked}
               onChildCheckboxChange={handleChildCheckboxChange}
             />
-          ) : (
+          ) : selectedOption === "documents" ? (
             <DocumentList
               documentUrls={documentUrls}
               parentcheck={selfcheck}
               childChecked={childChecked}
               onChildCheckboxChange={handleChildCheckboxChange}
             />
-
-            
-
-
-          )}
-
-          {selectedOption === "delete" && (
+          ) : selectedOption === "delete" ? (
             <DeleteList
               deleteList={deleteList}
               parentcheck={selfcheck}
               childChecked={childChecked}
               onChildCheckboxChange={handleChildCheckboxChange}
             />
-          )}
-          </div>
+          ) : null}
         </Box>
       </Box>
     </Box>
-    
-    );
-    
+  );
 }
 
 MainPage.propTypes = {

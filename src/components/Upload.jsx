@@ -79,8 +79,7 @@ export default function Upload({
         setUploading(false);
       }
     },
-    accept:
-      "image/*, application/pdf, application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, audio/*, video/*",
+   
   });
 
   return (
@@ -111,8 +110,7 @@ export default function Upload({
             onClick: () => {
               setAnchorEl(null);
             },
-            accept:
-              "image/*, application/pdf, application/msword, application/vnd.ms-excel, audio/*, video/*",
+           
           })}
         >
           파일 올리기
@@ -135,7 +133,7 @@ export default function Upload({
             }}
             webkitdirectory="true"
             {...getInputProps({
-              accept: "",
+            
               multiple: false,
             })}
           />
