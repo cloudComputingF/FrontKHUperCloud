@@ -91,23 +91,39 @@ export default function SignIn() {
     }
 
 
-  const handleSubmit = (event) => {
+  // const handleSubmit = (event) => {
+  //   event.preventDefault();
+  //   const data = new FormData(event.currentTarget);
+  //   console.log({
+  //     id: data.get('id'),
+  //     password: data.get('password'),
+  //   });
+
+  //   //현재 더미 데이터로 임의 연결, 추후 백엔드와 연결할 로직
+  //   //로그인 아이디,비번은 상단의 유저 데이터
+  //   if(id == User.Id && password == User.Pw) {
+  //         document.location.href = '/Main'
+        
+  //   } else {
+  //           alert('등록되지 않은 회원입니다.')
+  //     }
+  // };
+  
+  //추후 쓸 함수는 이거임
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      id: data.get('id'),
-      password: data.get('password'),
-    });
-
-    //현재 더미 데이터로 임의 연결, 추후 백엔드와 연결할 로직
-    //로그인 아이디,비번은 상단의 유저 데이터
-    if(id == User.Id && password == User.Pw) {
-          document.location.href = '/Main'
-        
-    } else {
-            alert('등록되지 않은 회원입니다.')
-      }
-  }; 
+    const code = data.get('code');
+  
+    const response = await fetch('/login/oauth2/code/google?code=' + code);
+    const userData = await response.json();
+    
+    console.log(userData); // 백엔드에서 가져온 사용자 정보를 로그로 출력합니다.
+  
+    // 가져온 사용자 정보에 대한 추가적인 처리를 진행합니다.
+  // 메인 페이지로 이동
+    document.location.href = '/Main';
+  };
 
   return (
     <ThemeProvider theme={defaultTheme}>

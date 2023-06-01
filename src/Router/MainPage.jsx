@@ -99,7 +99,13 @@ function MainPage({ window }) {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleUpload = (file) => {
+
+  {
+    /*서버에 보낼 함수*/
+  }
+  
+    const handleUpload = (file) => {
+
     if (file.type.includes("image")) {
       const imageData = {
         url: URL.createObjectURL(file),
@@ -130,8 +136,9 @@ function MainPage({ window }) {
       };
 
       setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
-    }
 
+      
+    }
   };
 
   const handleDelete = () => {
@@ -164,6 +171,28 @@ function MainPage({ window }) {
     setChildChecked({});
   };
 
+
+  {
+    /*서버 호출 업로드*/
+  }
+
+
+//  const handleUpload = (file) => {
+//     const imageData = new FormData();
+//     imageData.append('url', URL.createObjectURL(file));
+//     const xhr = new XMLHttpRequest();
+//     xhr.open('POST', 'http://43.207.224.148:8000/upload/file', true);
+//     xhr.send(imageData);
+  
+//     const newImageData = {
+//       url: URL.createObjectURL(file),
+//       fileName: file.name,
+//       fileSize: file.size,
+//       imgKey: `img-${Date.now()}`,
+//     };
+//     setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+//   };
+
   const handleRestore = () => {
     const selectedImages = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
@@ -183,8 +212,7 @@ function MainPage({ window }) {
             imgKey: imageKey,
             url: restoredImage.url, 
           };
-        }
-  
+        }  
         return null;
       });
       const filteredRestoredImages = restoredImages.filter(Boolean);
@@ -233,7 +261,6 @@ function MainPage({ window }) {
   };
   
   
-
   {
     /*서버 호출 업로드*/
   }
@@ -331,6 +358,29 @@ function MainPage({ window }) {
       name: newFolderName,
     };
 
+
+      if (newFolderName.trim() === '') {
+        alert('폴더 이름을 입력해주세요.');
+        return;
+      }
+  
+      // 기존 폴더 목록에 새 폴더 추가
+      const newFolder = {
+        id: Math.random().toString(36).substring(7), // 무작위 ID 생성
+        name: newFolderName,
+      };
+  
+      // 기존 폴더 목록에 새 폴더를 추가한 후, 업데이트된 폴더 목록으로 상태를 업데이트합니다.
+      setFolders((prevFolders) => [...prevFolders, newFolder]);
+  
+      // 폴더 생성 후 입력 필드 초기화
+      setNewFolderName('');
+  
+      // 모달 닫기
+    };
+
+    
+
     // 기존 폴더 목록에 새 폴더를 추가한 후, 업데이트된 폴더 목록으로 상태를 업데이트합니다.
     setFolders((prevFolders) => [...prevFolders, newFolder]);
 
@@ -339,18 +389,6 @@ function MainPage({ window }) {
 
     // 모달 닫기
   };
-
-  //폴더 페이지 라우팅
-  // const FolderRouting = () => {
-  //   return (
-  //     <Router>
-  //       <Switch>
-  //         <Route exact path="/Main" component={Dropzone} />
-  //         <Route path="/folder/:folderId" component={FolderPage} />
-  //       </Switch>
-  //     </Router>
-  //   );
-  // };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -506,26 +544,28 @@ function MainPage({ window }) {
             </Box>
           </Box>
 
-          <div style={{ display: "flex", flexWrap: "wrap" }}>
-            {folders.map((folder) => (
-              <div key={folder.id}>
-                <Link to={`/folder/${folder.id}`}>
-                  <img
-                    key={folder.id}
-                    src="/images/Folder.png"
-                    alt={folder.name}
-                    style={{ width: "100px", height: "100px", margin: "20px" }}
-                  />
-                </Link>
-                <p style={{ textAlign: "center" }}>{folder.name}</p>{" "}
-                {/* 폴더 이름 표시 */}
-              </div>
-            ))}
-          </div>
+          
           <Divider sx={{ my: 2.3 }} />
         </Box>
-        <Box >
-          {selectedOption === "all" ? (
+        <Box sx={{ mt: 16}}>
+          <div style={{display: 'flex', flexWrap: 'wrap' }}>
+          {folders.map((folder) => ( //이때 이 folders 는 백에서 가지고 와서 mappping ?
+            <div key={folder.name}>
+              <Link to={`/folder/${folder.name}`}>
+            <img 
+              key={folder.name} 
+              src="/images/Folder.png" 
+              alt={folder.name} 
+              style={{ width: '100px', height: '100px', margin: "20px" }}
+              />
+              </Link>
+              <p style={{textAlign: 'center'}}>{folder.name}</p> {/* 폴더 이름 표시 */}
+              </div>
+           ))}
+            </div>
+          
+          <div style={{ display: "flex", flexWrap: "wrap" }}>
+            {selectedOption === "all" ? (
               <>
               <div style={{ margin: '5px', flexBasis: '100%' }}>
                 <ImageList
