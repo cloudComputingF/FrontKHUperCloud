@@ -549,7 +549,7 @@ function MainPage({ window }) {
             </Box>
 
 
-              <div style={{ margin: '5px', flexBasis: '100%' }}>
+              <div style={{ margin: '5px', flexBasis: '100%'}}>
                 <ImageList
                   imageUrls={imageUrls}
                   parentcheck={selfcheck}

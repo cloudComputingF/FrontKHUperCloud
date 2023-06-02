@@ -27,7 +27,7 @@ export default function ImageList({
   return (
     <Box
       sx={{
-        mt: 20,
+        mt: 0,
         display: "flex",
         flexWrap: "wrap",
       }}
