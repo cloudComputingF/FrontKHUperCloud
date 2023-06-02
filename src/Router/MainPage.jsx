@@ -568,12 +568,14 @@ function MainPage({ window }) {
               </div>
             </>
           ) : selectedOption === "photo" ? (
-            <ImageList
+            <Box sx={{mt: 20}}>
+            <ImageList 
               imageUrls={imageUrls}
               parentcheck={selfcheck}
               childChecked={childChecked}
               onChildCheckboxChange={handleChildCheckboxChange}
             />
+            </Box>
           ) : selectedOption === "documents" ? (
             <DocumentList
               documentUrls={documentUrls}
