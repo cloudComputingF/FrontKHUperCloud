@@ -50,42 +50,60 @@ function SignupForm() {
   };
 */
 {/*API 명세 보고 수정*/}
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const formData = {
-      userId: form.get("id"),
-      password: form.get("password"),
-      username: form.get("name"),
-      email: form.get("email"), 
-    };
-    if (password !== password1) {
-      alert("비밀번호와 비밀번호 확인이 같지 않습니다.");
-    } else {
-
-      fetch("http://43.207.224.148:8000/api/register/local", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => {
-          if (response.ok) {
-            setIsLoggedIn(true); // 로그인 상태를 변경
-            localStorage.setItem("isLoggedIn", "true"); // 로그인 상태를 로컬 스토리지에 저장
-            return response.json(); // Parse response body as JSON
-          } else {
-            throw new Error("회원 가입에 실패했습니다");
-          }
-        })
-        .then((data) => {
-          navigate("/", { state: { pk: data.pk } });  // 상태 넘겨주기
-        })
-        .catch((error) => {
-          // 오류 처리
-          console.error("Error:", error);
-        });
-    }
-    setValidated(true);
+const handleSubmit = (event) => {
+  event.preventDefault();
+  const form = new FormData(event.currentTarget);
+  const formData = {
+    userId: form.get("id"),
+    password: form.get("password"),
+    username: form.get("name"),
+    email: form.get("email"),
   };
+
+  if (password !== password1) {
+    alert("비밀번호와 비밀번호 확인이 같지 않습니다.");
+  } else {
+    fetch(`/login/oauth2/code/google?code=${form.get("code")}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json(); // JSON으로 응답 본문 파싱
+        } else {
+          throw new Error("Google OAuth2.0 인증에 실패했습니다.");
+        }
+      })
+      .then((data) => {
+        // Google 사용자 정보 처리
+        console.log(data);
+        // 회원 가입 프로세스나 추가 작업 계속 진행
+        fetch("http://43.207.224.148:8000/api/register/local", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => {
+            if (response.ok) {
+              setIsLoggedIn(true);
+              localStorage.setItem("isLoggedIn", "true");
+              return response.json();
+            } else {
+              throw new Error("회원 가입에 실패했습니다.");
+            }
+          })
+          .then((data) => {
+            navigate("/", { state: { pk: data.pk } });
+          })
+          .catch((error) => {
+            console.error("오류:", error);
+          });
+      })
+      .catch((error) => {
+        console.error("오류:", error);
+      });
+  }
+  setValidated(true);
+};
+
 
   return (
     <div className="container">
