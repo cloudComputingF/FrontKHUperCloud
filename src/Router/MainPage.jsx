@@ -99,13 +99,11 @@ function MainPage({ window }) {
     setMobileOpen(!mobileOpen);
   };
 
-
   {
     /*서버에 보낼 함수*/
   }
-  
-    const handleUpload = (file) => {
 
+  const handleUpload = (file) => {
     if (file.type.includes("image")) {
       const imageData = {
         url: URL.createObjectURL(file),
@@ -136,8 +134,6 @@ function MainPage({ window }) {
       };
 
       setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
-
-      
     }
   };
 
@@ -158,6 +154,7 @@ function MainPage({ window }) {
         (documentUrl) => !selectedDocuments.includes(documentUrl.docKey)
       )
     );
+
     const deletedItems = [
       ...imageUrls.filter((imageUrl) =>
         selectedImages.includes(imageUrl.imgKey)
@@ -171,48 +168,107 @@ function MainPage({ window }) {
     setChildChecked({});
   };
 
-
   {
     /*서버 호출 업로드*/
   }
+  /*
+  const handleUpload = (file) => {
+    if (file.type.includes("image")) {
+      const imageData = new FormData();
+      imageData.append('dir','/Main');
+      imageData.append('file', file);
+      
 
+      fetch("http://43.207.224.148:8000/files/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data", 
+        },
+        body: imageData,
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log("response값:", response);
+            const newImageData = {
+              url: URL.createObjectURL(file),
+              fileName: file.name,
+              fileSize: file.size,
+              imgKey: `img-${Date.now()}`,
+            };
+            setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+          } else {
+            throw new Error("Image upload failed");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    } else if (
+      file.type.includes("application/pdf") ||
+      file.type.includes(".doc") ||
+      file.type.includes(".docx") ||
+      file.type.includes("application/msword") ||
+      file.type.includes("application/vnd.ms-excel") ||
+      file.type.includes(".xls") ||
+      file.type.includes(".xlsx") ||
+      file.type.includes(".csv") ||
+      file.type.includes(".ppt") ||
+      file.type.includes(".pptx") ||
+      file.type.includes("application/vnd.ms-powerpoint")
+    ) {
+      const documentData = new FormData();
+      documentData.append("dir", "/Main");
+      documentData.append("file", file.url);
 
-//  const handleUpload = (file) => {
-//     const imageData = new FormData();
-//     imageData.append('url', URL.createObjectURL(file));
-//     const xhr = new XMLHttpRequest();
-//     xhr.open('POST', 'http://43.207.224.148:8000/upload/file', true);
-//     xhr.send(imageData);
-  
-//     const newImageData = {
-//       url: URL.createObjectURL(file),
-//       fileName: file.name,
-//       fileSize: file.size,
-//       imgKey: `img-${Date.now()}`,
-//     };
-//     setImageUrls((prevUrls) => [...prevUrls, newImageData]);
-//   };
-
+      fetch("http://43.207.224.148:8000/files/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data", 
+        },
+        body: documentData,
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log("response값:", response);
+            const newDocumentData = {
+              url: URL.createObjectURL(file),
+              fileName: file.name,
+              fileSize: file.size,
+              docKey: `doc-${Date.now()}`,
+            };
+            setDocumentUrls((prevUrls) => [...prevUrls, newDocumentData]);
+          } else {
+            throw new Error("Document upload failed");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+  };
+*/
   const handleRestore = () => {
     const selectedImages = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
       .map(([key]) => key);
-  
+
     const selectedDocuments = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
       .map(([key]) => key);
     setImageUrls((prevImageUrls) => {
       const restoredImages = selectedImages.map((imageKey) => {
-        const restoredImage = deleteList.find((item) => item.imgKey === imageKey);
+        const restoredImage = deleteList.find(
+          (item) => item.imgKey === imageKey
+        );
         if (restoredImage) {
           //console.log(restoredImage);
           return {
             fileName: restoredImage.fileName,
-            fileSize:restoredImage.fileSize,
+            fileSize: restoredImage.fileSize,
             imgKey: imageKey,
-            url: restoredImage.url, 
+            url: restoredImage.url,
           };
-        }  
+        }
         return null;
       });
       const filteredRestoredImages = restoredImages.filter(Boolean);
@@ -224,29 +280,26 @@ function MainPage({ window }) {
         const restoredDocument = deleteList.find(
           (item) => item.docKey === documentKey
         );
-       
+
         if (restoredDocument) {
           // Return the restored document with correct details
           //console.log(restoredDocument);
           return {
             fileName: restoredDocument.fileName,
-            fileSize:restoredDocument.fileSize,
+            fileSize: restoredDocument.fileSize,
             docKey: documentKey,
             url: restoredDocument.url, // Update with the correct URL for the document
-             // Update with the correct filename for the document
+            // Update with the correct filename for the document
           };
         }
-  
+
         return null;
       });
-  
+
       const filteredRestoredDocuments = restoredDocuments.filter(Boolean);
-      console.log(filteredRestoredDocuments);
-  
       return [...prevDocumentUrls, ...filteredRestoredDocuments];
     });
-  
-  
+
     setDeleteList((prevDeleteList) =>
       prevDeleteList.filter(
         (item) =>
@@ -259,8 +312,7 @@ function MainPage({ window }) {
     parentchange({ target: { checked: false } });
     setChildChecked({});
   };
-  
-  
+
   {
     /*서버 호출 업로드*/
   }
@@ -316,20 +368,25 @@ function MainPage({ window }) {
   };
 
   //childcheck 상태 기반 부수효과
-  useEffect(() => {
-    const allChecked =
-      Object.keys(childChecked).length > 0 &&
-      Object.values(childChecked).every((checked) => checked.checked);
-    const someChecked = Object.values(childChecked).some(
-      (checked) => checked.checked
-    );
-    setParentChecked(allChecked);
-    if (someChecked && !allChecked) {
-      setIndeterminate(true);
-    } else {
-      setIndeterminate(false);
-    }
-  }, [childChecked],handleAllFilesClick,handleDeleteFilesClick);
+  useEffect(
+    () => {
+      const allChecked =
+        Object.keys(childChecked).length > 0 &&
+        Object.values(childChecked).every((checked) => checked.checked);
+      const someChecked = Object.values(childChecked).some(
+        (checked) => checked.checked
+      );
+      setParentChecked(allChecked);
+      if (someChecked && !allChecked) {
+        setIndeterminate(true);
+      } else {
+        setIndeterminate(false);
+      }
+    },
+    [childChecked],
+    handleAllFilesClick,
+    handleDeleteFilesClick
+  );
 
   const container =
     window !== undefined ? () => window().document.body : undefined;
@@ -358,18 +415,15 @@ function MainPage({ window }) {
       name: newFolderName,
     };
 
+    // 기존 폴더 목록에 새 폴더를 추가한 후, 업데이트된 폴더 목록으로 상태를 업데이트합니다.
+    setFolders((prevFolders) => [...prevFolders, newFolder]);
 
-  
-      // 기존 폴더 목록에 새 폴더를 추가한 후, 업데이트된 폴더 목록으로 상태를 업데이트합니다.
-      setFolders((prevFolders) => [...prevFolders, newFolder]);
-  
-      // 폴더 생성 후 입력 필드 초기화
-      setNewFolderName('');
-  
-      // 모달 닫기
-    };
+    // 폴더 생성 후 입력 필드 초기화
+    setNewFolderName("");
+    closeModal();
+    // 모달 닫기
+  };
 
-  
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -524,32 +578,44 @@ function MainPage({ window }) {
             </Box>
           </Box>
           <Divider sx={{ my: 2.3 }} />
-        </Box>  
-        
-          
-          <Box>
-            {selectedOption === "all" ? (
-              <>
-              <Box sx={{mt: 16}}>
-              <div style={{display: 'flex', flexWrap: 'wrap' }}>
-              {folders.map((folder) => ( //이때 이 folders 는 백에서 가지고 와서 mappping ?
-              <div key={folder.name}>
-              <Link to={`/folder/${folder.name}`}>
-              <img 
-              key={folder.name} 
-              src="/images/Folder.png" 
-              alt={folder.name} 
-              style={{ width: '100px', height: '100px', margin: "20px" }}
-              />
-              </Link>
-              <p style={{textAlign: 'center'}}>{folder.name}</p> {/* 폴더 이름 표시 */}
-              </div>
-               ))}
-            </div>
-            </Box>
+        </Box>
 
-
-              <div style={{ margin: '5px', flexBasis: '100%'}}>
+        <Box>
+          {selectedOption === "all" ? (
+            <>
+              <Box sx={{ mt: 16 }}>
+                <div style={{ display: "flex", flexWrap: "wrap" }}>
+                  {folders.map(
+                    (
+                      folder //이때 이 folders 는 백에서 가지고 와서 mappping ?
+                    ) => (
+                      <div style={{display: "flex", flexDirection: "column", alignItems: "center",margin:20}}>
+                        <div
+                          key={folder.name}
+                          style={{ border: "1px solid silver"  }}
+                        >
+                          <Link to={`/folder/${folder.name}`}>
+                            <img
+                              key={folder.name}
+                              src="/images/Folder.png"
+                              alt={folder.name}
+                              style={{
+                                width: "100px",
+                                height: "100px",
+                                margin: "20px",
+                              }}
+                            />
+                          </Link>
+                        </div>
+                        <div style={{ textAlign: "center" }}>
+                          <p style={{ marginTop: 5,fontSize:13 }}>{folder.name}</p>
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              </Box>
+              <div style={{ margin: "5px", flexBasis: "100%" }}>
                 <ImageList
                   imageUrls={imageUrls}
                   parentcheck={selfcheck}
@@ -557,8 +623,14 @@ function MainPage({ window }) {
                   onChildCheckboxChange={handleChildCheckboxChange}
                 />
               </div>
-              {/* <Divider orientation="horizontal" sx={{ borderBottom: '2px solid black' }} />  */}
-              <div style={{ margin: '0px', flexBasis: '100%', paddingTop: '0', marginTop:-130 }}>
+              <div
+                style={{
+                  margin: "0px",
+                  flexBasis: "100%",
+                  paddingTop: "0",
+                  marginTop: -130,
+                }}
+              >
                 <DocumentList
                   documentUrls={documentUrls}
                   parentcheck={selfcheck}
@@ -568,13 +640,13 @@ function MainPage({ window }) {
               </div>
             </>
           ) : selectedOption === "photo" ? (
-            <Box sx={{mt: 20}}>
-            <ImageList 
-              imageUrls={imageUrls}
-              parentcheck={selfcheck}
-              childChecked={childChecked}
-              onChildCheckboxChange={handleChildCheckboxChange}
-            />
+            <Box sx={{ mt: 20 }}>
+              <ImageList
+                imageUrls={imageUrls}
+                parentcheck={selfcheck}
+                childChecked={childChecked}
+                onChildCheckboxChange={handleChildCheckboxChange}
+              />
             </Box>
           ) : selectedOption === "documents" ? (
             <DocumentList
@@ -591,14 +663,11 @@ function MainPage({ window }) {
               onChildCheckboxChange={handleChildCheckboxChange}
             />
           ) : null}
-          </Box>
         </Box>
       </Box>
-  
+    </Box>
   );
-          }
-
-          
+}
 
 MainPage.propTypes = {
   /**

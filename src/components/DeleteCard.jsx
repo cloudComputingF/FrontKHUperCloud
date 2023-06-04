@@ -49,9 +49,8 @@ const DeleteCard = ({
     images = "/images/PowerPoint.PNG";
   }
     
-    const fileExtension = fileName.split(".").pop();
+  const fileExtension = fileName.split(".").pop().toLowerCase();
     const itemType = fileExtension === "png" || fileExtension === "jpg" ? "image" : "document";
-
   const handleCheckboxChange = (event) => {
     const isChecked = event.target.newChecked;
     onChildCheckboxChange(itemId, isChecked);
@@ -126,7 +125,7 @@ const DeleteCard = ({
           height: "auto%",
           objectFit: "contain",
         }}
-        image={itemUrl}
+        image={imageSrc}
       ></CardMedia>
       </>
       )}

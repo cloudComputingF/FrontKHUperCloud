@@ -17,8 +17,6 @@
 
 // export default FolderPage;
 
-
-
 import * as React from "react";
 import {
   Box,
@@ -39,9 +37,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Button from "@mui/material/Button";
 import DocumentList from "../components/DocumentList";
 import DeleteList from "../components/DeleteList";
-import { Link, useParams } from 'react-router-dom';
-
-
+import { Link, useParams } from "react-router-dom";
 
 function FolderPage({ window }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -55,7 +51,6 @@ function FolderPage({ window }) {
   const [selectedOption, setSelectedOption] = useState("all");
   const [deleteList, setDeleteList] = useState([]);
   const { folderName } = useParams();
-  
 
   const handleAllFilesClick = () => {
     setSelectedOption("all");
@@ -161,6 +156,74 @@ function FolderPage({ window }) {
     }
   };
 
+  const handleRestore = () => {
+    const selectedImages = Object.entries(childChecked)
+      .filter(([_, checked]) => checked.checked)
+      .map(([key]) => key);
+
+    const selectedDocuments = Object.entries(childChecked)
+      .filter(([_, checked]) => checked.checked)
+      .map(([key]) => key);
+    setImageUrls((prevImageUrls) => {
+      const restoredImages = selectedImages.map((imageKey) => {
+        const restoredImage = deleteList.find(
+          (item) => item.imgKey === imageKey
+        );
+        if (restoredImage) {
+          //console.log(restoredImage);
+          return {
+            fileName: restoredImage.fileName,
+            fileSize: restoredImage.fileSize,
+            imgKey: imageKey,
+            url: restoredImage.url,
+          };
+        }
+        return null;
+      });
+      const filteredRestoredImages = restoredImages.filter(Boolean);
+      return [...prevImageUrls, ...filteredRestoredImages];
+    });
+    setDocumentUrls((prevDocumentUrls) => {
+      const restoredDocuments = selectedDocuments.map((documentKey) => {
+        // Find the restored document details based on the documentKey
+        const restoredDocument = deleteList.find(
+          (item) => item.docKey === documentKey
+        );
+
+        if (restoredDocument) {
+          // Return the restored document with correct details
+          //console.log(restoredDocument);
+          return {
+            fileName: restoredDocument.fileName,
+            fileSize: restoredDocument.fileSize,
+            docKey: documentKey,
+            url: restoredDocument.url, // Update with the correct URL for the document
+            // Update with the correct filename for the document
+          };
+        }
+
+        return null;
+      });
+
+      const filteredRestoredDocuments = restoredDocuments.filter(Boolean);
+      console.log(filteredRestoredDocuments);
+
+      return [...prevDocumentUrls, ...filteredRestoredDocuments];
+    });
+
+    setDeleteList((prevDeleteList) =>
+      prevDeleteList.filter(
+        (item) =>
+          !(
+            selectedImages.includes(item.imgKey) ||
+            selectedDocuments.includes(item.docKey)
+          )
+      )
+    );
+    parentchange({ target: { checked: false } });
+    setChildChecked({});
+  };
+
   const handleDelete = () => {
     const selectedImages = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
@@ -196,31 +259,30 @@ function FolderPage({ window }) {
 
     // Update the deleteList state
     setDeleteList((prevDeleteList) => [...prevDeleteList, ...deletedItems]);
+    parentchange({ target: { checked: false } });
+    setChildChecked({});
   };
 
   {
     /*서버 호출 업로드*/
   }
 
+  //  const handleUpload = (file) => {
+  //     const imageData = new FormData();
+  //     imageData.append('url', URL.createObjectURL(file));
 
-//  const handleUpload = (file) => {
-//     const imageData = new FormData();
-//     imageData.append('url', URL.createObjectURL(file));
-  
-  
-//     const xhr = new XMLHttpRequest();
-//     xhr.open('POST', 'http://43.207.224.148:8000/upload/file', true);
-//     xhr.send(imageData);
-  
-//     const newImageData = {
-//       url: URL.createObjectURL(file),
-//       fileName: file.name,
-//       fileSize: file.size,
-//       imgKey: `img-${Date.now()}`,
-//     };
-//     setImageUrls((prevUrls) => [...prevUrls, newImageData]);
-//   };
+  //     const xhr = new XMLHttpRequest();
+  //     xhr.open('POST', 'http://43.207.224.148:8000/upload/file', true);
+  //     xhr.send(imageData);
 
+  //     const newImageData = {
+  //       url: URL.createObjectURL(file),
+  //       fileName: file.name,
+  //       fileSize: file.size,
+  //       imgKey: `img-${Date.now()}`,
+  //     };
+  //     setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+  //   };
 
   {
     /*서버 파일 다운로드 */
@@ -260,8 +322,6 @@ function FolderPage({ window }) {
 
   const container =
     window !== undefined ? () => window().document.body : undefined;
-
-
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -325,6 +385,12 @@ function FolderPage({ window }) {
         }}
       >
         <Box sx={{ position: "absolute", top: 82, left: 200, width: "85%" }}>
+          <div style={{ marginLeft: 15 }}>
+            <h4>
+              {" "}
+              <Link to='/Main'>KHUperCLOUD</Link> &gt; {folderName} &nbsp;
+            </h4>
+          </div>
           <Box
             sx={{ display: "flex", alignItems: "center", marginLeft: "14px" }}
           >
@@ -348,27 +414,28 @@ function FolderPage({ window }) {
               <Divider orientation="vertical" sx={{ height: "100%" }} />
               {/*서버에 삭제 요청 handleEmptyTrash 정의 필요*/}
               {selectedOption === "delete" ? (
-                <Button
-                  sx={{ marginTop: 0.3, marginLeft: 1 }}
-                  variant="outlined"
-                  /*onClick={handleEmptyTrash}*/
-                >
-                  휴지통 비우기
-
-                </Button>
-              ) : (
-
-                
                 <>
-                <div>
-                      <h2> {folderName} &nbsp;</h2>
-                  </div>
+                  <Button
+                    sx={{ marginTop: 0.3, marginLeft: 1 }}
+                    variant="contained"
+                    /*onClick={handleEmptyTrash}*/
+                  >
+                    휴지통 비우기
+                  </Button>
+                  <Button
+                    sx={{ marginTop: 0.3, marginLeft: 1 }}
+                    variant="outlined"
+                    onClick={handleRestore}
+                  >
+                    복원
+                  </Button>
+                </>
+              ) : (
+                <>
                   <Upload
                     onCreateImage={handleUpload}
                     onCreateDocument={handleUpload}
                   />
-                  
-                 
                   <Button
                     sx={{ marginTop: 0.3, marginLeft: 1 }}
                     onClick={handleDownload}
@@ -390,21 +457,32 @@ function FolderPage({ window }) {
 
           <Divider sx={{ my: 2.3 }} />
         </Box>
-        <Box sx={{ mt: 16, display: "flex", flexWrap: "wrap" }}>
+        <Box sx={{ mt: 20, display: "flex", flexWrap: "wrap" }}>
           {selectedOption === "all" ? (
             <>
-              <ImageList
-                imageUrls={imageUrls}
-                parentcheck={selfcheck}
-                childChecked={childChecked}
-                onChildCheckboxChange={handleChildCheckboxChange}
-              />
-              <DocumentList
-                documentUrls={documentUrls}
-                parentcheck={selfcheck}
-                childChecked={childChecked}
-                onChildCheckboxChange={handleChildCheckboxChange}
-              />
+              <div style={{ margin: "5px", flexBasis: "100%" }}>
+                <ImageList
+                  imageUrls={imageUrls}
+                  parentcheck={selfcheck}
+                  childChecked={childChecked}
+                  onChildCheckboxChange={handleChildCheckboxChange}
+                />
+              </div>
+              <div
+                style={{
+                  margin: "0px",
+                  flexBasis: "100%",
+                  paddingTop: "0",
+                  marginTop: -130,
+                }}
+              >
+                <DocumentList
+                  documentUrls={documentUrls}
+                  parentcheck={selfcheck}
+                  childChecked={childChecked}
+                  onChildCheckboxChange={handleChildCheckboxChange}
+                />
+              </div>
             </>
           ) : selectedOption === "photo" ? (
             <ImageList
@@ -413,31 +491,29 @@ function FolderPage({ window }) {
               childChecked={childChecked}
               onChildCheckboxChange={handleChildCheckboxChange}
             />
-          ) : (
-            <DocumentList
+          ) : selectedOption === "documents" ? (
+            <div style={{marginTop:-130}}>
+            <DocumentList 
               documentUrls={documentUrls}
               parentcheck={selfcheck}
               childChecked={childChecked}
               onChildCheckboxChange={handleChildCheckboxChange}
             />
-          )}
-
-          {selectedOption === "delete" && (
+            </div>
+          ) : selectedOption === "delete" ? (
+            <div style={{marginTop:-130}}>
             <DeleteList
               deleteList={deleteList}
               parentcheck={selfcheck}
               childChecked={childChecked}
               onChildCheckboxChange={handleChildCheckboxChange}
             />
-          )}
+            </div>
+          ) : null}
         </Box>
       </Box>
     </Box>
-
-      
-  
-  
-    );
+  );
 }
 
 FolderPage.propTypes = {
