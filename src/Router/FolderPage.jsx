@@ -501,12 +501,14 @@ function FolderPage({ window }) {
             />
             </div>
           ) : selectedOption === "delete" ? (
+            <div style={{marginTop:-130}}>
             <DeleteList
               deleteList={deleteList}
               parentcheck={selfcheck}
               childChecked={childChecked}
               onChildCheckboxChange={handleChildCheckboxChange}
             />
+            </div>
           ) : null}
         </Box>
       </Box>

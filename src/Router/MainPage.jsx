@@ -102,9 +102,8 @@ function MainPage({ window }) {
   {
     /*서버에 보낼 함수*/
   }
-  /*
-    const handleUpload = (file) => {
 
+  const handleUpload = (file) => {
     if (file.type.includes("image")) {
       const imageData = {
         url: URL.createObjectURL(file),
@@ -135,11 +134,9 @@ function MainPage({ window }) {
       };
 
       setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
-
-      
     }
   };
-*/
+
   const handleDelete = () => {
     const selectedImages = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
@@ -157,6 +154,7 @@ function MainPage({ window }) {
         (documentUrl) => !selectedDocuments.includes(documentUrl.docKey)
       )
     );
+
     const deletedItems = [
       ...imageUrls.filter((imageUrl) =>
         selectedImages.includes(imageUrl.imgKey)
@@ -173,18 +171,18 @@ function MainPage({ window }) {
   {
     /*서버 호출 업로드*/
   }
-
+  /*
   const handleUpload = (file) => {
     if (file.type.includes("image")) {
       const imageData = new FormData();
-      imageData.set("dir", "/Main");
-      imageData.append("file", file);
-      console.log(imageData.get("file"));
+      imageData.append('dir','/Main');
+      imageData.append('file', file);
+      
 
-      fetch("http://43.207.224.148:8000/upload/file", {
+      fetch("http://43.207.224.148:8000/files/upload", {
         method: "POST",
         headers: {
-          "Content-Type": "multipart/form-data", // Content-Type을 반드시 이렇게 하여야 한다.
+          "Content-Type": "multipart/form-data", 
         },
         body: imageData,
       })
@@ -219,11 +217,14 @@ function MainPage({ window }) {
       file.type.includes("application/vnd.ms-powerpoint")
     ) {
       const documentData = new FormData();
-      documentData.set("dir", "/");
-      documentData.append("file", file);
+      documentData.append("dir", "/Main");
+      documentData.append("file", file.url);
 
-      fetch("http://43.207.224.148:8000/upload/file", {
+      fetch("http://43.207.224.148:8000/files/upload", {
         method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data", 
+        },
         body: documentData,
       })
         .then((response) => {
@@ -245,7 +246,7 @@ function MainPage({ window }) {
         });
     }
   };
-
+*/
   const handleRestore = () => {
     const selectedImages = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
@@ -296,8 +297,6 @@ function MainPage({ window }) {
       });
 
       const filteredRestoredDocuments = restoredDocuments.filter(Boolean);
-      console.log(filteredRestoredDocuments);
-
       return [...prevDocumentUrls, ...filteredRestoredDocuments];
     });
 
@@ -590,21 +589,27 @@ function MainPage({ window }) {
                     (
                       folder //이때 이 folders 는 백에서 가지고 와서 mappping ?
                     ) => (
-                      <div key={folder.name}>
-                        <Link to={`/folder/${folder.name}`}>
-                          <img
-                            key={folder.name}
-                            src="/images/Folder.png"
-                            alt={folder.name}
-                            style={{
-                              width: "100px",
-                              height: "100px",
-                              margin: "20px",
-                            }}
-                          />
-                        </Link>
-                        <p style={{ textAlign: "center" }}>{folder.name}</p>{" "}
-                        {/* 폴더 이름 표시 */}
+                      <div style={{display: "flex", flexDirection: "column", alignItems: "center",margin:20}}>
+                        <div
+                          key={folder.name}
+                          style={{ border: "1px solid silver"  }}
+                        >
+                          <Link to={`/folder/${folder.name}`}>
+                            <img
+                              key={folder.name}
+                              src="/images/Folder.png"
+                              alt={folder.name}
+                              style={{
+                                width: "100px",
+                                height: "100px",
+                                margin: "20px",
+                              }}
+                            />
+                          </Link>
+                        </div>
+                        <div style={{ textAlign: "center" }}>
+                          <p style={{ marginTop: 5,fontSize:13 }}>{folder.name}</p>
+                        </div>
                       </div>
                     )
                   )}
