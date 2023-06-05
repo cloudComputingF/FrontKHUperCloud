@@ -47,6 +47,120 @@ function MainPage({ window }) {
     setSelectedOption("delete");
   };
 
+  useEffect(() => {
+    fetch(`http://43.207.224.148:8000/files/search?folder=Maintest/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache', // 캐싱 방지 헤더 추가
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Failed to fetch folder and file data.');
+        }
+      })
+      .then((data) => {
+        console.log(data); // 확인용
+        const files = data.Message; // 받아온 데이터의 배열 부분을 files 변수에 할당
+        
+  
+        files.forEach((fileName) => {
+          // 파일 경로에서 파일 이름만 추출
+          const filePathParts = fileName.split('/');
+          const fileNameOnly = filePathParts[filePathParts.length - 1];
+  
+          const file = new File([], fileNameOnly); // 파일 객체 생성
+  
+          if (file.name.includes('.PNG') || file.name.includes('.JPG')) {
+            
+            fetch(`http://43.207.224.148:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            })
+              .then((response) => {
+                if (response.ok) {
+                  console.log(response);
+                  return response.json();
+                } else {
+                  throw new Error('Failed to fetch download URL.');
+                }
+              })
+              .then((data) => {
+                console.log('Download URL:', data.Message);
+                const downloadUrls = data.Message.map((item) => item.download);
+                console.log('Download URLs:', downloadUrls[0]);
+                const download = downloadUrls[0];
+  
+                const newImageData = {
+                  url: download,
+                  fileName: fileNameOnly,
+                  fileSize: download.size,
+                  imgKey: `img-${Date.now()}`,
+                };
+                setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+              })
+              .catch((error) => {
+                console.error('Error:', error);
+              });
+          } else if (
+            file.name.includes('.pdf') ||
+            file.name.includes('.doc') ||
+            file.name.includes('.docx') ||
+            file.name.includes('.xls') ||
+            file.name.includes('.xlsx') ||
+            file.name.includes('.csv') ||
+            file.name.includes('.ppt') ||
+            file.name.includes('.pptx')
+          ) {
+            fetch(`http://43.207.224.148:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            })
+              .then((response) => {
+                if (response.ok) {
+                  console.log(response);
+                  return response.json();
+                } else {
+                  throw new Error('Failed to fetch download URL.');
+                }
+              })
+              .then((data) => {
+                console.log('Download URL:', data.Message);
+                const downloadUrls = data.Message.map((item) => item.download);
+                console.log('Download URLs:', downloadUrls[0]);
+                const download = downloadUrls[0];
+  
+                const documentData = {
+                  url: download,
+                  fileName: fileNameOnly,
+                  fileSize: download.size,
+                  docKey: `doc-${Date.now()}`,
+                };
+                setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
+              })
+              .catch((error) => {
+                console.error('Error:', error);
+              });
+
+
+
+            
+          }
+        });
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }, []);
+
+
   const handleChildCheckboxChange = (imgKey, newChecked) => {
     setChildChecked((prevChecked) => ({
       ...prevChecked,
@@ -104,42 +218,6 @@ function MainPage({ window }) {
     /*서버에 보낼 함수*/
   }
   
-    const handleUpload = (file) => {
-
-    if (file.type.includes("image")) {
-      const imageData = {
-        url: URL.createObjectURL(file),
-        fileName: file.name,
-        fileSize: file.size,
-        imgKey: `img-${Date.now()}`,
-      };
-
-      setImageUrls((prevUrls) => [...prevUrls, imageData]);
-    } else if (
-      file.type.includes("application/pdf") ||
-      file.type.includes(".doc") ||
-      file.type.includes(".docx") ||
-      file.type.includes("application/msword") ||
-      file.type.includes("application/vnd.ms-excel") ||
-      file.type.includes(".xls") ||
-      file.type.includes(".xlsx") ||
-      file.type.includes(".csv") ||
-      file.type.includes(".ppt") ||
-      file.type.includes(".pptx") ||
-      file.type.includes("application/vnd.ms-powerpoint")
-    ) {
-      const documentData = {
-        url: URL.createObjectURL(file),
-        fileName: file.name,
-        fileSize: file.size,
-        docKey: `doc-${Date.now()}`,
-      };
-
-      setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
-
-      
-    }
-  };
 
   const handleDelete = () => {
     const selectedImages = Object.entries(childChecked)
@@ -176,22 +254,6 @@ function MainPage({ window }) {
     /*서버 호출 업로드*/
   }
 
-
-//  const handleUpload = (file) => {
-//     const imageData = new FormData();
-//     imageData.append('url', URL.createObjectURL(file));
-//     const xhr = new XMLHttpRequest();
-//     xhr.open('POST', 'http://43.207.224.148:8000/upload/file', true);
-//     xhr.send(imageData);
-  
-//     const newImageData = {
-//       url: URL.createObjectURL(file),
-//       fileName: file.name,
-//       fileSize: file.size,
-//       imgKey: `img-${Date.now()}`,
-//     };
-//     setImageUrls((prevUrls) => [...prevUrls, newImageData]);
-//   };
 
   const handleRestore = () => {
     const selectedImages = Object.entries(childChecked)
@@ -264,56 +326,197 @@ function MainPage({ window }) {
   {
     /*서버 호출 업로드*/
   }
-  /*
-  const handleUpload = (file) => {
-  const imageData = new FormData();
-  imageData.append('file', file);
 
-  fetch('http://43.207.224.148:8000/upload/file', {
-    method: 'POST',
-    body: imageData,
-  })
-    .then((response) => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error('파일 업로드에 실패했습니다.');
-      }
+ 
+  const handleUpload = (file) => {
+    const formData = new FormData();
+    formData.append('dir', 'Maintest/');
+    formData.append('file', file);
+  
+    fetch('http://43.207.224.148:8000/files/upload', {
+      method: 'POST',
+      body: formData,
     })
-    .then((data) => {
-      const newImageData = {
-        url: data.url,
-        fileName: file.name,
-        fileSize: file.size,
-        imgKey: `img-${Date.now()}`,
-      };
-      setImageUrls((prevUrls) => [...prevUrls, newImageData]);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
-};
-*/
+      .then((response) => {
+        if (response.ok) {
+          console.log("response!:", response);
+        } else {
+          throw new Error('Failed to upload file.');
+        }
+      })
+      .then((data) => {
+        if (file.type.includes("image")) {
+          const newImageData = { 
+            url: URL.createObjectURL(file),
+            fileName: file.name,
+            fileSize: file.size,
+            imgKey: `img-${Date.now()}`,
+          };
+          setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+        } else if (
+          file.type.includes("application/pdf") ||
+          file.type.includes(".doc") ||
+          file.type.includes(".docx") ||
+          file.type.includes("application/msword") ||
+          file.type.includes("application/vnd.ms-excel") ||
+          file.type.includes(".xls") ||
+          file.type.includes(".xlsx") ||
+          file.type.includes(".csv") ||
+          file.type.includes(".ppt") ||
+          file.type.includes(".pptx") ||
+          file.type.includes("application/vnd.ms-powerpoint")
+        ) {
+          const documentData = {
+            url: URL.createObjectURL(file),
+            fileName: file.name,
+            fileSize: file.size,
+            docKey: `doc-${Date.now()}`,
+          };
+  
+          setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  };
+
 
   {
     /*서버 파일 다운로드 */
   }
 
+  // const handleDownload = () => {
+  //   const checkedKeys = Object.keys(childChecked).filter(
+  //     (key) => childChecked[key].checked
+  //   );
+  //   checkedKeys.forEach((key) => {
+  //     const imageData = imageUrls.find((image) => image.imgKey === key);
+  //     if (imageData) {
+  //       const fileName = imageData.fileName; // Set the file name based on the imageData
+  //       const downloadUrl = `http://43.207.224.148:8000/download/file?file_name=${encodeURIComponent(
+  //         fileName
+  //       )}`; // Construct the download URL
+  //       window.open(downloadUrl); // Open the download URL in a new window/tab
+  //     }
+  //   });
+  // };
+
+
   const handleDownload = () => {
-    const checkedKeys = Object.keys(childChecked).filter(
-      (key) => childChecked[key].checked
-    );
+    const checkedKeys = Object.keys(childChecked).filter((key) => childChecked[key].checked);
+  
     checkedKeys.forEach((key) => {
       const imageData = imageUrls.find((image) => image.imgKey === key);
+      const documentData = documentUrls.find((document) => document.docKey === key);
+  
       if (imageData) {
-        const fileName = imageData.fileName; // Set the file name based on the imageData
-        const downloadUrl = `http://43.207.224.148:8000/download/file?file_name=${encodeURIComponent(
-          fileName
-        )}`; // Construct the download URL
-        window.open(downloadUrl); // Open the download URL in a new window/tab
+        const fileName = imageData.fileName;
+        console.log(fileName)
+  
+        fetch(`http://43.207.224.148:8000/files/download/${encodeURIComponent(fileName)}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+          .then((response) => {
+            if (response.ok) {
+              console.log(response);
+              return response.json();
+            } else {
+              throw new Error('Failed to fetch download URL.');
+            }
+          })
+          .then((data) => {
+            console.log('Download URL:', data.Message);
+            const downloadUrls = data.Message.map((item) => item.download);
+            console.log('Download URLs:', downloadUrls[0]);
+            const download = downloadUrls[0]
+            
+            const link = document.createElement('a');
+            link.href = download;
+            link.download = fileName;
+            link.click();
+            
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+      }
+
+      else {
+        const fileName = documentData.fileName;
+        console.log(fileName)
+  
+        fetch(`http://43.207.224.148:8000/files/download/${encodeURIComponent(fileName)}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+           .then((response) => {
+            if (response.ok) {
+              return response.blob();
+            } else {
+              throw new Error('Failed to fetch download URL.');
+            }
+          })
+          .then((blob) => {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            link.click();
+            URL.revokeObjectURL(url);
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+
       }
     });
   };
+
+
+
+  // const handleDownload = () => {
+  //   const checkedKeys = Object.keys(childChecked).filter((key) => childChecked[key].checked);
+  
+  //   checkedKeys.forEach((key) => {
+  //     const imageData = imageUrls.find((image) => image.imgKey === key);
+  
+  //     if (imageData) {
+  //       const fileName = imageData.fileName;
+  //       console.log(fileName);
+  
+  //       fetch(`http://43.207.224.148:8000/files/download/${encodeURIComponent(fileName)}`, {
+  //         method: 'GET',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //       })
+  //         .then((response) => {
+  //           if (response.ok) {
+  //             return response.blob();
+  //           } else {
+  //             throw new Error('Failed to fetch download URL.');
+  //           }
+  //         })
+  //         .then((blob) => {
+  //           const url = URL.createObjectURL(blob);
+  //           const link = document.createElement('a');
+  //           link.href = url;
+  //           link.download = fileName;
+  //           link.click();
+  //           URL.revokeObjectURL(url);
+  //         })
+  //         .catch((error) => {
+  //           console.error('Error:', error);
+  //         });
+  //     }
+  //   });
+  // };
 
   //childcheck 상태 기반 부수효과
   useEffect(() => {
@@ -346,30 +549,112 @@ function MainPage({ window }) {
     setShowModal(false);
   };
 
-  const createFolder = () => {
-    if (newFolderName.trim() === "") {
-      alert("폴더 이름을 입력해주세요.");
-      return;
-    }
 
-    // 기존 폴더 목록에 새 폴더 추가
-    const newFolder = {
-      id: Math.random().toString(36).substring(7), // 무작위 ID 생성
-      name: newFolderName,
+    const createFolder = () => {
+      if (newFolderName.trim() === "") {
+        alert("폴더 이름을 입력해주세요.");
+        return;
+      }
+
+      const folderName = newFolderName.trim()
+    
+      // 폴더 생성 경로
+      const folderPath = `/${folderName}`;
+    
+      // API 요청에 필요한 데이터
+      const requestData = {
+        path: folderPath,
+      };
+    
+      // API 엔드포인트
+      const apiUrl = "http://43.207.224.148:8000/files/folder";
+    
+      // API 요청 설정
+      const requestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      };
+    
+      // API 요청 보내기
+      fetch(apiUrl, requestOptions)
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error("폴더 생성에 실패했습니다.");
+          }
+        })
+        .then((data) => {
+          // 새로운 폴더 객체 생성
+          const newFolder = {
+            id: data.id, // 서버에서 할당된 폴더 ID
+            name: newFolderName,
+          };
+    
+          // 기존 폴더 목록에 새 폴더를 추가한 후, 업데이트된 폴더 목록으로 상태를 업데이트합니다.
+          setFolders((prevFolders) => [...prevFolders, newFolder]);
+    
+          // 폴더 생성 후 입력 필드 초기화
+          setNewFolderName("");
+    
+          // 모달 닫기
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
     };
 
+    
+    //백엔드에서 메인 페이지에 띄울 파일, 폴더 가져오기
+    //1. 파일
+    //2. 폴더(폴더 생성해서 백에 요청 및 응답 받아오기, 폴더 안 파일들 가져오기)
+    
+    //2)폴더 안 파일 가져오기
+    // const handleFolderClick = (folderName) => {
+    //   fetch(`/folder/${folderName}`, {
+    //     method: 'GET',
+    //     headers: {
+    //       Authorization: `Bearer ${accessToken}`,
+    //     },
+    //   })
+    //     .then((response) => {
+    //       if (response.ok) {
+    //         return response.formData(); // form-data로 응답 받음
+    //       } else {
+    //         throw new Error('폴더 파일 목록을 가져오는데 실패했습니다.');
+    //       }
+    //     })
+    //     .then((formData) => {
+    //       const formattedData = [];
+    
+    //       for (let [name, value] of formData.entries()) {
+    //         const documentData = {
+    //           url: URL.createObjectURL(value),
+    //           fileName: value.name,
+    //           fileSize: value.size,
+    //           docKey: `doc-${Date.now()}`,
+    //         };
+    //         formattedData.push(documentData);
+    //       }
+    
+    //       history.push(`/folder/${folderName}`, { files: formattedData });
+    //     })
+    //     .catch((error) => {
+    //       console.error('Error:', error);
+    //     });
+    // };
+
 
   
-      // 기존 폴더 목록에 새 폴더를 추가한 후, 업데이트된 폴더 목록으로 상태를 업데이트합니다.
-      setFolders((prevFolders) => [...prevFolders, newFolder]);
-  
-      // 폴더 생성 후 입력 필드 초기화
-      setNewFolderName('');
-  
-      // 모달 닫기
-    };
+    
 
-  
+
+
+   
+    
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -534,12 +819,13 @@ function MainPage({ window }) {
               <div style={{display: 'flex', flexWrap: 'wrap' }}>
               {folders.map((folder) => ( //이때 이 folders 는 백에서 가지고 와서 mappping ?
               <div key={folder.name}>
-              <Link to={`/folder/${folder.name}`}>
+              <Link to={`/${folder.name}`}>
               <img 
               key={folder.name} 
               src="/images/Folder.png" 
               alt={folder.name} 
               style={{ width: '100px', height: '100px', margin: "20px" }}
+              onClick={() => handleFolderClick(folder.name)} // 클릭 시 handleFolderClick 함수 호출
               />
               </Link>
               <p style={{textAlign: 'center'}}>{folder.name}</p> {/* 폴더 이름 표시 */}
