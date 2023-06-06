@@ -2,7 +2,9 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  DialogActions,
   IconButton,
+  TextField,
   Box,
 } from "@mui/material";
 import Button from "@mui/material/Button";
@@ -20,13 +22,29 @@ const Modal = ({ open, onClose, filename, url }) => {
   const [isEncrypt, setEncrypt] = useState(false);
   const [password, setPassword] = useState("");
   const [isShareOpen, setShareOpen] = useState(false);
+  const [isUnlockModalOpen, setUnlockModalOpen] = useState(false);
+const [unlockPassword, setUnlockPassword] = useState("");
+const handlesubmit = (unlockPassword) => {
+  if(unlockPassword==password){
+    setUnlockModalOpen(false);
+    setEncrypt(false);
+  }
+}
+const handleUnlock = () => {
+  setUnlockModalOpen(true);
+};
 
   const openShare = () => {
-    setShareOpen(true);
+    if (isEncrypt) {
+      setUnlockModalOpen(true);
+    } else {
+      setShareOpen(true);
+    }
   };
 
   const handlePasswordSubmit = (submittedPassword) => {
     setPassword(submittedPassword);
+    
     setEncrypt(true);
   };
   useEffect(() => {
@@ -87,9 +105,31 @@ const Modal = ({ open, onClose, filename, url }) => {
   
 
   const handleTranslate = () => {
-    // Handle translation logic here
-    console.log("Translate document:", filename);
+    const filePath = encodeURIComponent(url); // 파일 경로를 인코딩
+  
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ filePath })
+    };
+  
+    fetch(`http://52.200.100.241:8000/translate/${filePath}`, requestOptions)
+      .then(response => response.json())
+      .then(data => {
+        const downloadUrl = response.downloadUrl;
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = '${filename}_translated_file.txt'
+        link.click();
+      })
+      .catch(error => {
+        console.log("error!");
+      });
   };
+  
+  
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -116,7 +156,7 @@ const Modal = ({ open, onClose, filename, url }) => {
                   <DeleteIcon sx={{ fontSize: 50 }} />
                 </IconButton>
               )}
-              <IconButton aria-label="translate" onClick={handleTranslate}>
+              <IconButton aria-label="translate">
                 <ShareIcon
                   sx={{ fontSize: 50 }}
                   onClick={openShare}
@@ -161,9 +201,27 @@ const Modal = ({ open, onClose, filename, url }) => {
       justifyContent="center"
       width="100%"
     >
-            <Button variant="contained" onClick={() => setEncrypt(false)}>
+            <Button variant="contained" onClick={handleUnlock}>
               잠금 해제
             </Button>
+            <Dialog open={isUnlockModalOpen} onClose={() => setUnlockModalOpen(false)}>
+  <DialogTitle>잠금 해제</DialogTitle>
+  <DialogContent>
+    <TextField
+      label="비밀번호"
+      type="password"
+      value={unlockPassword}
+      onChange={(e) => setUnlockPassword(e.target.value)}
+      fullWidth
+    />
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setUnlockModalOpen(false)}>취소</Button>
+    <Button onClick={() => handlesubmit(unlockPassword)}>
+      확인
+    </Button>
+  </DialogActions>
+</Dialog>
             </Box>
             <img
               src="/images/Lock.png"

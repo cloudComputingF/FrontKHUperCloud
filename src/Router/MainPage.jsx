@@ -111,7 +111,6 @@ function MainPage({ window }) {
         fileSize: file.size,
         imgKey: `img-${Date.now()}`,
       };
-
       setImageUrls((prevUrls) => [...prevUrls, imageData]);
     } else if (
       file.type.includes("application/pdf") ||
@@ -132,7 +131,6 @@ function MainPage({ window }) {
         fileSize: file.size,
         docKey: `doc-${Date.now()}`,
       };
-
       setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
     }
   };
@@ -163,6 +161,23 @@ function MainPage({ window }) {
         selectedDocuments.includes(documentUrl.docKey)
       ),
     ];
+
+    deletedItems.forEach((item) => {
+      const uploadFilePath = encodeURIComponent(item.url); // 파일 경로 인코딩
+      const deleteUrl = `http://52.200.100.241:8000/trash/delete/${uploadFilePath}`;
+    
+      fetch(deleteUrl, {
+        method: 'DELETE',
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    });
+
     setDeleteList((prevDeleteList) => [...prevDeleteList, ...deletedItems]);
     parentchange({ target: { checked: false } });
     setChildChecked({});
@@ -272,6 +287,21 @@ function MainPage({ window }) {
         return null;
       });
       const filteredRestoredImages = restoredImages.filter(Boolean);
+      filteredRestoredImages.forEach((item) => {
+        const uploadFilePath = encodeURIComponent(item.url); // 파일 경로 인코딩
+        const deleteUrl = `http://52.200.100.241:8000/trash/restore/${uploadFilePath}`;
+      
+        fetch(deleteUrl, {
+          method: 'DELETE',
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
       return [...prevImageUrls, ...filteredRestoredImages];
     });
     setDocumentUrls((prevDocumentUrls) => {
@@ -297,6 +327,21 @@ function MainPage({ window }) {
       });
 
       const filteredRestoredDocuments = restoredDocuments.filter(Boolean);
+      filteredRestoredDocuments.forEach((item) => {
+        const uploadFilePath = encodeURIComponent(item.url); // 파일 경로 인코딩
+        const deleteUrl = `http://52.200.100.241:8000/trash/restore/${uploadFilePath}`;
+      
+        fetch(deleteUrl, {
+          method: 'DELETE',
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
       return [...prevDocumentUrls, ...filteredRestoredDocuments];
     });
 
