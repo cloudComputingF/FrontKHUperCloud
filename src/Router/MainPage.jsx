@@ -63,9 +63,10 @@ function MainPage({ window }) {
         }
       })
       .then((data) => {
-        console.log(data); // 확인용
-        const files = data.Message; // 받아온 데이터의 배열 부분을 files 변수에 할당
+        console.log('파일: ', data); // 확인용
         
+        const files = data.Message.filter((fileName) => !fileName.endsWith('/')); // 추출한 파일만 필터링해서 files 변수에 할당
+        const folders = data.Message.filter((fileName) => fileName.endsWith('/')); // 추출한 폴더만 필터링해서 folders 변수에 할당
   
         files.forEach((fileName) => {
           // 파일 경로에서 파일 이름만 추출
@@ -75,7 +76,6 @@ function MainPage({ window }) {
           const file = new File([], fileNameOnly); // 파일 객체 생성
   
           if (file.name.includes('.PNG') || file.name.includes('.JPG')) {
-            
             fetch(`http://43.207.224.148:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
               method: 'GET',
               headers: {
@@ -148,17 +148,28 @@ function MainPage({ window }) {
               .catch((error) => {
                 console.error('Error:', error);
               });
-
-
-
-            
           }
         });
+  
+        // Separate folder creation
+        const newFolders = folders.map((folderName) => {
+          const folderPathParts = folderName.split('/');
+          const folderNameOnly = folderPathParts[folderPathParts.length - 2];
+          const newFolder = {
+            id: data.id,
+            name: folderNameOnly,
+          };
+          return newFolder;
+        });
+  
+        // Update the state with the new folders
+        setFolders((prevFolders) => [...prevFolders, ...newFolders]);
       })
       .catch((error) => {
         console.error('Error:', error);
       });
   }, []);
+  
 
 
   const handleChildCheckboxChange = (imgKey, newChecked) => {
@@ -457,18 +468,22 @@ function MainPage({ window }) {
         })
            .then((response) => {
             if (response.ok) {
-              return response.blob();
+              return response.json();
             } else {
               throw new Error('Failed to fetch download URL.');
             }
           })
-          .then((blob) => {
-            const url = URL.createObjectURL(blob);
+          .then((data) => {
+            console.log('Download URL:', data.Message);
+            const downloadUrls = data.Message.map((item) => item.download);
+            console.log('Download URLs:', downloadUrls[0]);
+            const download = downloadUrls[0]
+            
             const link = document.createElement('a');
-            link.href = url;
+            link.href = download;
             link.download = fileName;
             link.click();
-            URL.revokeObjectURL(url);
+            
           })
           .catch((error) => {
             console.error('Error:', error);
@@ -559,7 +574,7 @@ function MainPage({ window }) {
       const folderName = newFolderName.trim()
     
       // 폴더 생성 경로
-      const folderPath = `/${folderName}`;
+      const folderPath = `Maintest/${folderName}/`;
     
       // API 요청에 필요한 데이터
       const requestData = {
@@ -825,7 +840,7 @@ function MainPage({ window }) {
               src="/images/Folder.png" 
               alt={folder.name} 
               style={{ width: '100px', height: '100px', margin: "20px" }}
-              onClick={() => handleFolderClick(folder.name)} // 클릭 시 handleFolderClick 함수 호출
+               // 클릭 시 handleFolderClick 함수 호출
               />
               </Link>
               <p style={{textAlign: 'center'}}>{folder.name}</p> {/* 폴더 이름 표시 */}
