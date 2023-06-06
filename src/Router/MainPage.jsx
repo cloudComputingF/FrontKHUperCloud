@@ -99,10 +99,7 @@ function MainPage({ window }) {
     setMobileOpen(!mobileOpen);
   };
 
-  {
-    /*서버에 보낼 함수*/
-  }
-
+                 {/* 삭제할 함수 */}
   const handleUpload = (file) => {
     if (file.type.includes("image")) {
       const imageData = {
@@ -111,7 +108,6 @@ function MainPage({ window }) {
         fileSize: file.size,
         imgKey: `img-${Date.now()}`,
       };
-
       setImageUrls((prevUrls) => [...prevUrls, imageData]);
     } else if (
       file.type.includes("application/pdf") ||
@@ -132,10 +128,10 @@ function MainPage({ window }) {
         fileSize: file.size,
         docKey: `doc-${Date.now()}`,
       };
-
       setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
     }
   };
+
 
   const handleDelete = () => {
     const selectedImages = Object.entries(childChecked)
@@ -163,90 +159,29 @@ function MainPage({ window }) {
         selectedDocuments.includes(documentUrl.docKey)
       ),
     ];
+
+    deletedItems.forEach((item) => {
+      const uploadFilePath = encodeURIComponent(item.url); // 파일 경로 인코딩
+      const deleteUrl = `http://52.200.100.241:8000/trash/delete/${uploadFilePath}`;
+    
+      fetch(deleteUrl, {
+        method: 'DELETE',
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    });
+
     setDeleteList((prevDeleteList) => [...prevDeleteList, ...deletedItems]);
     parentchange({ target: { checked: false } });
     setChildChecked({});
   };
 
-  {
-    /*서버 호출 업로드*/
-  }
-  /*
-  const handleUpload = (file) => {
-    if (file.type.includes("image")) {
-      const imageData = new FormData();
-      imageData.append('dir','/Main');
-      imageData.append('file', file);
-      
-
-      fetch("http://43.207.224.148:8000/files/upload", {
-        method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data", 
-        },
-        body: imageData,
-      })
-        .then((response) => {
-          if (response.ok) {
-            console.log("response값:", response);
-            const newImageData = {
-              url: URL.createObjectURL(file),
-              fileName: file.name,
-              fileSize: file.size,
-              imgKey: `img-${Date.now()}`,
-            };
-            setImageUrls((prevUrls) => [...prevUrls, newImageData]);
-          } else {
-            throw new Error("Image upload failed");
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    } else if (
-      file.type.includes("application/pdf") ||
-      file.type.includes(".doc") ||
-      file.type.includes(".docx") ||
-      file.type.includes("application/msword") ||
-      file.type.includes("application/vnd.ms-excel") ||
-      file.type.includes(".xls") ||
-      file.type.includes(".xlsx") ||
-      file.type.includes(".csv") ||
-      file.type.includes(".ppt") ||
-      file.type.includes(".pptx") ||
-      file.type.includes("application/vnd.ms-powerpoint")
-    ) {
-      const documentData = new FormData();
-      documentData.append("dir", "/Main");
-      documentData.append("file", file.url);
-
-      fetch("http://43.207.224.148:8000/files/upload", {
-        method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data", 
-        },
-        body: documentData,
-      })
-        .then((response) => {
-          if (response.ok) {
-            console.log("response값:", response);
-            const newDocumentData = {
-              url: URL.createObjectURL(file),
-              fileName: file.name,
-              fileSize: file.size,
-              docKey: `doc-${Date.now()}`,
-            };
-            setDocumentUrls((prevUrls) => [...prevUrls, newDocumentData]);
-          } else {
-            throw new Error("Document upload failed");
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    }
-  };
-*/
+  
   const handleRestore = () => {
     const selectedImages = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
@@ -272,6 +207,21 @@ function MainPage({ window }) {
         return null;
       });
       const filteredRestoredImages = restoredImages.filter(Boolean);
+      filteredRestoredImages.forEach((item) => {
+        const uploadFilePath = encodeURIComponent(item.url); // 파일 경로 인코딩
+        const deleteUrl = `http://52.200.100.241:8000/trash/restore/${uploadFilePath}`;
+      
+        fetch(deleteUrl, {
+          method: 'DELETE',
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
       return [...prevImageUrls, ...filteredRestoredImages];
     });
     setDocumentUrls((prevDocumentUrls) => {
@@ -297,6 +247,21 @@ function MainPage({ window }) {
       });
 
       const filteredRestoredDocuments = restoredDocuments.filter(Boolean);
+      filteredRestoredDocuments.forEach((item) => {
+        const uploadFilePath = encodeURIComponent(item.url); // 파일 경로 인코딩
+        const deleteUrl = `http://52.200.100.241:8000/trash/restore/${uploadFilePath}`;
+      
+        fetch(deleteUrl, {
+          method: 'DELETE',
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
       return [...prevDocumentUrls, ...filteredRestoredDocuments];
     });
 
@@ -313,44 +278,9 @@ function MainPage({ window }) {
     setChildChecked({});
   };
 
-  {
-    /*서버 호출 업로드*/
-  }
-  /*
-  const handleUpload = (file) => {
-  const imageData = new FormData();
-  imageData.append('file', file);
-
-  fetch('http://43.207.224.148:8000/upload/file', {
-    method: 'POST',
-    body: imageData,
-  })
-    .then((response) => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error('파일 업로드에 실패했습니다.');
-      }
-    })
-    .then((data) => {
-      const newImageData = {
-        url: data.url,
-        fileName: file.name,
-        fileSize: file.size,
-        imgKey: `img-${Date.now()}`,
-      };
-      setImageUrls((prevUrls) => [...prevUrls, newImageData]);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
-};
-*/
-
-  {
-    /*서버 파일 다운로드 */
-  }
-
+  
+          
+                              {/*삭제할 함수 */}
   const handleDownload = () => {
     const checkedKeys = Object.keys(childChecked).filter(
       (key) => childChecked[key].checked
