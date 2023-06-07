@@ -48,7 +48,7 @@ function MainPage({ window }) {
   };
 
   useEffect(() => {
-    fetch(`http://43.207.224.148:8000/files/search?folder=Maintest/`, {
+    fetch(`http://35.78.185.19:8000/files/search?folder=Maintest/`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ function MainPage({ window }) {
           const file = new File([], fileNameOnly); // 파일 객체 생성
   
           if (file.name.includes('.PNG') || file.name.includes('.JPG')) {
-            fetch(`http://43.207.224.148:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
+            fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ function MainPage({ window }) {
             file.name.includes('.ppt') ||
             file.name.includes('.pptx')
           ) {
-            fetch(`http://43.207.224.148:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
+            fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
@@ -338,59 +338,137 @@ function MainPage({ window }) {
     /*서버 호출 업로드*/
   }
 
- 
   const handleUpload = (file) => {
     const formData = new FormData();
     formData.append('dir', 'Maintest/');
     formData.append('file', file);
   
-    fetch('http://43.207.224.148:8000/files/upload', {
+    fetch('http://35.78.185.19:8000/files/upload', {
       method: 'POST',
       body: formData,
     })
       .then((response) => {
         if (response.ok) {
           console.log("response!:", response);
+          const fileName = file.name;
+          fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+            .then((response) => {
+              if (response.ok) {
+                console.log(response);
+                return response.json();
+              } else {
+                throw new Error('Failed to fetch download URL.');
+              }
+            })
+            .then((data) => {
+              console.log('Download URL:', data.Message);
+              const downloadUrls = data.Message.map((item) => item.download);
+              console.log('Download URLs:', downloadUrls[0]);
+              const download = downloadUrls[0];
+  
+              if (file.name.includes('.PNG') || file.name.includes('.JPG')) {
+                const newImageData = {
+                  url: download,
+                  fileName: fileName,
+                  fileSize: download.size,
+                  imgKey: `img-${Date.now()}`,
+                };
+                setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+              } else if (
+                file.name.includes('.pdf') ||
+                file.name.includes('.doc') ||
+                file.name.includes('.docx') ||
+                file.name.includes('.xls') ||
+                file.name.includes('.xlsx') ||
+                file.name.includes('.csv') ||
+                file.name.includes('.ppt') ||
+                file.name.includes('.pptx')
+              ) {
+                const documentData = {
+                  url: download,
+                  fileName: fileName,
+                  fileSize: download.size,
+                  docKey: `doc-${Date.now()}`,
+                };
+                setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
+              }
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
         } else {
           throw new Error('Failed to upload file.');
-        }
-      })
-      .then((data) => {
-        if (file.type.includes("image")) {
-          const newImageData = { 
-            url: URL.createObjectURL(file),
-            fileName: file.name,
-            fileSize: file.size,
-            imgKey: `img-${Date.now()}`,
-          };
-          setImageUrls((prevUrls) => [...prevUrls, newImageData]);
-        } else if (
-          file.type.includes("application/pdf") ||
-          file.type.includes(".doc") ||
-          file.type.includes(".docx") ||
-          file.type.includes("application/msword") ||
-          file.type.includes("application/vnd.ms-excel") ||
-          file.type.includes(".xls") ||
-          file.type.includes(".xlsx") ||
-          file.type.includes(".csv") ||
-          file.type.includes(".ppt") ||
-          file.type.includes(".pptx") ||
-          file.type.includes("application/vnd.ms-powerpoint")
-        ) {
-          const documentData = {
-            url: URL.createObjectURL(file),
-            fileName: file.name,
-            fileSize: file.size,
-            docKey: `doc-${Date.now()}`,
-          };
-  
-          setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
         }
       })
       .catch((error) => {
         console.error('Error:', error);
       });
   };
+
+
+
+
+
+  // const handleUpload = (file) => {
+  //   const formData = new FormData();
+  //   formData.append('dir', 'Maintest/');
+  //   formData.append('file', file);
+  
+  //   fetch('http://35.78.185.19:8000/files/upload', {
+  //     method: 'POST',
+  //     body: formData,
+  //   })
+  //     .then((response) => {
+  //       if (response.ok) {
+  //         console.log("response!:", response);
+  //       } else {
+  //         throw new Error('Failed to upload file.');
+  //       }
+  //     })
+  //     .then((data) => {
+  //       console.log("데이터", data);
+        
+  //       if (file.type.includes("image")) {
+  //         const newImageData = { 
+  //           url: URL.createObjectURL(file),
+  //           fileName: file.name,
+  //           fileSize: file.size,
+  //           imgKey: `img-${Date.now()}`,
+  //         };
+  //         setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+  //       } else if (
+  //         file.type.includes("application/pdf") ||
+  //         file.type.includes(".doc") ||
+  //         file.type.includes(".docx") ||
+  //         file.type.includes("application/msword") ||
+  //         file.type.includes("application/vnd.ms-excel") ||
+  //         file.type.includes(".xls") ||
+  //         file.type.includes(".xlsx") ||
+  //         file.type.includes(".csv") ||
+  //         file.type.includes(".ppt") ||
+  //         file.type.includes(".pptx") ||
+  //         file.type.includes("application/vnd.ms-powerpoint")
+          
+  //       ) {
+  //         const documentData = {
+  //           url: URL.createObjectURL(file),
+  //           fileName: file.name,
+  //           fileSize: file.size,
+  //           docKey: `doc-${Date.now()}`,
+  //         };
+  
+  //         setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error:', error);
+  //     });
+  // };
 
 
   {
@@ -425,7 +503,7 @@ function MainPage({ window }) {
         const fileName = imageData.fileName;
         console.log(fileName)
   
-        fetch(`http://43.207.224.148:8000/files/download/${encodeURIComponent(fileName)}`, {
+        fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -460,7 +538,7 @@ function MainPage({ window }) {
         const fileName = documentData.fileName;
         console.log(fileName)
   
-        fetch(`http://43.207.224.148:8000/files/download/${encodeURIComponent(fileName)}`, {
+        fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -582,7 +660,7 @@ function MainPage({ window }) {
       };
     
       // API 엔드포인트
-      const apiUrl = "http://43.207.224.148:8000/files/folder";
+      const apiUrl = "http://35.78.185.19:8000/files/folder";
     
       // API 요청 설정
       const requestOptions = {
@@ -622,54 +700,7 @@ function MainPage({ window }) {
         });
     };
 
-    
-    //백엔드에서 메인 페이지에 띄울 파일, 폴더 가져오기
-    //1. 파일
-    //2. 폴더(폴더 생성해서 백에 요청 및 응답 받아오기, 폴더 안 파일들 가져오기)
-    
-    //2)폴더 안 파일 가져오기
-    // const handleFolderClick = (folderName) => {
-    //   fetch(`/folder/${folderName}`, {
-    //     method: 'GET',
-    //     headers: {
-    //       Authorization: `Bearer ${accessToken}`,
-    //     },
-    //   })
-    //     .then((response) => {
-    //       if (response.ok) {
-    //         return response.formData(); // form-data로 응답 받음
-    //       } else {
-    //         throw new Error('폴더 파일 목록을 가져오는데 실패했습니다.');
-    //       }
-    //     })
-    //     .then((formData) => {
-    //       const formattedData = [];
-    
-    //       for (let [name, value] of formData.entries()) {
-    //         const documentData = {
-    //           url: URL.createObjectURL(value),
-    //           fileName: value.name,
-    //           fileSize: value.size,
-    //           docKey: `doc-${Date.now()}`,
-    //         };
-    //         formattedData.push(documentData);
-    //       }
-    
-    //       history.push(`/folder/${folderName}`, { files: formattedData });
-    //     })
-    //     .catch((error) => {
-    //       console.error('Error:', error);
-    //     });
-    // };
-
-
-  
-    
-
-
-
-   
-    
+        
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />

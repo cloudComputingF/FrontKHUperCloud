@@ -73,7 +73,7 @@ function FolderPage({ window }) {
   };
 
   useEffect(() => {
-    fetch(`http://43.207.224.148:8000/files/search?folder=Maintest/${encodeURIComponent(folderName)}/`, {
+    fetch(`http://35.78.185.19:8000/files/search?folder=Maintest/${encodeURIComponent(folderName)}/`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ function FolderPage({ window }) {
           const file = new File([], fileNameOnly); // 파일 객체 생성
   
           if (file.name.includes('.PNG') || file.name.includes('.JPG')) {
-            fetch(`http://43.207.224.148:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
+            fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ function FolderPage({ window }) {
             file.name.includes('.ppt') ||
             file.name.includes('.pptx')
           ) {
-            fetch(`http://43.207.224.148:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
+            fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
@@ -177,19 +177,20 @@ function FolderPage({ window }) {
         });
   
         // Separate folder creation
-        const newFolders = folders.map((folderName) => {
-          const folderPathParts = folderName.split('/');
-          const folderNameOnly = folderPathParts[folderPathParts.length - 2];
-          const newFolder = {
-            id: data.id,
-            name: folderNameOnly,
-          };
-          return newFolder;
-        });
+      //   const newFolders = folders.map((folderName) => {
+      //     const folderPathParts = folderName.split('/');
+      //     const folderNameOnly = folderPathParts[folderPathParts.length - 2];
+      //     const newFolder = {
+      //       id: data.id,
+      //       name: folderNameOnly,
+      //     };
+      //     return newFolder;
+      //   });
   
-        // Update the state with the new folders
-        setFolders((prevFolders) => [...prevFolders, ...newFolders]);
-      })
+      //   // Update the state with the new folders
+      //   setFolders((prevFolders) => [...prevFolders, ...newFolders]);
+      // }
+  })
       .catch((error) => {
         console.error('Error:', error);
       });
@@ -355,50 +356,69 @@ function FolderPage({ window }) {
 
   const handleUpload = (file) => {
     const formData = new FormData();
-    formData.append('dir', `Maintest/${folderName}/`);
+    formData.append('dir', 'Maintest/');
     formData.append('file', file);
   
-    fetch('http://43.207.224.148:8000/files/upload', {
+    fetch('http://35.78.185.19:8000/files/upload', {
       method: 'POST',
       body: formData,
     })
       .then((response) => {
         if (response.ok) {
           console.log("response!:", response);
+          const fileName = file.name;
+          fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+            .then((response) => {
+              if (response.ok) {
+                console.log(response);
+                return response.json();
+              } else {
+                throw new Error('Failed to fetch download URL.');
+              }
+            })
+            .then((data) => {
+              console.log('Download URL:', data.Message);
+              const downloadUrls = data.Message.map((item) => item.download);
+              console.log('Download URLs:', downloadUrls[0]);
+              const download = downloadUrls[0];
+  
+              if (file.name.includes('.PNG') || file.name.includes('.JPG')) {
+                const newImageData = {
+                  url: download,
+                  fileName: fileName,
+                  fileSize: download.size,
+                  imgKey: `img-${Date.now()}`,
+                };
+                setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+              } else if (
+                file.name.includes('.pdf') ||
+                file.name.includes('.doc') ||
+                file.name.includes('.docx') ||
+                file.name.includes('.xls') ||
+                file.name.includes('.xlsx') ||
+                file.name.includes('.csv') ||
+                file.name.includes('.ppt') ||
+                file.name.includes('.pptx')
+              ) {
+                const documentData = {
+                  url: download,
+                  fileName: fileName,
+                  fileSize: download.size,
+                  docKey: `doc-${Date.now()}`,
+                };
+                setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
+              }
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
         } else {
           throw new Error('Failed to upload file.');
-        }
-      })
-      .then((data) => {
-        if (file.type.includes("image")) {
-          const newImageData = { 
-            url: URL.createObjectURL(file),
-            fileName: file.name,
-            fileSize: file.size,
-            imgKey: `img-${Date.now()}`,
-          };
-          setImageUrls((prevUrls) => [...prevUrls, newImageData]);
-        } else if (
-          file.type.includes("application/pdf") ||
-          file.type.includes(".doc") ||
-          file.type.includes(".docx") ||
-          file.type.includes("application/msword") ||
-          file.type.includes("application/vnd.ms-excel") ||
-          file.type.includes(".xls") ||
-          file.type.includes(".xlsx") ||
-          file.type.includes(".csv") ||
-          file.type.includes(".ppt") ||
-          file.type.includes(".pptx") ||
-          file.type.includes("application/vnd.ms-powerpoint")
-        ) {
-          const documentData = {
-            url: URL.createObjectURL(file),
-            fileName: file.name,
-            fileSize: file.size,
-            docKey: `doc-${Date.now()}`,
-          };
-  
-          setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
         }
       })
       .catch((error) => {
@@ -417,7 +437,7 @@ function FolderPage({ window }) {
         const fileName = imageData.fileName;
         console.log(fileName)
   
-        fetch(`http://43.207.224.148:8000/files/download/${encodeURIComponent(fileName)}`, {
+        fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -452,7 +472,7 @@ function FolderPage({ window }) {
         const fileName = documentData.fileName;
         console.log(fileName)
   
-        fetch(`http://43.207.224.148:8000/files/download/${encodeURIComponent(fileName)}`, {
+        fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -534,7 +554,7 @@ function FolderPage({ window }) {
       };
     
       // API 엔드포인트
-      const apiUrl = "http://43.207.224.148:8000/files/folder";
+      const apiUrl = "http://35.78.185.19:8000/files/folder";
     
       // API 요청 설정
       const requestOptions = {
