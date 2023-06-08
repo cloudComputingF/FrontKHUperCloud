@@ -8,12 +8,14 @@ import {
   Divider,
   Typography,
 } from "@mui/material";
+import Modal from 'react-modal';
 import PropTypes from "prop-types";
 import Header from "./MainHeader";
 import SideBar from "./SideBar";
 import { useState, useEffect } from "react";
 import ImageList from "../components/ImageList";
 import Upload from "../components/Upload";
+import Upload2 from "../components/Upload2";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Button from "@mui/material/Button";
 import DocumentList from "../components/DocumentList";
@@ -48,7 +50,7 @@ function MainPage({ window }) {
   };
 
   useEffect(() => {
-    fetch(`http://35.78.185.19:8000/files/search?folder=Maintest/`, {
+    fetch(`http://35.78.185.19:8000/files/search?folder=Maintest2/`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -136,12 +138,18 @@ function MainPage({ window }) {
                 const downloadUrls = data.Message.map((item) => item.download);
                 console.log('Download URLs:', downloadUrls[0]);
                 const download = downloadUrls[0];
-  
+
+                const file_password = data.Message.map((item) => item.file_password);
+                console.log('password', file_password);
+                const password = file_password[0];
+
+
                 const documentData = {
                   url: download,
                   fileName: fileNameOnly,
                   fileSize: download.size,
                   docKey: `doc-${Date.now()}`,
+                  password: password,
                 };
                 setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
               })
@@ -340,7 +348,7 @@ function MainPage({ window }) {
 
   const handleUpload = (file) => {
     const formData = new FormData();
-    formData.append('dir', 'Maintest/');
+    formData.append('dir', 'Maintest2/');
     formData.append('file', file);
   
     fetch('http://35.78.185.19:8000/files/upload', {
@@ -403,6 +411,78 @@ function MainPage({ window }) {
             });
         } else {
           throw new Error('Failed to upload file.');
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  };
+
+
+  const handleUpload_lock = (file) => {
+    const fileName = file.name;
+    const formData = new FormData();
+    formData.append('dir', 'Maintest2/');
+    formData.append('file', file);
+    formData.append('password', 1234);
+  
+    fetch('http://35.78.185.19:8000/files/upload/password', {
+      method: 'POST',
+      body: formData,
+    })
+      .then((response) => {
+        if (response.ok) {
+          const fileName = file.name;
+          return fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+        } else {
+          throw new Error('Failed to upload file.');
+        }
+      })
+      .then((response) => {
+        if (response.ok) {
+          console.log(response);
+          return response.json();
+        } else {
+          throw new Error('Failed to fetch download URL.');
+        }
+      })
+      .then((data) => {
+        console.log('Download URL:', data.Message);
+        const downloadUrls = data.Message.map((item) => item.download);
+        console.log('Download URLs:', downloadUrls[0]);
+        const download = downloadUrls[0];
+  
+        if (file.name.includes('.PNG') || file.name.includes('.JPG')) {
+          const newImageData = {
+            url: download,
+            fileName: fileName,
+            fileSize: download.size,
+            imgKey: `img-${Date.now()}`,
+          };
+          setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+        } else if (
+          file.name.includes('.pdf') ||
+          file.name.includes('.doc') ||
+          file.name.includes('.docx') ||
+          file.name.includes('.xls') ||
+          file.name.includes('.xlsx') ||
+          file.name.includes('.csv') ||
+          file.name.includes('.ppt') ||
+          file.name.includes('.pptx')
+        ) {
+          const documentData = {
+            url: download,
+            fileName: fileName,
+            fileSize: download.size,
+            docKey: `doc-${Date.now()}`,
+            password: 1234,
+          };
+          setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
         }
       })
       .catch((error) => {
@@ -491,7 +571,53 @@ function MainPage({ window }) {
   //   });
   // };
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [downloadFileName, setDownloadFileName] = useState('');
+  const [userPassword, setUserPassword] = useState('');
 
+  const handleModalSubmit = () => {
+    console.log('입력비번', userPassword)
+    if (userPassword === '1234') {
+      console.log('입력비번', userPassword)
+      fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(downloadFileName)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log(response);
+            return response.json();
+          } else {
+            throw new Error('Failed to fetch download URL.');
+          }
+        })
+        .then((data) => {
+          console.log('Download URL:', data.Message);
+          const downloadUrls = data.Message.map((item) => item.download);
+          console.log('Download URLs:', downloadUrls[0]);
+          const download = downloadUrls[0];
+    
+          const link = document.createElement('a');
+          link.href = download;
+          link.download = downloadFileName;
+          link.click();
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+    } else {
+      alert('비밀번호가 일치하지 않습니다.');
+    }
+    setUserPassword("");
+    setModalOpen(false);
+  };
+
+  const handleModalCancel = () => {
+    setModalOpen(false);
+  };
+  
   const handleDownload = () => {
     const checkedKeys = Object.keys(childChecked).filter((key) => childChecked[key].checked);
   
@@ -499,9 +625,12 @@ function MainPage({ window }) {
       const imageData = imageUrls.find((image) => image.imgKey === key);
       const documentData = documentUrls.find((document) => document.docKey === key);
   
+      console.log('콘솔', documentData.password);
+      const file_password = documentData.password;
+  
       if (imageData) {
         const fileName = imageData.fileName;
-        console.log(fileName)
+        console.log(fileName);
   
         fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
           method: 'GET',
@@ -521,22 +650,24 @@ function MainPage({ window }) {
             console.log('Download URL:', data.Message);
             const downloadUrls = data.Message.map((item) => item.download);
             console.log('Download URLs:', downloadUrls[0]);
-            const download = downloadUrls[0]
-            
+            const download = downloadUrls[0];
+  
             const link = document.createElement('a');
             link.href = download;
             link.download = fileName;
             link.click();
-            
           })
           .catch((error) => {
             console.error('Error:', error);
           });
-      }
-
-      else {
+      } else if (documentData && file_password != null) {
         const fileName = documentData.fileName;
-        console.log(fileName)
+        console.log(fileName);
+        setDownloadFileName(fileName);
+        setModalOpen(true);
+      } else {
+        const fileName = documentData.fileName;
+        console.log(fileName);
   
         fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
           method: 'GET',
@@ -544,7 +675,7 @@ function MainPage({ window }) {
             'Content-Type': 'application/json',
           },
         })
-           .then((response) => {
+          .then((response) => {
             if (response.ok) {
               return response.json();
             } else {
@@ -552,26 +683,25 @@ function MainPage({ window }) {
             }
           })
           .then((data) => {
-            console.log('Download URL:', data.Message);
             const downloadUrls = data.Message.map((item) => item.download);
             console.log('Download URLs:', downloadUrls[0]);
-            const download = downloadUrls[0]
-            
+            const download = downloadUrls[0];
+  
+            const password = data.Message.map((item) => item.file_password);
+            console.log('비번', password);
+  
             const link = document.createElement('a');
             link.href = download;
             link.download = fileName;
             link.click();
-            
           })
           .catch((error) => {
             console.error('Error:', error);
           });
-
       }
     });
   };
-
-
+  
 
   // const handleDownload = () => {
   //   const checkedKeys = Object.keys(childChecked).filter((key) => childChecked[key].checked);
@@ -804,10 +934,19 @@ function MainPage({ window }) {
                 </>
               ) : (
                 <>
+                  <div style={{ margin: '5px' }}>
                   <Upload
                     onCreateImage={handleUpload}
                     onCreateDocument={handleUpload}
                   />
+                  </div>
+
+                  <div style={{ margin: '5px' }}>
+                  <Upload2
+                    onCreateImage={handleUpload_lock}
+                    onCreateDocument={handleUpload_lock}
+                  />
+                  </div>
 
                   <Button
                     sx={{ marginTop: 0.3, marginLeft: 1 }}
@@ -835,6 +974,19 @@ function MainPage({ window }) {
                       </div>
                     </div>
                   )}
+
+                  {modalOpen && (
+                          <Modal
+                          isOpen={modalOpen}
+                          onRequestClose={handleModalCancel}
+                          className="modalpass"
+                        >
+                          <h5>비밀번호 입력</h5>
+                          <input type="password" value={userPassword} onChange={(e) => setUserPassword(e.target.value)} />
+                          <button onClick={handleModalSubmit}>확인</button>
+                          <button onClick={handleModalCancel}>취소</button>
+                        </Modal>
+                        )}
 
                   <Button
                     sx={{ marginTop: 0.3, marginLeft: 1 }}

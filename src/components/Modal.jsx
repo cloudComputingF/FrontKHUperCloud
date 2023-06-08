@@ -89,7 +89,8 @@ const Modal = ({ open, onClose, filename, url }) => {
   const handleTranslate = () => {
     // Handle translation logic here
     console.log("Translate document:", filename);
-  };
+    console.log("url", url);
+    };
 
   return (
     <Dialog open={open} onClose={onClose}>
