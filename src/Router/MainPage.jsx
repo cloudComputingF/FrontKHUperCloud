@@ -33,6 +33,19 @@ function MainPage({ window }) {
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedOption, setSelectedOption] = useState("all");
   const [deleteList, setDeleteList] = useState([]);
+  const [password, setPassword] = useState("1234"); // 비밀번호 상태값
+
+  // 비밀번호 변경 이벤트 핸들러
+
+  const handlePasswordChange = (newPassword) => {
+    // 비밀번호 변경 로직 수행
+    setPassword(newPassword);
+    console.log("새 비밀번호:", newPassword);
+  };
+
+  useEffect(() => {
+    console.log("비번 상태값", password);
+  }, [password]);
 
   const handleAllFilesClick = () => {
     setSelectedOption("all");
@@ -424,7 +437,7 @@ function MainPage({ window }) {
     const formData = new FormData();
     formData.append('dir', 'Maintest2/');
     formData.append('file', file);
-    formData.append('password', 1234);
+    formData.append('password', password);
   
     fetch('http://35.78.185.19:8000/files/upload/password', {
       method: 'POST',
@@ -480,15 +493,47 @@ function MainPage({ window }) {
             fileName: fileName,
             fileSize: download.size,
             docKey: `doc-${Date.now()}`,
-            password: 1234,
+            password: password,
           };
           setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
+          alert("파일 비번: " + password);
         }
       })
       .catch((error) => {
         console.error('Error:', error);
       });
   };
+
+  function handleImageDelete() {
+    fetch('http://35.78.185.19:8000/dup', {
+      method: 'GET'
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.text(); // 응답 데이터를 텍스트로 반환하는 Promise를 반환합니다.
+        } else {
+          throw new Error('중복 이미지 삭제 실패');
+        }
+      })
+      .then(data => {
+        console.log(data);
+        console.log('중복 이미지 삭제 성공');
+        // 삭제가 성공한 경우의 처리 로직을 작성합니다.
+        const duplicateGroups = data.split('\n\n'); // 빈 줄을 기준으로 중복 이미지 그룹을 구분합니다.
+        duplicateGroups.forEach(group => {
+          const images = group.trim().split('\n'); // 각 그룹에서 이미지 URL을 가져옵니다.
+          console.log('중복 이미지 그룹:');
+          images.forEach(image => {
+            console.log(image);
+            // 각 이미지에 대한 추가 처리 로직을 작성합니다.
+          });
+        });
+      })
+      .catch(error => {
+        console.error('오류 발생:', error);
+        // 오류 처리 로직을 작성합니다.
+      });
+  }
 
 
 
@@ -577,7 +622,7 @@ function MainPage({ window }) {
 
   const handleModalSubmit = () => {
     console.log('입력비번', userPassword)
-    if (userPassword === '1234') {
+    if (userPassword === password) {
       console.log('입력비번', userPassword)
       fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(downloadFileName)}`, {
         method: 'GET',
@@ -784,7 +829,7 @@ function MainPage({ window }) {
       // 폴더 생성 경로
       const folderPath = `Maintest/${folderName}/`;
     
-      // API 요청에 필요한 데이터
+      // API 요청에 필요한 데이터S
       const requestData = {
         path: folderPath,
       };
@@ -945,7 +990,12 @@ function MainPage({ window }) {
                   <Upload2
                     onCreateImage={handleUpload_lock}
                     onCreateDocument={handleUpload_lock}
+                    onPasswordChange={handlePasswordChange}
                   />
+                  </div>
+
+                  <div>
+
                   </div>
 
                   <Button
@@ -1002,6 +1052,14 @@ function MainPage({ window }) {
                   >
                     삭제
                   </Button>
+
+                  <Button
+                    sx={{ marginTop: 0.3, marginLeft: 1 }}
+                    variant="outlined"
+                    onClick={handleImageDelete}
+                  >
+                    중복이미지삭제
+                  </Button>
                 </>
               )}
             </Box>
@@ -1052,7 +1110,9 @@ function MainPage({ window }) {
               </div>
             </>
           ) : selectedOption === "photo" ? (
+            
             <Box sx={{mt: 20}}>
+              
             <ImageList 
               imageUrls={imageUrls}
               parentcheck={selfcheck}

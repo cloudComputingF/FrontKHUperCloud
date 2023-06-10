@@ -1,10 +1,15 @@
 import * as React from "react";
+import { useState } from "react";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
+import Modal from 'react-modal';
+
 
 import { useDropzone } from "react-dropzone";
+
+Modal.setAppElement('#root');
 
 export default function Upload2({
   onCreateImage,
@@ -12,10 +17,30 @@ export default function Upload2({
   onCreateMusic,
   onCreateVideo,
   onCreateFolder,
+  onPasswordChange
 }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [uploading, setUploading] = React.useState(false);
   const [open, setOpen] = React.useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const [filePassword, setFilePassword] = useState("");
+  
+  const handlePasswordChange = () => {
+    setAnchorEl(null);
+    setOpenModal(true);
+  };
+
+  const closeModal = () => {
+    setOpenModal(false);
+  };
+
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
+    onPasswordChange(filePassword); // 비밀번호를 Mainpage.jsx로 전달
+    closeModal();
+    alert("파일 비밀번호가 변경되었습니다")
+  };
+  
   const { getRootProps, getInputProps } = useDropzone({
     multiple: true,
     webkitdirectory: true,
@@ -105,6 +130,10 @@ export default function Upload2({
           "aria-labelledby": "basic-button",
         }}
       >
+        <MenuItem onClick={handlePasswordChange}>
+          비번 변경
+        </MenuItem>
+
         <MenuItem
           {...getRootProps({
             onClick: () => {
@@ -115,6 +144,7 @@ export default function Upload2({
         >
           파일 올리기
         </MenuItem>
+        
         <MenuItem>
           <label htmlFor="folder-input">폴더 올리기</label>
           <input
@@ -139,6 +169,37 @@ export default function Upload2({
           />
         </MenuItem>
       </Menu>
+            {openModal && (<Modal className="modalpass" isOpen={openModal}>
+                          <h5>비밀번호 변경</h5>
+                          <div className="password-info">
+                          <h7>초기 비번: 1234</h7>
+                          </div>
+                          <input type="password" value={filePassword} onChange={(e) => setFilePassword(e.target.value)} />
+                          <button onClick={handleFormSubmit}>변경</button>
+                          <button onClick={closeModal}>취소</button>
+                        </Modal>)}
+
+
+
+      {/* {openModal && (
+        <div className="password-modal">
+          <div className="modal-content">
+            <h3>비밀번호 변경</h3>
+            <form onSubmit={handleFormSubmit}>
+              <input type="password" name="newPassword" placeholder="새 비밀번호" />
+              <input type="password" name="confirmPassword" placeholder="비밀번호 확인" />
+              <div className="modal-actions">
+                <Button variant="contained" type="button" onClick={closeModal}>
+                  취소
+                </Button>
+                <Button variant="contained" type="submit">
+                  변경
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )} */}
       <input {...getInputProps()} />
     </form>
   );

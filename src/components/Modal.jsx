@@ -15,7 +15,7 @@ import EnhancedEncryptionIcon from "@mui/icons-material/EnhancedEncryption";
 import Share from "./Share";
 import ShareIcon from '@mui/icons-material/Share';
 
-const Modal = ({ open, onClose, filename, url }) => {
+const Modal = ({ open, onClose, filename, url}) => {
   const [isImage, setIsImage] = useState(false);
   const [isEncrypt, setEncrypt] = useState(false);
   const [password, setPassword] = useState("");
@@ -87,7 +87,7 @@ const Modal = ({ open, onClose, filename, url }) => {
   
 
   const handleTranslate = () => {
-    // Handle translation logic here
+    
     console.log("Translate document:", filename);
     console.log("url", url);
     };
@@ -162,9 +162,6 @@ const Modal = ({ open, onClose, filename, url }) => {
       justifyContent="center"
       width="100%"
     >
-            <Button variant="contained" onClick={() => setEncrypt(false)}>
-              잠금 해제
-            </Button>
             </Box>
             <img
               src="/images/Lock.png"

@@ -11,7 +11,7 @@ import {
 export default function Share({ open, onClose, url, filename, handlePasswordSubmit }) {
   const [password, setPassword] = useState("");
 
-  const cleanURL = url.replace("blob:", "");
+  const cleanURL = "http://127.0.0.1:5173/Main"
 
   const handleSubmit = () => {
     handlePasswordSubmit(password);
@@ -29,7 +29,7 @@ export default function Share({ open, onClose, url, filename, handlePasswordSubm
       <DialogContent>
         <p>링크 공유</p>
         <p>{cleanURL}</p>
-        <p>암호:</p>
+        <p>암호가 있다면 입력하세요:</p>
         <TextField
           label="Password"
           type="password"
