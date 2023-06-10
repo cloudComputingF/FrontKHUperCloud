@@ -102,10 +102,10 @@ const handleUnlock = () => {
       </div>
     );
   }
-  
 
   const handleTranslate = () => {
     const filePath = encodeURIComponent(url); // 파일 경로를 인코딩
+    console.log(filePath);
   
     const requestOptions = {
       method: 'POST',
@@ -115,19 +115,54 @@ const handleUnlock = () => {
       body: JSON.stringify({ filePath })
     };
   
-    fetch(`http://52.200.100.241:8000/translate/${filePath}`, requestOptions)
-      .then(response => response.json())
+    fetch(`http://35.78.185.19:8000/translate/${filePath}`, requestOptions)
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error("Translation failed");
+        }
+      })
       .then(data => {
-        const downloadUrl = response.downloadUrl;
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = '${filename}_translated_file.txt'
-        link.click();
+        console.log("Translation request submitted.");
+  
+        // 번역이 완료되었으므로 알림 표시
+        window.alert("번역이 완료되었습니다.");
+  
+        // 페이지 새로고침
+        window.location.reload();
       })
       .catch(error => {
-        console.log("error!");
+        console.log("Translation failed:", error.message);
       });
   };
+  
+
+  // const handleTranslate = () => {
+  //   const filePath = encodeURIComponent(url); // 파일 경로를 인코딩
+  //   console.log(filePath);
+  
+  //   const requestOptions = {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     },
+  //     body: JSON.stringify({ filePath })
+  //   };
+  
+  //   fetch(`http://52.200.100.241:8000/translate/${filePath}`, requestOptions)
+  //     .then(response => response.json())
+  //     .then(data => {
+  //       const downloadUrl = response.downloadUrl;
+  //       const link = document.createElement('a');
+  //       link.href = downloadUrl;
+  //       link.download = '${filename}_translated_file.txt'
+  //       link.click();
+  //     })
+  //     .catch(error => {
+  //       console.log("error!");
+  //     });
+  // };
   
  
   return (

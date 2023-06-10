@@ -62,6 +62,10 @@ function MainPage({ window }) {
     setSelectedOption("delete");
   };
 
+  const handleEmptyTrash = () => {
+    setDeleteList([]);
+  };
+
   useEffect(() => {
     fetch(`http://35.78.185.19:8000/files/search?folder=Maintest2/`, {
       method: 'GET',
@@ -191,6 +195,82 @@ function MainPage({ window }) {
       });
   }, []);
   
+  useEffect(() => {
+    fetch(`http://35.78.185.19:8000/files/search?folder=translated/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache', // 캐싱 방지 헤더 추가
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Failed to fetch folder and file data.');
+        }
+      })
+      .then((data) => {
+        console.log('파일: ', data); // 확인용
+  
+        const files = data.Message.filter((fileName) => !fileName.endsWith('/')); // 추출한 파일만 필터링해서 files 변수에 할당
+        const folders = data.Message.filter((fileName) => fileName.endsWith('/')); // 추출한 폴더만 필터링해서 folders 변수에 할당
+  
+        const fetchDownloadUrls = files.map((fileName) => {
+          // 파일 경로에서 파일 이름만 추출
+          const filePathParts = fileName.split('/');
+          const fileNameOnly = filePathParts[filePathParts.length - 1];
+  
+          return fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                throw new Error('Failed to fetch download URL.');
+              }
+            })
+            .then((data) => {
+              console.log('Download URL:', data.Message);
+              const downloadUrls = data.Message.map((item) => item.download);
+              console.log('Download URLs:', downloadUrls[0]);
+              const download = downloadUrls[0];
+  
+              const file_password = data.Message.map((item) => item.file_password);
+              console.log('password', file_password);
+              const password = file_password[0];
+  
+              return {
+                url: download,
+                fileName: fileNameOnly,
+                fileSize: download.size,
+                docKey: `doc-${Date.now()}`,
+                password: password,
+              };
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+              return null;
+            });
+        });
+  
+        Promise.all(fetchDownloadUrls)
+          .then((downloadUrls) => {
+            const filteredDownloadUrls = downloadUrls.filter((url) => url !== null);
+            setDocumentUrls((prevUrls) => [...prevUrls, ...filteredDownloadUrls]);
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }, []);
 
 
   const handleChildCheckboxChange = (imgKey, newChecked) => {
@@ -698,11 +778,6 @@ function MainPage({ window }) {
   };
   
 
-
-  
-          
-                              {/*삭제할 함수 */}
-
   const handleDownload = () => {
     const checkedKeys = Object.keys(childChecked).filter((key) => childChecked[key].checked);
   
@@ -873,7 +948,7 @@ function MainPage({ window }) {
       const folderName = newFolderName.trim()
     
       // 폴더 생성 경로
-      const folderPath = `Maintest/${folderName}/`;
+      const folderPath = `Maintest2/${folderName}/`;
     
       // API 요청에 필요한 데이터S
       const requestData = {
@@ -923,318 +998,290 @@ function MainPage({ window }) {
 
         
 
-  return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
-        }}
-      >
-        <Header setMobileOpen={handleDrawerToggle} />
-      </AppBar>
-      <Box
-        component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-        aria-label="mailbox folders"
-      >
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-        <Drawer
-          container={container}
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
+    return (
+      <Box sx={{ display: "flex" }}>
+        <CssBaseline />
+        <AppBar
+          position="fixed"
           sx={{
-            display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: drawerWidth,
-            },
+            width: { sm: `calc(100% - ${drawerWidth}px)` },
+            ml: { sm: `${drawerWidth}px` },
           }}
-        ></Drawer>
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: drawerWidth,
-            },
-          }}
-          open
         >
-          <SideBar
-            onAllFilesClick={handleAllFilesClick}
-            onPhotoClick={handlePhotoClick}
-            onDocumentsClick={handleDocumentsClick}
-            onDeleteClick={handleDeleteFilesClick}
-          />
-        </Drawer>
-      </Box>
-      <Box
-        component="main"
-        sx={{
-          p: 3,
-          display: "flex",
-          maxWidth: "100%",
-        }}
-      >
-        <Box sx={{ position: "absolute", top: 82, left: 200, width: "85%" }}>
-          <Box
-            sx={{ display: "flex", alignItems: "center", marginLeft: "14px" }}
+          <Header setMobileOpen={handleDrawerToggle} />
+        </AppBar>
+        <Box
+          component="nav"
+          sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+          aria-label="mailbox folders"
+        >
+          {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+          <Drawer
+            container={container}
+            variant="temporary"
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+            sx={{
+              display: { xs: "block", sm: "none" },
+              "& .MuiDrawer-paper": {
+                boxSizing: "border-box",
+                width: drawerWidth,
+              },
+            }}
+          ></Drawer>
+          <Drawer
+            variant="permanent"
+            sx={{
+              display: { xs: "none", sm: "block" },
+              "& .MuiDrawer-paper": {
+                boxSizing: "border-box",
+                width: drawerWidth,
+              },
+            }}
+            open
           >
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={parentChecked}
-                  indeterminate={indeterminate}
-                  onChange={parentchange}
-                />
-              }
-              sx={{ marginRight: 1 }}
+            <SideBar
+              onAllFilesClick={handleAllFilesClick}
+              onPhotoClick={handlePhotoClick}
+              onDocumentsClick={handleDocumentsClick}
+              onDeleteClick={handleDeleteFilesClick}
             />
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                position: "relative",
-              }}
-            >
-              <Divider orientation="vertical" sx={{ height: "100%" }} />
-              {/*서버에 삭제 요청 handleEmptyTrash 정의 필요*/}
-              {selectedOption === "delete" ? (
-                <>
-                  <Button
-                    sx={{ marginTop: 0.3, marginLeft: 1 }}
-                    variant="contained"
-                    /*onClick={handleEmptyTrash}*/
-                  >
-                    휴지통 비우기
-                  </Button>
-                  <Button
-                    sx={{ marginTop: 0.3, marginLeft: 1 }}
-                    variant="outlined"
-                    onClick={handleRestore}
-                  >
-                    복원
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <div style={{ margin: '5px' }}>
-                  <Upload
-                    onCreateImage={handleUpload}
-                    onCreateDocument={handleUpload}
-                  />
-                  </div>
-
-                  <div style={{ margin: '5px' }}>
-                  <Upload2
-                    onCreateImage={handleUpload_lock}
-                    onCreateDocument={handleUpload_lock}
-                    onPasswordChange={handlePasswordChange}
-                  />
-                  </div>
-
-                  <div>
-
-                  </div>
-
-                  <Button
-                    sx={{ marginTop: 0.3, marginLeft: 1 }}
-                    variant="outlined"
-                    onClick={openModal}
-                  >
-                    새폴더
-                  </Button>
-
-                  {/* 모달 */}
-                  {showModal && (
-                    <div className="modal-overlay2">
-                      <div className="modal2">
-                        <div className="modal-content2">
-                          <h3>새 폴더 생성</h3>
-                          <input
-                            type="text"
-                            value={newFolderName}
-                            onChange={(e) => setNewFolderName(e.target.value)}
-                            placeholder="폴더 이름"
-                          />
-                          <button onClick={createFolder}>생성</button>
-                          <button onClick={closeModal}>취소</button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {modalOpen && (
-                          <Modal
-                          isOpen={modalOpen}
-                          onRequestClose={handleModalCancel}
-                          className="modalpass"
-                        >
-                          <h5>비밀번호 입력</h5>
-                          <input type="password" value={userPassword} onChange={(e) => setUserPassword(e.target.value)} />
-                          <button onClick={handleModalSubmit}>확인</button>
-                          <button onClick={handleModalCancel}>취소</button>
-                        </Modal>
-                        )}
-
-                  <Button
-                    sx={{ marginTop: 0.3, marginLeft: 1 }}
-                    onClick={handleDownload}
-                    variant="outlined"
-                  >
-                    내려받기
-                  </Button>
-                  <Button
-                    sx={{ marginTop: 0.3, marginLeft: 1 }}
-                    variant="outlined"
-                    onClick={handleDelete}
-                  >
-                    삭제
-                  </Button>
-
-                  <Button
-                    sx={{ marginTop: 0.3, marginLeft: 1 }}
-                    variant="outlined"
-                    onClick={handleImageDelete}
-                  >
-                    중복이미지삭제
-                  </Button>
-                </>
-              )}
-            </Box>
-          </Box>
-          <Divider sx={{ my: 2.3 }} />
-        </Box>  
-        
-          
-          <Box>
-            {selectedOption === "all" ? (
-              <>
-              <Box sx={{mt: 16}}>
-              <div style={{display: 'flex', flexWrap: 'wrap' }}>
-              {folders.map((folder) => ( //이때 이 folders 는 백에서 가지고 와서 mappping ?
-              <div key={folder.name}>
-              <Link to={`/${folder.name}`}>
-              <img 
-              key={folder.name} 
-              src="/images/Folder.png" 
-              alt={folder.name} 
-              style={{ width: '100px', height: '100px', margin: "20px" }}
-               // 클릭 시 handleFolderClick 함수 호출
-              />
-              </Link>
-              <p style={{textAlign: 'center'}}>{folder.name}</p> {/* 폴더 이름 표시 */}
-              </div>
-               ))}
-            </div>
-            </Box>
-
+          </Drawer>
         </Box>
-
-
-        <Box>
-          {selectedOption === "all" ? (
-            <>
-              <Box sx={{ mt: 16 }}>
-                <div style={{ display: "flex", flexWrap: "wrap" }}>
-                  {folders.map(
-                    (
-                      folder //이때 이 folders 는 백에서 가지고 와서 mappping ?
-                    ) => (
-                      <div style={{display: "flex", flexDirection: "column", alignItems: "center",margin:20}}>
-                        <div
-                          key={folder.name}
-                          style={{ border: "1px solid silver"  }}
-                        >
-                          <Link to={`/folder/${folder.name}`}>
-                            <img
-                              key={folder.name}
-                              src="/images/Folder.png"
-                              alt={folder.name}
-                              style={{
-                                width: "100px",
-                                height: "100px",
-                                margin: "20px",
-                              }}
-                            />
-                          </Link>
-                        </div>
-                        <div style={{ textAlign: "center" }}>
-                          <p style={{ marginTop: 5,fontSize:13 }}>{folder.name}</p>
-                        </div>
-                      </div>
-                    )
-                  )}
-                </div>
-              </Box>
-              <div style={{ margin: "5px", flexBasis: "100%" }}>
-                <ImageList
-                  imageUrls={imageUrls}
-                  parentcheck={selfcheck}
-                  childChecked={childChecked}
-                  onChildCheckboxChange={handleChildCheckboxChange}
-                />
-              </div>
-              <div
-                style={{
-                  margin: "0px",
-                  flexBasis: "100%",
-                  paddingTop: "0",
-                  marginTop: -130,
+        <Box
+          component="main"
+          sx={{
+            p: 3,
+            display: "flex",
+            maxWidth: "100%",
+          }}
+        >
+          <Box sx={{ position: "absolute", top: 82, left: 200, width: "85%" }}>
+            <Box
+              sx={{ display: "flex", alignItems: "center", marginLeft: "14px" }}
+            >
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={parentChecked}
+                    indeterminate={indeterminate}
+                    onChange={parentchange}
+                  />
+                }
+                sx={{ marginRight: 1 }}
+              />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  position: "relative",
                 }}
               >
-                <DocumentList
-                  documentUrls={documentUrls}
-                  parentcheck={selfcheck}
-                  childChecked={childChecked}
-                  onChildCheckboxChange={handleChildCheckboxChange}
-                />
-              </div>
-            </>
-          ) : selectedOption === "photo" ? (
-            <Box sx={{ mt: 20 }}>
-              <ImageList
+                <Divider orientation="vertical" sx={{ height: "100%" }} />
+                {/*서버에 삭제 요청 handleEmptyTrash 정의 필요*/}
+                {selectedOption === "delete" ? (
+                  <>
+                    <Button
+                      sx={{ marginTop: 0.3, marginLeft: 1 }}
+                      variant="contained"
+                      onClick={handleEmptyTrash}
+                    >
+                      휴지통 비우기
+                    </Button>
+                    <Button
+                      sx={{ marginTop: 0.3, marginLeft: 1 }}
+                      variant="outlined"
+                      onClick={handleRestore}
+                    >
+                      복원
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ margin: '5px' }}>
+                    <Upload
+                      onCreateImage={handleUpload}
+                      onCreateDocument={handleUpload}
+                    />
+                    </div>
+  
+                    <div style={{ margin: '5px' }}>
+                    <Upload2
+                      onCreateImage={handleUpload_lock}
+                      onCreateDocument={handleUpload_lock}
+                      onPasswordChange={handlePasswordChange}
+                    />
+                    </div>
+  
+                    <div>
+  
+                    </div>
+  
+                    <Button
+                      sx={{ marginTop: 0.3, marginLeft: 1 }}
+                      variant="outlined"
+                      onClick={openModal}
+                    >
+                      새폴더
+                    </Button>
+  
+                    {/* 모달 */}
+                    {showModal && (
+                      <div className="modal-overlay2">
+                        <div className="modal2">
+                          <div className="modal-content2">
+                            <h3>새 폴더 생성</h3>
+                            <input
+                              type="text"
+                              value={newFolderName}
+                              onChange={(e) => setNewFolderName(e.target.value)}
+                              placeholder="폴더 이름"
+                            />
+                            <button onClick={createFolder}>생성</button>
+                            <button onClick={closeModal}>취소</button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+  
+                    {modalOpen && (
+                            <Modal
+                            isOpen={modalOpen}
+                            onRequestClose={handleModalCancel}
+                            className="modalpass"
+                          >
+                            <h5>비밀번호 입력</h5>
+                            <input type="password" value={userPassword} onChange={(e) => setUserPassword(e.target.value)} />
+                            <button onClick={handleModalSubmit}>확인</button>
+                            <button onClick={handleModalCancel}>취소</button>
+                          </Modal>
+                          )}
+  
+                    <Button
+                      sx={{ marginTop: 0.3, marginLeft: 1 }}
+                      onClick={handleDownload}
+                      variant="outlined"
+                    >
+                      내려받기
+                    </Button>
+                    <Button
+                      sx={{ marginTop: 0.3, marginLeft: 1 }}
+                      variant="outlined"
+                      onClick={handleDelete}
+                    >
+                      삭제
+                    </Button>
+  
+                    <Button
+                      sx={{ marginTop: 0.3, marginLeft: 1 }}
+                      variant="outlined"
+                      onClick={handleImageDelete}
+                    >
+                      중복이미지삭제
+                    </Button>
+                  </>
+                )}
+              </Box>
+            </Box>
+            <Divider sx={{ my: 2.3 }} />
+          </Box>  
+          
+            
+          <Box>
+              {selectedOption === "all" ? (
+                <>
+                  <Box sx={{ mt: 16 }}>
+                    <div style={{ display: "flex", flexWrap: "wrap" }}>
+                      {folders.map((folder) => ( //이때 이 folders 는 백에서 가지고 와서 mappping ?
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", margin: 20 }}>
+                          <div
+                            key={folder.name}
+                            style={{ border: "1px solid silver" }}
+                          >
+                            <Link to={`/${folder.name}`}>
+                              <img
+                                key={folder.name}
+                                src="/images/Folder.png"
+                                alt={folder.name}
+                                style={{
+                                  width: "100px",
+                                  height: "100px",
+                                  margin: "20px",
+                                }}
+                              />
+                            </Link>
+                          </div>
+                          <div style={{ textAlign: "center" }}>
+                            <p style={{ marginTop: 5, fontSize: 13 }}>{folder.name}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Box>
+  
+  
+                <div style={{ margin: '5px', flexBasis: '100%'}}>
+                  <ImageList
+                    imageUrls={imageUrls}
+                    parentcheck={selfcheck}
+                    childChecked={childChecked}
+                    onChildCheckboxChange={handleChildCheckboxChange}
+                  />
+                </div>
+                {/* <Divider orientation="horizontal" sx={{ borderBottom: '2px solid black' }} />  */}
+                <div style={{ margin: '0px', flexBasis: '100%', paddingTop: '0', marginTop:-130 }}>
+                  <DocumentList
+                    documentUrls={documentUrls}
+                    parentcheck={selfcheck}
+                    childChecked={childChecked}
+                    onChildCheckboxChange={handleChildCheckboxChange}
+                  />
+                </div>
+              </>
+            ) : selectedOption === "photo" ? (
+              
+              <Box sx={{mt: 20}}>
+                
+              <ImageList 
                 imageUrls={imageUrls}
                 parentcheck={selfcheck}
                 childChecked={childChecked}
                 onChildCheckboxChange={handleChildCheckboxChange}
               />
+              </Box>
+            ) : selectedOption === "documents" ? (
+              <DocumentList
+                documentUrls={documentUrls}
+                parentcheck={selfcheck}
+                childChecked={childChecked}
+                onChildCheckboxChange={handleChildCheckboxChange}
+              />
+            ) : selectedOption === "delete" ? (
+              <DeleteList
+                deleteList={deleteList}
+                parentcheck={selfcheck}
+                childChecked={childChecked}
+                onChildCheckboxChange={handleChildCheckboxChange}
+              />
+            ) : null}
             </Box>
-          ) : selectedOption === "documents" ? (
-            <DocumentList
-              documentUrls={documentUrls}
-              parentcheck={selfcheck}
-              childChecked={childChecked}
-              onChildCheckboxChange={handleChildCheckboxChange}
-            />
-          ) : selectedOption === "delete" ? (
-            <DeleteList
-              deleteList={deleteList}
-              parentcheck={selfcheck}
-              childChecked={childChecked}
-              onChildCheckboxChange={handleChildCheckboxChange}
-            />
-          ) : null}
+          </Box>
         </Box>
-      </Box>
-    </Box>
-  );
-}
-
-MainPage.propTypes = {
-  /**
-   * Injected by the documentation to work in an iframe.
-   * You won't need it on your project.
-   */
-  window: PropTypes.func,
-};
-
-export default MainPage;
+    
+    );
+            }
+  
+            
+  
+  MainPage.propTypes = {
+    /**
+     * Injected by the documentation to work in an iframe.
+     * You won't need it on your project.
+     */
+    window: PropTypes.func,
+  };
+  
+  export default MainPage;

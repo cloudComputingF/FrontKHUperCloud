@@ -49,7 +49,7 @@ function FolderPage({ window }) {
   };
 
   useEffect(() => {
-    fetch(`http://35.78.185.19:8000/files/search?folder=Maintest/${encodeURIComponent(folderName)}/`, {
+    fetch(`http://35.78.185.19:8000/files/search?folder=Maintest2/${encodeURIComponent(folderName)}/`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -332,7 +332,7 @@ function FolderPage({ window }) {
 
   const handleUpload = (file) => {
     const formData = new FormData();
-    formData.append('dir', 'Maintest/');
+    formData.append('dir', `Maintest2/${folderName}/`);
     formData.append('file', file);
   
     fetch('http://35.78.185.19:8000/files/upload', {
