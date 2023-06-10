@@ -22,7 +22,7 @@ export default function Share({ open, onClose, url, filename, handlePasswordSubm
 
     onClose();
   };
-{console.log(url)}
+
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>{filename}</DialogTitle>

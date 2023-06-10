@@ -2,7 +2,9 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  DialogActions,
   IconButton,
+  TextField,
   Box,
 } from "@mui/material";
 import Button from "@mui/material/Button";
@@ -20,13 +22,29 @@ const Modal = ({ open, onClose, filename, url}) => {
   const [isEncrypt, setEncrypt] = useState(false);
   const [password, setPassword] = useState("");
   const [isShareOpen, setShareOpen] = useState(false);
+  const [isUnlockModalOpen, setUnlockModalOpen] = useState(false);
+const [unlockPassword, setUnlockPassword] = useState("");
+const handlesubmit = (unlockPassword) => {
+  if(unlockPassword==password){
+    setUnlockModalOpen(false);
+    setEncrypt(false);
+  }
+}
+const handleUnlock = () => {
+  setUnlockModalOpen(true);
+};
 
   const openShare = () => {
-    setShareOpen(true);
+    if (isEncrypt) {
+      setUnlockModalOpen(true);
+    } else {
+      setShareOpen(true);
+    }
   };
 
   const handlePasswordSubmit = (submittedPassword) => {
     setPassword(submittedPassword);
+    
     setEncrypt(true);
   };
   useEffect(() => {
@@ -87,11 +105,31 @@ const Modal = ({ open, onClose, filename, url}) => {
   
 
   const handleTranslate = () => {
-    
-    console.log("Translate document:", filename);
-    console.log("url", url);
+    const filePath = encodeURIComponent(url); // 파일 경로를 인코딩
+  
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ filePath })
     };
-
+  
+    fetch(`http://52.200.100.241:8000/translate/${filePath}`, requestOptions)
+      .then(response => response.json())
+      .then(data => {
+        const downloadUrl = response.downloadUrl;
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = '${filename}_translated_file.txt'
+        link.click();
+      })
+      .catch(error => {
+        console.log("error!");
+      });
+  };
+  
+ 
   return (
     <Dialog open={open} onClose={onClose}>
       {!isEncrypt ? (
@@ -117,7 +155,7 @@ const Modal = ({ open, onClose, filename, url}) => {
                   <DeleteIcon sx={{ fontSize: 50 }} />
                 </IconButton>
               )}
-              <IconButton aria-label="translate" onClick={handleTranslate}>
+              <IconButton aria-label="translate">
                 <ShareIcon
                   sx={{ fontSize: 50 }}
                   onClick={openShare}
@@ -162,6 +200,7 @@ const Modal = ({ open, onClose, filename, url}) => {
       justifyContent="center"
       width="100%"
     >
+
             </Box>
             <img
               src="/images/Lock.png"

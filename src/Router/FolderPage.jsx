@@ -1,24 +1,3 @@
-// import React from 'react';
-// import { useParams } from 'react-router-dom';
-
-// const FolderPage = () => {
-//   const { folderId } = useParams();
-
-//   폴더 ID를 사용하여 필요한 데이터 가져오기 등의 로직 작성
-
-//   return (
-//     <div>
-//       <h1>폴더 페이지</h1>
-//       <p>폴더 ID: {folderId}</p>
-//       {/* 폴더 페이지 내용 추가 */}
-//     </div>
-//   );
-// };
-
-// export default FolderPage;
-
-
-
 import * as React from "react";
 import {
   Box,
@@ -39,9 +18,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Button from "@mui/material/Button";
 import DocumentList from "../components/DocumentList";
 import DeleteList from "../components/DeleteList";
-import { Link, useParams } from 'react-router-dom';
-
-
+import { Link, useParams } from "react-router-dom";
 
 function FolderPage({ window }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -55,7 +32,6 @@ function FolderPage({ window }) {
   const [selectedOption, setSelectedOption] = useState("all");
   const [deleteList, setDeleteList] = useState([]);
   const { folderName } = useParams();
-  
 
   const handleAllFilesClick = () => {
     setSelectedOption("all");
@@ -525,6 +501,7 @@ function FolderPage({ window }) {
   const container =
     window !== undefined ? () => window().document.body : undefined;
 
+
     const [showModal, setShowModal] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [folders, setFolders] = useState([]);
@@ -595,7 +572,7 @@ function FolderPage({ window }) {
     };
 
 
-    return (
+ return (
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
         <AppBar
@@ -828,8 +805,6 @@ function FolderPage({ window }) {
     );
             }
   
-            
-  
   FolderPage.propTypes = {
     /**
      * Injected by the documentation to work in an iframe.
@@ -839,4 +814,3 @@ function FolderPage({ window }) {
   };
   
   export default FolderPage;
-  

@@ -246,11 +246,7 @@ function MainPage({ window }) {
   };
 
 
-  {
-    /*서버에 보낼 함수*/
-  }
   
-
   const handleDelete = () => {
     const selectedImages = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
@@ -268,6 +264,7 @@ function MainPage({ window }) {
         (documentUrl) => !selectedDocuments.includes(documentUrl.docKey)
       )
     );
+
     const deletedItems = [
       ...imageUrls.filter((imageUrl) =>
         selectedImages.includes(imageUrl.imgKey)
@@ -276,40 +273,69 @@ function MainPage({ window }) {
         selectedDocuments.includes(documentUrl.docKey)
       ),
     ];
+
+    deletedItems.forEach((item) => {
+      const uploadFilePath = encodeURIComponent(item.url); // 파일 경로 인코딩
+      const deleteUrl = `http://52.200.100.241:8000/trash/delete/${uploadFilePath}`;
+    
+      fetch(deleteUrl, {
+        method: 'DELETE',
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    });
+
     setDeleteList((prevDeleteList) => [...prevDeleteList, ...deletedItems]);
     parentchange({ target: { checked: false } });
     setChildChecked({});
   };
 
 
-  {
-    /*서버 호출 업로드*/
-  }
-
-
   const handleRestore = () => {
     const selectedImages = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
       .map(([key]) => key);
-  
+
     const selectedDocuments = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
       .map(([key]) => key);
     setImageUrls((prevImageUrls) => {
       const restoredImages = selectedImages.map((imageKey) => {
-        const restoredImage = deleteList.find((item) => item.imgKey === imageKey);
+        const restoredImage = deleteList.find(
+          (item) => item.imgKey === imageKey
+        );
         if (restoredImage) {
           //console.log(restoredImage);
           return {
             fileName: restoredImage.fileName,
-            fileSize:restoredImage.fileSize,
+            fileSize: restoredImage.fileSize,
             imgKey: imageKey,
-            url: restoredImage.url, 
+            url: restoredImage.url,
           };
-        }  
+        }
         return null;
       });
       const filteredRestoredImages = restoredImages.filter(Boolean);
+      filteredRestoredImages.forEach((item) => {
+        const uploadFilePath = encodeURIComponent(item.url); // 파일 경로 인코딩
+        const deleteUrl = `http://52.200.100.241:8000/trash/restore/${uploadFilePath}`;
+      
+        fetch(deleteUrl, {
+          method: 'DELETE',
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
       return [...prevImageUrls, ...filteredRestoredImages];
     });
     setDocumentUrls((prevDocumentUrls) => {
@@ -318,29 +344,41 @@ function MainPage({ window }) {
         const restoredDocument = deleteList.find(
           (item) => item.docKey === documentKey
         );
-       
+
         if (restoredDocument) {
           // Return the restored document with correct details
           //console.log(restoredDocument);
           return {
             fileName: restoredDocument.fileName,
-            fileSize:restoredDocument.fileSize,
+            fileSize: restoredDocument.fileSize,
             docKey: documentKey,
             url: restoredDocument.url, // Update with the correct URL for the document
-             // Update with the correct filename for the document
+            // Update with the correct filename for the document
           };
         }
-  
+
         return null;
       });
-  
+
       const filteredRestoredDocuments = restoredDocuments.filter(Boolean);
-      console.log(filteredRestoredDocuments);
-  
+      filteredRestoredDocuments.forEach((item) => {
+        const uploadFilePath = encodeURIComponent(item.url); // 파일 경로 인코딩
+        const deleteUrl = `http://52.200.100.241:8000/trash/restore/${uploadFilePath}`;
+      
+        fetch(deleteUrl, {
+          method: 'DELETE',
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
       return [...prevDocumentUrls, ...filteredRestoredDocuments];
     });
-  
-  
+
     setDeleteList((prevDeleteList) =>
       prevDeleteList.filter(
         (item) =>
@@ -353,12 +391,8 @@ function MainPage({ window }) {
     parentchange({ target: { checked: false } });
     setChildChecked({});
   };
-  
-  
-  {
-    /*서버 호출 업로드*/
-  }
 
+  
   const handleUpload = (file) => {
     const formData = new FormData();
     formData.append('dir', 'Maintest2/');
@@ -663,6 +697,12 @@ function MainPage({ window }) {
     setModalOpen(false);
   };
   
+
+
+  
+          
+                              {/*삭제할 함수 */}
+
   const handleDownload = () => {
     const checkedKeys = Object.keys(childChecked).filter((key) => childChecked[key].checked);
   
@@ -787,20 +827,25 @@ function MainPage({ window }) {
   // };
 
   //childcheck 상태 기반 부수효과
-  useEffect(() => {
-    const allChecked =
-      Object.keys(childChecked).length > 0 &&
-      Object.values(childChecked).every((checked) => checked.checked);
-    const someChecked = Object.values(childChecked).some(
-      (checked) => checked.checked
-    );
-    setParentChecked(allChecked);
-    if (someChecked && !allChecked) {
-      setIndeterminate(true);
-    } else {
-      setIndeterminate(false);
-    }
-  }, [childChecked],handleAllFilesClick,handleDeleteFilesClick);
+  useEffect(
+    () => {
+      const allChecked =
+        Object.keys(childChecked).length > 0 &&
+        Object.values(childChecked).every((checked) => checked.checked);
+      const someChecked = Object.values(childChecked).some(
+        (checked) => checked.checked
+      );
+      setParentChecked(allChecked);
+      if (someChecked && !allChecked) {
+        setIndeterminate(true);
+      } else {
+        setIndeterminate(false);
+      }
+    },
+    [childChecked],
+    handleAllFilesClick,
+    handleDeleteFilesClick
+  );
 
   const container =
     window !== undefined ? () => window().document.body : undefined;
@@ -816,6 +861,7 @@ function MainPage({ window }) {
   const closeModal = () => {
     setShowModal(false);
   };
+
 
 
     const createFolder = () => {
@@ -876,6 +922,7 @@ function MainPage({ window }) {
     };
 
         
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -1090,8 +1137,45 @@ function MainPage({ window }) {
             </div>
             </Box>
 
+        </Box>
 
-              <div style={{ margin: '5px', flexBasis: '100%'}}>
+
+        <Box>
+          {selectedOption === "all" ? (
+            <>
+              <Box sx={{ mt: 16 }}>
+                <div style={{ display: "flex", flexWrap: "wrap" }}>
+                  {folders.map(
+                    (
+                      folder //이때 이 folders 는 백에서 가지고 와서 mappping ?
+                    ) => (
+                      <div style={{display: "flex", flexDirection: "column", alignItems: "center",margin:20}}>
+                        <div
+                          key={folder.name}
+                          style={{ border: "1px solid silver"  }}
+                        >
+                          <Link to={`/folder/${folder.name}`}>
+                            <img
+                              key={folder.name}
+                              src="/images/Folder.png"
+                              alt={folder.name}
+                              style={{
+                                width: "100px",
+                                height: "100px",
+                                margin: "20px",
+                              }}
+                            />
+                          </Link>
+                        </div>
+                        <div style={{ textAlign: "center" }}>
+                          <p style={{ marginTop: 5,fontSize:13 }}>{folder.name}</p>
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              </Box>
+              <div style={{ margin: "5px", flexBasis: "100%" }}>
                 <ImageList
                   imageUrls={imageUrls}
                   parentcheck={selfcheck}
@@ -1099,8 +1183,14 @@ function MainPage({ window }) {
                   onChildCheckboxChange={handleChildCheckboxChange}
                 />
               </div>
-              {/* <Divider orientation="horizontal" sx={{ borderBottom: '2px solid black' }} />  */}
-              <div style={{ margin: '0px', flexBasis: '100%', paddingTop: '0', marginTop:-130 }}>
+              <div
+                style={{
+                  margin: "0px",
+                  flexBasis: "100%",
+                  paddingTop: "0",
+                  marginTop: -130,
+                }}
+              >
                 <DocumentList
                   documentUrls={documentUrls}
                   parentcheck={selfcheck}
@@ -1110,15 +1200,13 @@ function MainPage({ window }) {
               </div>
             </>
           ) : selectedOption === "photo" ? (
-            
-            <Box sx={{mt: 20}}>
-              
-            <ImageList 
-              imageUrls={imageUrls}
-              parentcheck={selfcheck}
-              childChecked={childChecked}
-              onChildCheckboxChange={handleChildCheckboxChange}
-            />
+            <Box sx={{ mt: 20 }}>
+              <ImageList
+                imageUrls={imageUrls}
+                parentcheck={selfcheck}
+                childChecked={childChecked}
+                onChildCheckboxChange={handleChildCheckboxChange}
+              />
             </Box>
           ) : selectedOption === "documents" ? (
             <DocumentList
@@ -1135,14 +1223,11 @@ function MainPage({ window }) {
               onChildCheckboxChange={handleChildCheckboxChange}
             />
           ) : null}
-          </Box>
         </Box>
       </Box>
-  
+    </Box>
   );
-          }
-
-          
+}
 
 MainPage.propTypes = {
   /**
