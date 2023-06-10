@@ -117,11 +117,14 @@ export default function SignIn() {
   
     const response = await fetch('/login/oauth2/code/google?code=' + code);
     const userData = await response.json();
-    
     console.log(userData); // 백엔드에서 가져온 사용자 정보를 로그로 출력합니다.
-  
+
+    
+    const accessToken = userData.access_token;
+    localStorage.setItem('accessToken', accessToken);
+
     // 가져온 사용자 정보에 대한 추가적인 처리를 진행합니다.
-  // 메인 페이지로 이동
+    // 메인 페이지로 이동
     document.location.href = '/Main';
   };
 

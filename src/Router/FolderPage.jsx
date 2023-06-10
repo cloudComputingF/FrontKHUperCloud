@@ -1,22 +1,3 @@
-// import React from 'react';
-// import { useParams } from 'react-router-dom';
-
-// const FolderPage = () => {
-//   const { folderId } = useParams();
-
-//   폴더 ID를 사용하여 필요한 데이터 가져오기 등의 로직 작성
-
-//   return (
-//     <div>
-//       <h1>폴더 페이지</h1>
-//       <p>폴더 ID: {folderId}</p>
-//       {/* 폴더 페이지 내용 추가 */}
-//     </div>
-//   );
-// };
-
-// export default FolderPage;
-
 import * as React from "react";
 import {
   Box,
@@ -67,6 +48,137 @@ function FolderPage({ window }) {
     setSelectedOption("delete");
   };
 
+  useEffect(() => {
+    fetch(`http://35.78.185.19:8000/files/search?folder=Maintest/${encodeURIComponent(folderName)}/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache', // 캐싱 방지 헤더 추가
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Failed to fetch folder and file data.');
+        }
+      })
+      .then((data) => {
+        console.log('파일: ', data); // 확인용
+        
+        const files = data.Message.filter((fileName) => !fileName.endsWith('/')); // 추출한 파일만 필터링해서 files 변수에 할당
+        const folders = data.Message.filter((fileName) => fileName.endsWith('/')); // 추출한 폴더만 필터링해서 folders 변수에 할당
+  
+        files.forEach((fileName) => {
+          // 파일 경로에서 파일 이름만 추출
+          const filePathParts = fileName.split('/');
+          const fileNameOnly = filePathParts[filePathParts.length - 1];
+  
+          const file = new File([], fileNameOnly); // 파일 객체 생성
+  
+          if (file.name.includes('.PNG') || file.name.includes('.JPG')) {
+            fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            })
+              .then((response) => {
+                if (response.ok) {
+                  console.log(response);
+                  return response.json();
+                } else {
+                  throw new Error('Failed to fetch download URL.');
+                }
+              })
+              .then((data) => {
+                console.log('Download URL:', data.Message);
+                const downloadUrls = data.Message.map((item) => item.download);
+                console.log('Download URLs:', downloadUrls[0]);
+                const download = downloadUrls[0];
+  
+                const newImageData = {
+                  url: download,
+                  fileName: fileNameOnly,
+                  fileSize: download.size,
+                  imgKey: `img-${Date.now()}`,
+                };
+                setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+              })
+              .catch((error) => {
+                console.error('Error:', error);
+              });
+          } else if (
+            file.name.includes('.pdf') ||
+            file.name.includes('.doc') ||
+            file.name.includes('.docx') ||
+            file.name.includes('.xls') ||
+            file.name.includes('.xlsx') ||
+            file.name.includes('.csv') ||
+            file.name.includes('.ppt') ||
+            file.name.includes('.pptx')
+          ) {
+            fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            })
+              .then((response) => {
+                if (response.ok) {
+                  console.log(response);
+                  return response.json();
+                } else {
+                  throw new Error('Failed to fetch download URL.');
+                }
+              })
+              .then((data) => {
+                console.log('Download URL:', data.Message);
+                const downloadUrls = data.Message.map((item) => item.download);
+                console.log('Download URLs:', downloadUrls[0]);
+                const download = downloadUrls[0];
+  
+                const documentData = {
+                  url: download,
+                  fileName: fileNameOnly,
+                  fileSize: download.size,
+                  docKey: `doc-${Date.now()}`,
+                };
+                setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
+              })
+              .catch((error) => {
+                console.error('Error:', error);
+              });
+          }
+        });
+  
+        // Separate folder creation
+      //   const newFolders = folders.map((folderName) => {
+      //     const folderPathParts = folderName.split('/');
+      //     const folderNameOnly = folderPathParts[folderPathParts.length - 2];
+      //     const newFolder = {
+      //       id: data.id,
+      //       name: folderNameOnly,
+      //     };
+      //     return newFolder;
+      //   });
+  
+      //   // Update the state with the new folders
+      //   setFolders((prevFolders) => [...prevFolders, ...newFolders]);
+      // }
+  })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }, []);
+
+
+
+
+
+
+
+
   const handleChildCheckboxChange = (imgKey, newChecked) => {
     setChildChecked((prevChecked) => ({
       ...prevChecked,
@@ -115,69 +227,62 @@ function FolderPage({ window }) {
     setParentChecked(newChecked);
   };
 
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  {
-    /*서버에 보낼 함수*/
-  }
-  const handleUpload = (file) => {
-    if (file.type.includes("image")) {
-      const imageData = {
-        url: URL.createObjectURL(file),
-        fileName: file.name,
-        fileSize: file.size,
-        imgKey: `img-${Date.now()}`,
-      };
-
-      setImageUrls((prevUrls) => [...prevUrls, imageData]);
-    } else if (
-      file.type.includes("application/pdf") ||
-      file.type.includes(".doc") ||
-      file.type.includes(".docx") ||
-      file.type.includes("application/msword") ||
-      file.type.includes("application/vnd.ms-excel") ||
-      file.type.includes(".xls") ||
-      file.type.includes(".xlsx") ||
-      file.type.includes(".csv") ||
-      file.type.includes(".ppt") ||
-      file.type.includes(".pptx") ||
-      file.type.includes("application/vnd.ms-powerpoint")
-    ) {
-      const documentData = {
-        url: URL.createObjectURL(file),
-        fileName: file.name,
-        fileSize: file.size,
-        docKey: `doc-${Date.now()}`,
-      };
-
-      setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
-    }
+  const handleDelete = () => {
+    const selectedImages = Object.entries(childChecked)
+      .filter(([_, checked]) => checked.checked)
+      .map(([key]) => key);
+    const selectedDocuments = Object.entries(childChecked)
+      .filter(([_, checked]) => checked.checked)
+      .map(([key]) => key);
+    setImageUrls((prevImageUrls) =>
+      prevImageUrls.filter(
+        (imageUrl) => !selectedImages.includes(imageUrl.imgKey)
+      )
+    );
+    setDocumentUrls((prevDocumentUrls) =>
+      prevDocumentUrls.filter(
+        (documentUrl) => !selectedDocuments.includes(documentUrl.docKey)
+      )
+    );
+    const deletedItems = [
+      ...imageUrls.filter((imageUrl) =>
+        selectedImages.includes(imageUrl.imgKey)
+      ),
+      ...documentUrls.filter((documentUrl) =>
+        selectedDocuments.includes(documentUrl.docKey)
+      ),
+    ];
+    setDeleteList((prevDeleteList) => [...prevDeleteList, ...deletedItems]);
+    parentchange({ target: { checked: false } });
+    setChildChecked({});
   };
+
 
   const handleRestore = () => {
     const selectedImages = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
       .map(([key]) => key);
-
+  
     const selectedDocuments = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
       .map(([key]) => key);
     setImageUrls((prevImageUrls) => {
       const restoredImages = selectedImages.map((imageKey) => {
-        const restoredImage = deleteList.find(
-          (item) => item.imgKey === imageKey
-        );
+        const restoredImage = deleteList.find((item) => item.imgKey === imageKey);
         if (restoredImage) {
           //console.log(restoredImage);
           return {
             fileName: restoredImage.fileName,
-            fileSize: restoredImage.fileSize,
+            fileSize:restoredImage.fileSize,
             imgKey: imageKey,
-            url: restoredImage.url,
+            url: restoredImage.url, 
           };
-        }
+        }  
         return null;
       });
       const filteredRestoredImages = restoredImages.filter(Boolean);
@@ -189,28 +294,29 @@ function FolderPage({ window }) {
         const restoredDocument = deleteList.find(
           (item) => item.docKey === documentKey
         );
-
+       
         if (restoredDocument) {
           // Return the restored document with correct details
           //console.log(restoredDocument);
           return {
             fileName: restoredDocument.fileName,
-            fileSize: restoredDocument.fileSize,
+            fileSize:restoredDocument.fileSize,
             docKey: documentKey,
             url: restoredDocument.url, // Update with the correct URL for the document
-            // Update with the correct filename for the document
+             // Update with the correct filename for the document
           };
         }
-
+  
         return null;
       });
-
+  
       const filteredRestoredDocuments = restoredDocuments.filter(Boolean);
       console.log(filteredRestoredDocuments);
-
+  
       return [...prevDocumentUrls, ...filteredRestoredDocuments];
     });
-
+  
+  
     setDeleteList((prevDeleteList) =>
       prevDeleteList.filter(
         (item) =>
@@ -224,86 +330,158 @@ function FolderPage({ window }) {
     setChildChecked({});
   };
 
-  const handleDelete = () => {
-    const selectedImages = Object.entries(childChecked)
-      .filter(([_, checked]) => checked.checked)
-      .map(([key]) => key);
-
-    const selectedDocuments = Object.entries(childChecked)
-      .filter(([_, checked]) => checked.checked)
-      .map(([key]) => key);
-
-    // Remove selected images from the imageUrls array
-    setImageUrls((prevImageUrls) =>
-      prevImageUrls.filter(
-        (imageUrl) => !selectedImages.includes(imageUrl.imgKey)
-      )
-    );
-
-    // Remove selected documents from the documentUrls array
-    setDocumentUrls((prevDocumentUrls) =>
-      prevDocumentUrls.filter(
-        (documentUrl) => !selectedDocuments.includes(documentUrl.docKey)
-      )
-    );
-
-    // Create an array of deleted items with their details
-    const deletedItems = [
-      ...imageUrls.filter((imageUrl) =>
-        selectedImages.includes(imageUrl.imgKey)
-      ),
-      ...documentUrls.filter((documentUrl) =>
-        selectedDocuments.includes(documentUrl.docKey)
-      ),
-    ];
-
-    // Update the deleteList state
-    setDeleteList((prevDeleteList) => [...prevDeleteList, ...deletedItems]);
-    parentchange({ target: { checked: false } });
-    setChildChecked({});
+  const handleUpload = (file) => {
+    const formData = new FormData();
+    formData.append('dir', 'Maintest/');
+    formData.append('file', file);
+  
+    fetch('http://35.78.185.19:8000/files/upload', {
+      method: 'POST',
+      body: formData,
+    })
+      .then((response) => {
+        if (response.ok) {
+          console.log("response!:", response);
+          const fileName = file.name;
+          fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+            .then((response) => {
+              if (response.ok) {
+                console.log(response);
+                return response.json();
+              } else {
+                throw new Error('Failed to fetch download URL.');
+              }
+            })
+            .then((data) => {
+              console.log('Download URL:', data.Message);
+              const downloadUrls = data.Message.map((item) => item.download);
+              console.log('Download URLs:', downloadUrls[0]);
+              const download = downloadUrls[0];
+  
+              if (file.name.includes('.PNG') || file.name.includes('.JPG')) {
+                const newImageData = {
+                  url: download,
+                  fileName: fileName,
+                  fileSize: download.size,
+                  imgKey: `img-${Date.now()}`,
+                };
+                setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+              } else if (
+                file.name.includes('.pdf') ||
+                file.name.includes('.doc') ||
+                file.name.includes('.docx') ||
+                file.name.includes('.xls') ||
+                file.name.includes('.xlsx') ||
+                file.name.includes('.csv') ||
+                file.name.includes('.ppt') ||
+                file.name.includes('.pptx')
+              ) {
+                const documentData = {
+                  url: download,
+                  fileName: fileName,
+                  fileSize: download.size,
+                  docKey: `doc-${Date.now()}`,
+                };
+                setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
+              }
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
+        } else {
+          throw new Error('Failed to upload file.');
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
   };
 
-  {
-    /*서버 호출 업로드*/
-  }
-
-  //  const handleUpload = (file) => {
-  //     const imageData = new FormData();
-  //     imageData.append('url', URL.createObjectURL(file));
-
-  //     const xhr = new XMLHttpRequest();
-  //     xhr.open('POST', 'http://43.207.224.148:8000/upload/file', true);
-  //     xhr.send(imageData);
-
-  //     const newImageData = {
-  //       url: URL.createObjectURL(file),
-  //       fileName: file.name,
-  //       fileSize: file.size,
-  //       imgKey: `img-${Date.now()}`,
-  //     };
-  //     setImageUrls((prevUrls) => [...prevUrls, newImageData]);
-  //   };
-
-  {
-    /*서버 파일 다운로드 */
-  }
-
   const handleDownload = () => {
-    const checkedKeys = Object.keys(childChecked).filter(
-      (key) => childChecked[key].checked
-    );
+    const checkedKeys = Object.keys(childChecked).filter((key) => childChecked[key].checked);
+  
     checkedKeys.forEach((key) => {
       const imageData = imageUrls.find((image) => image.imgKey === key);
+      const documentData = documentUrls.find((document) => document.docKey === key);
+  
       if (imageData) {
-        const fileName = imageData.fileName; // Set the file name based on the imageData
-        const downloadUrl = `http://43.207.224.148:8000/download/file?file_name=${encodeURIComponent(
-          fileName
-        )}`; // Construct the download URL
-        window.open(downloadUrl); // Open the download URL in a new window/tab
+        const fileName = imageData.fileName;
+        console.log(fileName)
+  
+        fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+          .then((response) => {
+            if (response.ok) {
+              console.log(response);
+              return response.json();
+            } else {
+              throw new Error('Failed to fetch download URL.');
+            }
+          })
+          .then((data) => {
+            console.log('Download URL:', data.Message);
+            const downloadUrls = data.Message.map((item) => item.download);
+            console.log('Download URLs:', downloadUrls[0]);
+            const download = downloadUrls[0]
+            
+            const link = document.createElement('a');
+            link.href = download;
+            link.download = fileName;
+            link.click();
+            
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+      }
+
+      else {
+        const fileName = documentData.fileName;
+        console.log(fileName)
+  
+        fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+           .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error('Failed to fetch download URL.');
+            }
+          })
+          .then((data) => {
+            console.log('Download URL:', data.Message);
+            const downloadUrls = data.Message.map((item) => item.download);
+            console.log('Download URLs:', downloadUrls[0]);
+            const download = downloadUrls[0]
+            
+            const link = document.createElement('a');
+            link.href = download;
+            link.download = fileName;
+            link.click();
+            
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+
       }
     });
   };
 
+  
   //childcheck 상태 기반 부수효과
   useEffect(() => {
     const allChecked =
@@ -318,210 +496,321 @@ function FolderPage({ window }) {
     } else {
       setIndeterminate(false);
     }
-  }, [childChecked, handleDelete]);
+  }, [childChecked],handleAllFilesClick,handleDeleteFilesClick);
 
   const container =
     window !== undefined ? () => window().document.body : undefined;
 
-  return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
-        }}
-      >
-        <Header setMobileOpen={handleDrawerToggle} />
-      </AppBar>
-      <Box
-        component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-        aria-label="mailbox folders"
-      >
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-        <Drawer
-          container={container}
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
-          sx={{
-            display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: drawerWidth,
-            },
-          }}
-        ></Drawer>
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: drawerWidth,
-            },
-          }}
-          open
-        >
-          <SideBar
-            onAllFilesClick={handleAllFilesClick}
-            onPhotoClick={handlePhotoClick}
-            onDocumentsClick={handleDocumentsClick}
-            onDeleteClick={handleDeleteFilesClick}
-          />
-        </Drawer>
-      </Box>
-      <Box
-        component="main"
-        sx={{
-          p: 3,
-          display: "flex",
-          maxWidth: "100%",
-        }}
-      >
-        <Box sx={{ position: "absolute", top: 82, left: 200, width: "85%" }}>
-          <div style={{ marginLeft: 15 }}>
-            <h4>
-              {" "}
-              <Link to='/Main'>KHUperCLOUD</Link> &gt; {folderName} &nbsp;
-            </h4>
-          </div>
-          <Box
-            sx={{ display: "flex", alignItems: "center", marginLeft: "14px" }}
-          >
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={parentChecked}
-                  indeterminate={indeterminate}
-                  onChange={parentchange}
-                />
-              }
-              sx={{ marginRight: 1 }}
-            />
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                position: "relative",
-              }}
-            >
-              <Divider orientation="vertical" sx={{ height: "100%" }} />
-              {/*서버에 삭제 요청 handleEmptyTrash 정의 필요*/}
-              {selectedOption === "delete" ? (
-                <>
-                  <Button
-                    sx={{ marginTop: 0.3, marginLeft: 1 }}
-                    variant="contained"
-                    /*onClick={handleEmptyTrash}*/
-                  >
-                    휴지통 비우기
-                  </Button>
-                  <Button
-                    sx={{ marginTop: 0.3, marginLeft: 1 }}
-                    variant="outlined"
-                    onClick={handleRestore}
-                  >
-                    복원
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Upload
-                    onCreateImage={handleUpload}
-                    onCreateDocument={handleUpload}
-                  />
-                  <Button
-                    sx={{ marginTop: 0.3, marginLeft: 1 }}
-                    onClick={handleDownload}
-                    variant="outlined"
-                  >
-                    내려받기
-                  </Button>
-                  <Button
-                    sx={{ marginTop: 0.3, marginLeft: 1 }}
-                    variant="outlined"
-                    onClick={handleDelete}
-                  >
-                    삭제
-                  </Button>
-                </>
-              )}
-            </Box>
-          </Box>
 
-          <Divider sx={{ my: 2.3 }} />
+    const [showModal, setShowModal] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [folders, setFolders] = useState([]);
+  const openModal = () => {
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+
+    const createFolder = () => {
+      if (newFolderName.trim() === "") {
+        alert("폴더 이름을 입력해주세요.");
+        return;
+      }
+
+      const folderName = newFolderName.trim()
+    
+      // 폴더 생성 경로
+      const folderPath = `Maintest/${folderName}/`;
+    
+      // API 요청에 필요한 데이터
+      const requestData = {
+        path: folderPath,
+      };
+    
+      // API 엔드포인트
+      const apiUrl = "http://35.78.185.19:8000/files/folder";
+    
+      // API 요청 설정
+      const requestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      };
+    
+      // API 요청 보내기
+      fetch(apiUrl, requestOptions)
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error("폴더 생성에 실패했습니다.");
+          }
+        })
+        .then((data) => {
+          // 새로운 폴더 객체 생성
+          const newFolder = {
+            id: data.id, // 서버에서 할당된 폴더 ID
+            name: newFolderName,
+          };
+    
+          // 기존 폴더 목록에 새 폴더를 추가한 후, 업데이트된 폴더 목록으로 상태를 업데이트합니다.
+          setFolders((prevFolders) => [...prevFolders, newFolder]);
+    
+          // 폴더 생성 후 입력 필드 초기화
+          setNewFolderName("");
+    
+          // 모달 닫기
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    };
+
+
+ return (
+      <Box sx={{ display: "flex" }}>
+        <CssBaseline />
+        <AppBar
+          position="fixed"
+          sx={{
+            width: { sm: `calc(100% - ${drawerWidth}px)` },
+            ml: { sm: `${drawerWidth}px` },
+          }}
+        >
+          <Header setMobileOpen={handleDrawerToggle} />
+        </AppBar>
+        <Box
+          component="nav"
+          sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+          aria-label="mailbox folders"
+        >
+          {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+          <Drawer
+            container={container}
+            variant="temporary"
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+            sx={{
+              display: { xs: "block", sm: "none" },
+              "& .MuiDrawer-paper": {
+                boxSizing: "border-box",
+                width: drawerWidth,
+              },
+            }}
+          ></Drawer>
+          <Drawer
+            variant="permanent"
+            sx={{
+              display: { xs: "none", sm: "block" },
+              "& .MuiDrawer-paper": {
+                boxSizing: "border-box",
+                width: drawerWidth,
+              },
+            }}
+            open
+          >
+            <SideBar
+              onAllFilesClick={handleAllFilesClick}
+              onPhotoClick={handlePhotoClick}
+              onDocumentsClick={handleDocumentsClick}
+              onDeleteClick={handleDeleteFilesClick}
+            />
+          </Drawer>
         </Box>
-        <Box sx={{ mt: 20, display: "flex", flexWrap: "wrap" }}>
-          {selectedOption === "all" ? (
-            <>
-              <div style={{ margin: "5px", flexBasis: "100%" }}>
-                <ImageList
-                  imageUrls={imageUrls}
-                  parentcheck={selfcheck}
-                  childChecked={childChecked}
-                  onChildCheckboxChange={handleChildCheckboxChange}
-                />
-              </div>
-              <div
-                style={{
-                  margin: "0px",
-                  flexBasis: "100%",
-                  paddingTop: "0",
-                  marginTop: -130,
+        <Box
+          component="main"
+          sx={{
+            p: 3,
+            display: "flex",
+            maxWidth: "100%",
+          }}
+        >
+          <Box sx={{ position: "absolute", top: 82, left: 200, width: "85%" }}>
+            <Box
+              sx={{ display: "flex", alignItems: "center", marginLeft: "14px" }}
+            >
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={parentChecked}
+                    indeterminate={indeterminate}
+                    onChange={parentchange}
+                  />
+                }
+                sx={{ marginRight: 1 }}
+              />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  position: "relative",
                 }}
               >
-                <DocumentList
-                  documentUrls={documentUrls}
-                  parentcheck={selfcheck}
-                  childChecked={childChecked}
-                  onChildCheckboxChange={handleChildCheckboxChange}
+                <Divider orientation="vertical" sx={{ height: "100%" }} />
+                {/*서버에 삭제 요청 handleEmptyTrash 정의 필요*/}
+                {selectedOption === "delete" ? (
+                  <>
+                    <Button
+                      sx={{ marginTop: 0.3, marginLeft: 1 }}
+                      variant="contained"
+                      /*onClick={handleEmptyTrash}*/
+                    >
+                      휴지통 비우기
+                    </Button>
+                    <Button
+                      sx={{ marginTop: 0.3, marginLeft: 1 }}
+                      variant="outlined"
+                      onClick={handleRestore}
+                    >
+                      복원
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <h2> {folderName} &nbsp;</h2>
+                  </div>
+
+                    <Upload
+                      onCreateImage={handleUpload}
+                      onCreateDocument={handleUpload}
+                    />
+  
+                    <Button
+                      sx={{ marginTop: 0.3, marginLeft: 1 }}
+                      variant="outlined"
+                      onClick={openModal}
+                    >
+                      새폴더
+                    </Button>
+  
+                    {/* 모달 */}
+                    {showModal && (
+                      <div className="modal-overlay2">
+                        <div className="modal2">
+                          <div className="modal-content2">
+                            <h3>새 폴더 생성</h3>
+                            <input
+                              type="text"
+                              value={newFolderName}
+                              onChange={(e) => setNewFolderName(e.target.value)}
+                              placeholder="폴더 이름"
+                            />
+                            <button onClick={createFolder}>생성</button>
+                            <button onClick={closeModal}>취소</button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+  
+                    <Button
+                      sx={{ marginTop: 0.3, marginLeft: 1 }}
+                      onClick={handleDownload}
+                      variant="outlined"
+                    >
+                      내려받기
+                    </Button>
+                    <Button
+                      sx={{ marginTop: 0.3, marginLeft: 1 }}
+                      variant="outlined"
+                      onClick={handleDelete}
+                    >
+                      삭제
+                    </Button>
+                  </>
+                )}
+              </Box>
+            </Box>
+            <Divider sx={{ my: 2.3 }} />
+          </Box>  
+          
+            
+            <Box>
+              {selectedOption === "all" ? (
+                <>
+                <Box sx={{mt: 16}}>
+                <div style={{display: 'flex', flexWrap: 'wrap' }}>
+                {folders.map((folder) => ( //이때 이 folders 는 백에서 가지고 와서 mappping ?
+                <div key={folder.name}>
+                <Link to={`/${folder.name}`}>
+                <img 
+                key={folder.name} 
+                src="/images/Folder.png" 
+                alt={folder.name} 
+                style={{ width: '100px', height: '100px', margin: "20px" }}
+                 // 클릭 시 handleFolderClick 함수 호출
                 />
+                </Link>
+                <p style={{textAlign: 'center'}}>{folder.name}</p> {/* 폴더 이름 표시 */}
+                </div>
+                 ))}
               </div>
-            </>
-          ) : selectedOption === "photo" ? (
-            <ImageList
-              imageUrls={imageUrls}
-              parentcheck={selfcheck}
-              childChecked={childChecked}
-              onChildCheckboxChange={handleChildCheckboxChange}
-            />
-          ) : selectedOption === "documents" ? (
-            <div style={{marginTop:-130}}>
-            <DocumentList 
-              documentUrls={documentUrls}
-              parentcheck={selfcheck}
-              childChecked={childChecked}
-              onChildCheckboxChange={handleChildCheckboxChange}
-            />
-            </div>
-          ) : selectedOption === "delete" ? (
-            <div style={{marginTop:-130}}>
-            <DeleteList
-              deleteList={deleteList}
-              parentcheck={selfcheck}
-              childChecked={childChecked}
-              onChildCheckboxChange={handleChildCheckboxChange}
-            />
-            </div>
-          ) : null}
+              </Box>
+  
+  
+                <div style={{ margin: '5px', flexBasis: '100%'}}>
+                  <ImageList
+                    imageUrls={imageUrls}
+                    parentcheck={selfcheck}
+                    childChecked={childChecked}
+                    onChildCheckboxChange={handleChildCheckboxChange}
+                  />
+                </div>
+                {/* <Divider orientation="horizontal" sx={{ borderBottom: '2px solid black' }} />  */}
+                <div style={{ margin: '0px', flexBasis: '100%', paddingTop: '0', marginTop:-130 }}>
+                  <DocumentList
+                    documentUrls={documentUrls}
+                    parentcheck={selfcheck}
+                    childChecked={childChecked}
+                    onChildCheckboxChange={handleChildCheckboxChange}
+                  />
+                </div>
+              </>
+            ) : selectedOption === "photo" ? (
+              <Box sx={{mt: 20}}>
+              <ImageList 
+                imageUrls={imageUrls}
+                parentcheck={selfcheck}
+                childChecked={childChecked}
+                onChildCheckboxChange={handleChildCheckboxChange}
+              />
+              </Box>
+            ) : selectedOption === "documents" ? (
+              <DocumentList
+                documentUrls={documentUrls}
+                parentcheck={selfcheck}
+                childChecked={childChecked}
+                onChildCheckboxChange={handleChildCheckboxChange}
+              />
+            ) : selectedOption === "delete" ? (
+              <DeleteList
+                deleteList={deleteList}
+                parentcheck={selfcheck}
+                childChecked={childChecked}
+                onChildCheckboxChange={handleChildCheckboxChange}
+              />
+            ) : null}
+            </Box>
+          </Box>
         </Box>
-      </Box>
-    </Box>
-  );
-}
-
-FolderPage.propTypes = {
-  /**
-   * Injected by the documentation to work in an iframe.
-   * You won't need it on your project.
-   */
-  window: PropTypes.func,
-};
-
-export default FolderPage;
+    
+    );
+            }
+  
+  FolderPage.propTypes = {
+    /**
+     * Injected by the documentation to work in an iframe.
+     * You won't need it on your project.
+     */
+    window: PropTypes.func,
+  };
+  
+  export default FolderPage;

@@ -17,7 +17,7 @@ import EnhancedEncryptionIcon from "@mui/icons-material/EnhancedEncryption";
 import Share from "./Share";
 import ShareIcon from '@mui/icons-material/Share';
 
-const Modal = ({ open, onClose, filename, url }) => {
+const Modal = ({ open, onClose, filename, url}) => {
   const [isImage, setIsImage] = useState(false);
   const [isEncrypt, setEncrypt] = useState(false);
   const [password, setPassword] = useState("");
@@ -129,8 +129,7 @@ const handleUnlock = () => {
       });
   };
   
-  
-
+ 
   return (
     <Dialog open={open} onClose={onClose}>
       {!isEncrypt ? (
@@ -201,27 +200,7 @@ const handleUnlock = () => {
       justifyContent="center"
       width="100%"
     >
-            <Button variant="contained" onClick={handleUnlock}>
-              잠금 해제
-            </Button>
-            <Dialog open={isUnlockModalOpen} onClose={() => setUnlockModalOpen(false)}>
-  <DialogTitle>잠금 해제</DialogTitle>
-  <DialogContent>
-    <TextField
-      label="비밀번호"
-      type="password"
-      value={unlockPassword}
-      onChange={(e) => setUnlockPassword(e.target.value)}
-      fullWidth
-    />
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={() => setUnlockModalOpen(false)}>취소</Button>
-    <Button onClick={() => handlesubmit(unlockPassword)}>
-      확인
-    </Button>
-  </DialogActions>
-</Dialog>
+
             </Box>
             <img
               src="/images/Lock.png"

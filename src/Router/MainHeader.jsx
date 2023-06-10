@@ -17,6 +17,37 @@ export default function Header({ setMobileOpen }) {
           }
         })
   }
+
+  const handleLogout = async () => {
+    try {
+      // 액세스 토큰을 가져옴
+      const accessToken = localStorage.getItem('accessToken');
+  
+      const response = await fetch('/oauth2/sign-out', {
+        method: 'GET',
+        headers: {
+          Authorization: 'Bearer ' + accessToken,
+        },
+      });
+  
+      if (response.ok) {
+        // 로그아웃 성공
+  
+        // 액세스 토큰 제거
+        localStorage.removeItem('accessToken');
+        document.location.href = '/';
+  
+        // 추가적인 처리를 진행하거나 리다이렉트 등을 수행할 수 있습니다.
+      } else {
+        // 로그아웃 실패
+        alert('로그아웃 하는데 실패했습니다.')
+      }
+    } catch (error) {
+      // 요청 실패
+      alert('로그아웃 하는데 실패했습니다.')
+    }
+  };
+
   return (
     <Toolbar>
       <IconButton
@@ -38,7 +69,7 @@ export default function Header({ setMobileOpen }) {
       </Typography>
       <Box sx={{ flexGrow: 1 }} />
       <Link to="/"> 
-        <Button onClick={onClickHandler}  variant="contained" color="inherit">
+        <Button onClick={handleLogout}  variant="contained" color="inherit">
           로그아웃
         </Button>
       </Link>
