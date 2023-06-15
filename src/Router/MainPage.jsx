@@ -64,10 +64,79 @@ function MainPage({ window }) {
 
   const handleEmptyTrash = () => {
     setDeleteList([]);
-  };
+  }
+
+
+  // const handleEmptyTrash = () => {
+  //   const selectedImages = Object.entries(childChecked)
+  //     .filter(([_, checked]) => checked.checked)
+  //     .map(([key]) => key);
+  
+  //   const selectedDocuments = Object.entries(childChecked)
+  //     .filter(([_, checked]) => checked.checked)
+  //     .map(([key]) => key);
+  
+  //   selectedImages.forEach((imageKey) => {
+  //     const deletedImage = deleteList.find((item) => item.imgKey === imageKey);
+  //     if (deletedImage) {
+  //       const deleteUrl = `http://3.86.97.120:8080/trash/delete?${encodeURIComponent(deletedImage.fileName)}`;
+    
+  //       fetch(deleteUrl, {
+  //         method: 'DELETE',
+  //       })
+  //         .then((response) => response.json())
+  //         .then((data) => {
+  //           console.log(data);
+  //         })
+  //         .catch((error) => {
+  //           console.log(error);
+  //         });
+  //     }
+  //   });
+  
+  //   selectedDocuments.forEach((documentKey) => {
+  //     const deletedDocument = deleteList.find((item) => item.docKey === documentKey);
+  //     if (deletedDocument) {
+  //       const deleteUrl = `http://3.86.97.120:8080/trash/delete/trash/${encodeURIComponent(deletedImage.fileName)}`;
+    
+  //       fetch(deleteUrl, {
+  //         method: 'DELETE',
+  //       })
+  //         .then((response) => response.json())
+  //         .then((data) => {
+  //           console.log(data);
+  //         })
+  //         .catch((error) => {
+  //           console.log(error);
+  //         });
+  //     }
+  //   });
+  
+  //   setImageUrls((prevImageUrls) =>
+  //     prevImageUrls.filter((image) => !selectedImages.includes(image.imgKey))
+  //   );
+    
+  //   setDocumentUrls((prevDocumentUrls) =>
+  //     prevDocumentUrls.filter((document) => !selectedDocuments.includes(document.docKey))
+  //   );
+  
+  //   setDeleteList((prevDeleteList) =>
+  //     prevDeleteList.filter(
+  //       (item) =>
+  //         !(
+  //           selectedImages.includes(item.imgKey) ||
+  //           selectedDocuments.includes(item.docKey)
+  //         )
+  //     )
+  //   );
+  
+  //   parentchange({ target: { checked: false } });
+  //   setChildChecked({});
+  // };
+
 
   useEffect(() => {
-    fetch(`http://35.78.185.19:8000/files/search?folder=Maintest2/`, {
+    fetch(`http://35.78.185.19:8000/files/search?folder=translated/Main/`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -82,7 +151,7 @@ function MainPage({ window }) {
         }
       })
       .then((data) => {
-        console.log('파일: ', data); // 확인용
+        console.log('번역 파일: ', data); // 확인용
         
         const files = data.Message.filter((fileName) => !fileName.endsWith('/')); // 추출한 파일만 필터링해서 files 변수에 할당
         const folders = data.Message.filter((fileName) => fileName.endsWith('/')); // 추출한 폴더만 필터링해서 folders 변수에 할당
@@ -90,12 +159,14 @@ function MainPage({ window }) {
         files.forEach((fileName) => {
           // 파일 경로에서 파일 이름만 추출
           const filePathParts = fileName.split('/');
+          const filePath = filePathParts[0];
           const fileNameOnly = filePathParts[filePathParts.length - 1];
+          console.log(fileNameOnly);
   
           const file = new File([], fileNameOnly); // 파일 객체 생성
   
           if (file.name.includes('.PNG') || file.name.includes('.JPG')) {
-            fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
+            fetch(`http://35.78.185.19:8000/files/download?fileName=translated/Main/${encodeURIComponent(fileNameOnly)}`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
@@ -110,17 +181,20 @@ function MainPage({ window }) {
                 }
               })
               .then((data) => {
-                console.log('Download URL:', data.Message);
+                console.log('문서 번역 URL:', data.Message);
                 const downloadUrls = data.Message.map((item) => item.download);
                 console.log('Download URLs:', downloadUrls[0]);
                 const download = downloadUrls[0];
   
                 const newImageData = {
+
                   url: download,
                   fileName: fileNameOnly,
                   fileSize: download.size,
                   imgKey: `img-${Date.now()}`,
                 };
+
+                console.log("이미지 데이터", newImageData);
                 setImageUrls((prevUrls) => [...prevUrls, newImageData]);
               })
               .catch((error) => {
@@ -134,9 +208,9 @@ function MainPage({ window }) {
             file.name.includes('.xlsx') ||
             file.name.includes('.csv') ||
             file.name.includes('.ppt') ||
-            file.name.includes('.pptx')
+            file.name.includes('.pptx') 
           ) {
-            fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
+            fetch(`http://35.78.185.19:8000/files/download?fileName=translated/Main/${encodeURIComponent(fileNameOnly)}`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
@@ -151,7 +225,7 @@ function MainPage({ window }) {
                 }
               })
               .then((data) => {
-                console.log('Download URL:', data.Message);
+                console.log('번역 Download URL:', data.Message);
                 const downloadUrls = data.Message.map((item) => item.download);
                 console.log('Download URLs:', downloadUrls[0]);
                 const download = downloadUrls[0];
@@ -162,6 +236,7 @@ function MainPage({ window }) {
 
 
                 const documentData = {
+                  filePath: filePath,
                   url: download,
                   fileName: fileNameOnly,
                   fileSize: download.size,
@@ -194,9 +269,10 @@ function MainPage({ window }) {
         console.error('Error:', error);
       });
   }, []);
-  
+
+
   useEffect(() => {
-    fetch(`http://35.78.185.19:8000/files/search?folder=translated/`, {
+    fetch(`http://35.78.185.19:8000/files/search?folder=Main/`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -212,65 +288,320 @@ function MainPage({ window }) {
       })
       .then((data) => {
         console.log('파일: ', data); // 확인용
-  
+        
         const files = data.Message.filter((fileName) => !fileName.endsWith('/')); // 추출한 파일만 필터링해서 files 변수에 할당
         const folders = data.Message.filter((fileName) => fileName.endsWith('/')); // 추출한 폴더만 필터링해서 folders 변수에 할당
   
-        const fetchDownloadUrls = files.map((fileName) => {
+        files.forEach((fileName) => {
           // 파일 경로에서 파일 이름만 추출
           const filePathParts = fileName.split('/');
+          const filePath = filePathParts[0];
           const fileNameOnly = filePathParts[filePathParts.length - 1];
+          console.log(fileNameOnly);
   
-          return fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          })
-            .then((response) => {
-              if (response.ok) {
-                return response.json();
-              } else {
-                throw new Error('Failed to fetch download URL.');
-              }
+          const file = new File([], fileNameOnly); // 파일 객체 생성
+  
+          if (file.name.includes('.PNG') || file.name.includes('.JPG')) {
+            fetch(`http://35.78.185.19:8000/files/download?fileName=Main/${encodeURIComponent(fileNameOnly)}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
             })
-            .then((data) => {
-              console.log('Download URL:', data.Message);
-              const downloadUrls = data.Message.map((item) => item.download);
-              console.log('Download URLs:', downloadUrls[0]);
-              const download = downloadUrls[0];
+              .then((response) => {
+                if (response.ok) {
+                  console.log(response);
+                  return response.json();
+                } else {
+                  throw new Error('Failed to fetch download URL.');
+                }
+              })
+              .then((data) => {
+                console.log('Download URL:', data.Message);
+                const downloadUrls = data.Message.map((item) => item.download);
+                console.log('Download URLs:', downloadUrls[0]);
+                const download = downloadUrls[0];
   
-              const file_password = data.Message.map((item) => item.file_password);
-              console.log('password', file_password);
-              const password = file_password[0];
-  
-              return {
-                url: download,
-                fileName: fileNameOnly,
-                fileSize: download.size,
-                docKey: `doc-${Date.now()}`,
-                password: password,
-              };
+                const newImageData = {
+
+                  url: download,
+                  fileName: fileNameOnly,
+                  fileSize: download.size,
+                  imgKey: `img-${Date.now()}`,
+                };
+
+                console.log("이미지 데이터", newImageData);
+                setImageUrls((prevUrls) => [...prevUrls, newImageData]);
+              })
+              .catch((error) => {
+                console.error('Error:', error);
+              });
+          } else if (
+            file.name.includes('.pdf') ||
+            file.name.includes('.doc') ||
+            file.name.includes('.docx') ||
+            file.name.includes('.xls') ||
+            file.name.includes('.xlsx') ||
+            file.name.includes('.csv') ||
+            file.name.includes('.ppt') ||
+            file.name.includes('.pptx') 
+          ) {
+            fetch(`http://35.78.185.19:8000/files/download?fileName=Main/${encodeURIComponent(fileNameOnly)}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
             })
-            .catch((error) => {
-              console.error('Error:', error);
-              return null;
-            });
+              .then((response) => {
+                if (response.ok) {
+                  console.log(response);
+                  return response.json();
+                } else {
+                  throw new Error('Failed to fetch download URL.');
+                }
+              })
+              .then((data) => {
+                console.log('Download URL:', data.Message);
+                const downloadUrls = data.Message.map((item) => item.download);
+                console.log('Download URLs:', downloadUrls[0]);
+                const download = downloadUrls[0];
+
+                const file_password = data.Message.map((item) => item.file_password);
+                console.log('password', file_password);
+                const password = file_password[0];
+
+
+                const documentData = {
+                  filePath: filePath,
+                  url: download,
+                  fileName: fileNameOnly,
+                  fileSize: download.size,
+                  docKey: `doc-${Date.now()}`,
+                  password: password,
+                };
+                setDocumentUrls((prevUrls) => [...prevUrls, documentData]);
+              })
+              .catch((error) => {
+                console.error('Error:', error);
+              });
+          }
         });
   
-        Promise.all(fetchDownloadUrls)
-          .then((downloadUrls) => {
-            const filteredDownloadUrls = downloadUrls.filter((url) => url !== null);
-            setDocumentUrls((prevUrls) => [...prevUrls, ...filteredDownloadUrls]);
-          })
-          .catch((error) => {
-            console.error('Error:', error);
-          });
+        // Separate folder creation
+        const newFolders = folders.map((folderName) => {
+          const folderPathParts = folderName.split('/');
+          const folderNameOnly = folderPathParts[folderPathParts.length - 2];
+          const newFolder = {
+            id: data.id,
+            name: folderNameOnly,
+          };
+          return newFolder;
+        });
+  
+        // Update the state with the new folders
+        setFolders((prevFolders) => [...prevFolders, ...newFolders]);
       })
       .catch((error) => {
         console.error('Error:', error);
       });
   }, []);
+
+
+  useEffect(() => {
+    fetch(`http://35.78.185.19:8000/files/search?folder=trash/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache', // 캐싱 방지 헤더 추가
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Failed to fetch folder and file data.');
+        }
+      })
+      .then((data) => {
+        console.log('삭제 파일: ', data); // 확인용
+  
+        const files = data.Message.filter((fileName) => !fileName.endsWith('/')); // 추출한 파일만 필터링해서 files 변수에 할당
+        //const folders = data.Message.filter((fileName) => fileName.endsWith('/')); // 추출한 폴더만 필터링해서 folders 변수에 할당
+  
+        const fetchFileData = (fileName) => {
+          const filePathParts = fileName.split('/');
+          const filePath = filePathParts[0];
+          const fileNameOnly = filePathParts[filePathParts.length - 1];
+          console.log("삭제파일 이름", fileNameOnly);
+  
+          const file = new File([], fileNameOnly); // 파일 객체 생성
+  
+          if (file.name.includes('.PNG') || file.name.includes('.JPG')) {
+            fetch(`http://35.78.185.19:8000/files/download?fileName=trash/Main/${encodeURIComponent(fileNameOnly)}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            })
+              .then((response) => {
+                if (response.ok) {
+                  console.log(response);
+                  return response.json();
+                } else {
+                  throw new Error('Failed to fetch download URL.');
+                }
+              })
+              .then((data) => {
+                console.log('삭제 Download URL:', data.Message);
+                const downloadUrls = data.Message.map((item) => item.download);
+                console.log('Download URLs:', downloadUrls[0]);
+                const download = downloadUrls[0];
+  
+                const deletedItems = {
+                  url: download,
+                  fileName: fileNameOnly,
+                  fileSize: download.size,
+                  imgKey: `img-${Date.now()}`,
+                };
+                setDeleteList((prevDeleteList) => [...prevDeleteList, deletedItems]);
+              })
+              .catch((error) => {
+                console.error('Error:', error);
+              });
+          } else if (
+            file.name.includes('.pdf') ||
+            file.name.includes('.doc') ||
+            file.name.includes('.docx') ||
+            file.name.includes('.xls') ||
+            file.name.includes('.xlsx') ||
+            file.name.includes('.csv') ||
+            file.name.includes('.ppt') ||
+            file.name.includes('.pptx') 
+          ) {
+            fetch(`http://35.78.185.19:8000/files/download?fileName=trash/Main/${encodeURIComponent(fileNameOnly)}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            })
+              .then((response) => {
+                if (response.ok) {
+                  console.log(response);
+                  return response.json();
+                } else {
+                  throw new Error('Failed to fetch download URL.');
+                }
+              })
+              .then((data) => {
+                console.log('Download URL:', data.Message);
+                const downloadUrls = data.Message.map((item) => item.download);
+                console.log('Download URLs:', downloadUrls[0]);
+                const download = downloadUrls[0];
+  
+                const file_password = data.Message.map((item) => item.file_password);
+                console.log('password', file_password);
+                const password = file_password[0];
+  
+                const deletedItems = {
+                  filePath: filePath,
+                  url: download,
+                  fileName: fileNameOnly,
+                  fileSize: download.size,
+                  docKey: `doc-${Date.now()}`,
+                  password: password,
+                };
+                setDeleteList((prevDeleteList) => [...prevDeleteList, deletedItems]);
+              })
+              .catch((error) => {
+                console.error('Error:', error);
+              });
+          }
+        };
+  
+        files.forEach(fetchFileData);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }, []);
+
+  
+  // useEffect(() => {
+  //   fetch(`http://35.78.185.19:8000/files/search?folder=translated/Main/`, {
+  //     method: 'GET',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Cache-Control': 'no-cache', // 캐싱 방지 헤더 추가
+  //     },
+  //   })
+  //     .then((response) => {
+  //       if (response.ok) {
+  //         return response.json();
+  //       } else {
+  //         throw new Error('Failed to fetch folder and file data.');
+  //       }
+  //     })
+  //     .then((data) => {
+  //       console.log('파일: ', data); // 확인용
+  
+  //       const files = data.Message.filter((fileName) => !fileName.endsWith('/')); // 추출한 파일만 필터링해서 files 변수에 할당
+  //       const folders = data.Message.filter((fileName) => fileName.endsWith('/')); // 추출한 폴더만 필터링해서 folders 변수에 할당
+  
+  //       const fetchDownloadUrls = files.map((fileName) => {
+  //         // 파일 경로에서 파일 이름만 추출
+  //         const filePathParts = fileName.split('/');
+  //         const fileNameOnly = filePathParts[filePathParts.length - 1];
+  
+  //         return fetch(`http://35.78.185.19:8000/files/download?fileName=translated/Main/${encodeURIComponent(fileNameOnly)}`, {
+  //           method: 'GET',
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //           },
+  //         })
+  //           .then((response) => {
+  //             if (response.ok) {
+  //               return response.json();
+  //             } else {
+  //               throw new Error('Failed to fetch download URL.');
+  //             }
+  //           })
+  //           .then((data) => {
+  //             console.log('Download URL:', data.Message);
+  //             const downloadUrls = data.Message.map((item) => item.download);
+  //             console.log('Download URLs:', downloadUrls[0]);
+  //             const download = downloadUrls[0];
+  
+  //             const file_password = data.Message.map((item) => item.file_password);
+  //             console.log('password', file_password);
+  //             const password = file_password[0];
+  
+  //             return {
+  //               url: download,
+  //               fileName: fileNameOnly,
+  //               fileSize: download.size,
+  //               docKey: `doc-${Date.now()}`,
+  //               password: password,
+  //             };
+  //           })
+  //           .catch((error) => {
+  //             console.error('Error:', error);
+  //             return null;
+  //           });
+  //       });
+  
+  //       Promise.all(fetchDownloadUrls)
+  //         .then((downloadUrls) => {
+  //           const filteredDownloadUrls = downloadUrls.filter((url) => url !== null);
+  //           setDocumentUrls((prevUrls) => [...prevUrls, ...filteredDownloadUrls]);
+  //         })
+  //         .catch((error) => {
+  //           console.error('Error:', error);
+  //         });
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error:', error);
+  //     });
+  // }, []);
 
 
   const handleChildCheckboxChange = (imgKey, newChecked) => {
@@ -344,7 +675,7 @@ function MainPage({ window }) {
         (documentUrl) => !selectedDocuments.includes(documentUrl.docKey)
       )
     );
-
+  
     const deletedItems = [
       ...imageUrls.filter((imageUrl) =>
         selectedImages.includes(imageUrl.imgKey)
@@ -353,13 +684,14 @@ function MainPage({ window }) {
         selectedDocuments.includes(documentUrl.docKey)
       ),
     ];
-
+  
     deletedItems.forEach((item) => {
-      const uploadFilePath = encodeURIComponent(item.url); // 파일 경로 인코딩
-      const deleteUrl = `http://52.200.100.241:8000/trash/delete/${uploadFilePath}`;
-    
+      console.log(item.fileName);
+      const uploadFilePath = item.fileName; // 파일 경로 인코딩
+      const deleteUrl = `http://35.78.185.19:8000/files/move/trash?fileKey=Main/${uploadFilePath}`;
+  
       fetch(deleteUrl, {
-        method: 'DELETE',
+        method: 'GET',
       })
         .then((response) => response.json())
         .then((data) => {
@@ -369,7 +701,7 @@ function MainPage({ window }) {
           console.log(error);
         });
     });
-
+  
     setDeleteList((prevDeleteList) => [...prevDeleteList, ...deletedItems]);
     parentchange({ target: { checked: false } });
     setChildChecked({});
@@ -402,8 +734,8 @@ function MainPage({ window }) {
       });
       const filteredRestoredImages = restoredImages.filter(Boolean);
       filteredRestoredImages.forEach((item) => {
-        const uploadFilePath = encodeURIComponent(item.url); // 파일 경로 인코딩
-        const deleteUrl = `http://52.200.100.241:8000/trash/restore/${uploadFilePath}`;
+        const uploadFilePath = item.fileName; // 파일 경로 인코딩
+        const deleteUrl = `http://18.234.144.161:8080/trash/restore/trash/Main/${uploadFilePath}`;
       
         fetch(deleteUrl, {
           method: 'DELETE',
@@ -442,8 +774,8 @@ function MainPage({ window }) {
 
       const filteredRestoredDocuments = restoredDocuments.filter(Boolean);
       filteredRestoredDocuments.forEach((item) => {
-        const uploadFilePath = encodeURIComponent(item.url); // 파일 경로 인코딩
-        const deleteUrl = `http://52.200.100.241:8000/trash/restore/${uploadFilePath}`;
+        const uploadFilePath = item.fileName; // 파일 경로 인코딩
+        const deleteUrl = `http://18.234.144.161:8080/trash/restore/trash/Main/${uploadFilePath}`;
       
         fetch(deleteUrl, {
           method: 'DELETE',
@@ -475,7 +807,7 @@ function MainPage({ window }) {
   
   const handleUpload = (file) => {
     const formData = new FormData();
-    formData.append('dir', 'Maintest2/');
+    formData.append('dir', 'Main/');
     formData.append('file', file);
   
     fetch('http://35.78.185.19:8000/files/upload', {
@@ -486,7 +818,7 @@ function MainPage({ window }) {
         if (response.ok) {
           console.log("response!:", response);
           const fileName = file.name;
-          fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
+          fetch(`http://35.78.185.19:8000/files/download?fileName=Main/${encodeURIComponent(fileName)}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -549,7 +881,7 @@ function MainPage({ window }) {
   const handleUpload_lock = (file) => {
     const fileName = file.name;
     const formData = new FormData();
-    formData.append('dir', 'Maintest2/');
+    formData.append('dir', 'Main/');
     formData.append('file', file);
     formData.append('password', password);
   
@@ -560,7 +892,7 @@ function MainPage({ window }) {
       .then((response) => {
         if (response.ok) {
           const fileName = file.name;
-          return fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
+          return fetch(`http://35.78.185.19:8000/files/download?fileName=Main/${encodeURIComponent(fileName)}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -738,7 +1070,7 @@ function MainPage({ window }) {
     console.log('입력비번', userPassword)
     if (userPassword === password) {
       console.log('입력비번', userPassword)
-      fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(downloadFileName)}`, {
+      fetch(`http://35.78.185.19:8000/files/download?fileName=Main/${encodeURIComponent(downloadFileName)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -792,7 +1124,7 @@ function MainPage({ window }) {
         const fileName = imageData.fileName;
         console.log(fileName);
   
-        fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
+        fetch(`http://35.78.185.19:8000/files/download?fileName=Main/${encodeURIComponent(fileName)}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -829,7 +1161,7 @@ function MainPage({ window }) {
         const fileName = documentData.fileName;
         console.log(fileName);
   
-        fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
+        fetch(`http://35.78.185.19:8000/files/download?fileName=Main/${encodeURIComponent(fileName)}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -948,7 +1280,7 @@ function MainPage({ window }) {
       const folderName = newFolderName.trim()
     
       // 폴더 생성 경로
-      const folderPath = `Maintest2/${folderName}/`;
+      const folderPath = `Main/${folderName}/`;
     
       // API 요청에 필요한 데이터S
       const requestData = {

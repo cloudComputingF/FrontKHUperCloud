@@ -17,7 +17,7 @@ import EnhancedEncryptionIcon from "@mui/icons-material/EnhancedEncryption";
 import Share from "./Share";
 import ShareIcon from '@mui/icons-material/Share';
 
-const Modal = ({ open, onClose, filename, url}) => {
+const Modal = ({ open, onClose, filename, url, filePath}) => {
   const [isImage, setIsImage] = useState(false);
   const [isEncrypt, setEncrypt] = useState(false);
   const [password, setPassword] = useState("");
@@ -104,26 +104,43 @@ const handleUnlock = () => {
   }
 
   const handleTranslate = () => {
-    const filePath = encodeURIComponent(url); // 파일 경로를 인코딩
-    console.log(filePath);
+    const filePath = filename;
   
-    const requestOptions = {
-      method: 'POST',
+    // 첫 번째 GET 요청
+    fetch(`http://35.78.185.19:8000/files/translate?filePath=Main/${filePath}`, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ filePath })
-    };
-  
-    fetch(`http://35.78.185.19:8000/translate/${filePath}`, requestOptions)
+      }
+    })
       .then(response => {
         if (response.ok) {
-          return response.json();
+          console.log(response);
+          // GET 요청 성공 시 추가 작업 수행
         } else {
           throw new Error("Translation failed");
         }
       })
-      .then(data => {
+      .then(() => {
+        const requestOptions = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ filePath })
+        };
+  
+        // 두 번째 POST 요청
+        fetch(`http://3.86.97.120:8080/tr/translate?filePath=Main/${filePath}`, requestOptions)
+          .then(response => {
+            if (response.ok) {
+              console.log(response);
+              // POST 요청 성공 시 추가 작업 수행
+            } else {
+              throw new Error("Translation failed");
+            }
+          });
+  
         console.log("Translation request submitted.");
   
         // 번역이 완료되었으므로 알림 표시
@@ -136,6 +153,40 @@ const handleUnlock = () => {
         console.log("Translation failed:", error.message);
       });
   };
+
+  // const handleTranslate = () => { 
+  //   const filePath = filename;
+    
+  //   const requestOptions = {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     },
+  //     body: JSON.stringify({ filePath })
+  //   };
+  
+  //   fetch(`http://3.86.97.120:8080/tr/translate?filePath=Main/${filePath}`, requestOptions)
+  //     .then(response => {
+  //       if (response.ok) {
+  //         console.log(response);
+          
+  //       } else {
+  //         throw new Error("Translation failed");
+  //       }
+  //     })
+  //     .then(() => {
+  //       console.log("Translation request submitted.");
+  
+  //       // 번역이 완료되었으므로 알림 표시
+  //       window.alert("번역이 완료되었습니다.");
+  
+  //       // 페이지 새로고침
+  //       window.location.reload();
+  //     })
+  //     .catch(error => {
+  //       console.log("Translation failed:", error.message);
+  //     });
+  // };
   
 
   // const handleTranslate = () => {
@@ -170,7 +221,7 @@ const handleUnlock = () => {
       {!isEncrypt ? (
         <>
           <DialogTitle>
-            {filename}
+            {filename} 
             <IconButton
               aria-label="close"
               onClick={onClose}
@@ -182,7 +233,7 @@ const handleUnlock = () => {
           <DialogContent sx={{ height: "600px", width: "600px" }}>
             <Box display="flex" justifyContent="flex-end" marginBottom={1}>
               {!isImage ? (
-                <IconButton aria-label="translate" onClick={handleTranslate}>
+                <IconButton aria-label="translate" filePath={filePath} onClick={handleTranslate}>
                   <TranslateIcon sx={{ fontSize: 50 }} />
                 </IconButton>
               ) : (

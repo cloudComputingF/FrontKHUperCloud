@@ -49,7 +49,7 @@ function FolderPage({ window }) {
   };
 
   useEffect(() => {
-    fetch(`http://35.78.185.19:8000/files/search?folder=Maintest2/${encodeURIComponent(folderName)}/`, {
+    fetch(`http://35.78.185.19:8000/files/search?folder=Main/${encodeURIComponent(folderName)}/`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ function FolderPage({ window }) {
           const file = new File([], fileNameOnly); // 파일 객체 생성
   
           if (file.name.includes('.PNG') || file.name.includes('.JPG')) {
-            fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
+            fetch(`http://35.78.185.19:8000/files/download?fileName=Main/${encodeURIComponent(folderName)}/${encodeURIComponent(fileNameOnly)}`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ function FolderPage({ window }) {
             file.name.includes('.ppt') ||
             file.name.includes('.pptx')
           ) {
-            fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileNameOnly)}`, {
+            fetch(`http://35.78.185.19:8000/files/download?fileName=Main/${encodeURIComponent(folderName)}/${encodeURIComponent(fileNameOnly)}`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
@@ -249,6 +249,7 @@ function FolderPage({ window }) {
         (documentUrl) => !selectedDocuments.includes(documentUrl.docKey)
       )
     );
+  
     const deletedItems = [
       ...imageUrls.filter((imageUrl) =>
         selectedImages.includes(imageUrl.imgKey)
@@ -257,6 +258,24 @@ function FolderPage({ window }) {
         selectedDocuments.includes(documentUrl.docKey)
       ),
     ];
+  
+    deletedItems.forEach((item) => {
+      console.log(item.fileName);
+      const uploadFilePath = item.fileName; // 파일 경로 인코딩
+      const deleteUrl = `http://35.78.185.19:8000/files/move/trash?fileKey=Main/${folderName}/${uploadFilePath}`;
+  
+      fetch(deleteUrl, {
+        method: 'GET',
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    });
+  
     setDeleteList((prevDeleteList) => [...prevDeleteList, ...deletedItems]);
     parentchange({ target: { checked: false } });
     setChildChecked({});
@@ -267,25 +286,42 @@ function FolderPage({ window }) {
     const selectedImages = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
       .map(([key]) => key);
-  
+
     const selectedDocuments = Object.entries(childChecked)
       .filter(([_, checked]) => checked.checked)
       .map(([key]) => key);
     setImageUrls((prevImageUrls) => {
       const restoredImages = selectedImages.map((imageKey) => {
-        const restoredImage = deleteList.find((item) => item.imgKey === imageKey);
+        const restoredImage = deleteList.find(
+          (item) => item.imgKey === imageKey
+        );
         if (restoredImage) {
           //console.log(restoredImage);
           return {
             fileName: restoredImage.fileName,
-            fileSize:restoredImage.fileSize,
+            fileSize: restoredImage.fileSize,
             imgKey: imageKey,
-            url: restoredImage.url, 
+            url: restoredImage.url,
           };
-        }  
+        }
         return null;
       });
       const filteredRestoredImages = restoredImages.filter(Boolean);
+      filteredRestoredImages.forEach((item) => {
+        const uploadFilePath = item.fileName; // 파일 경로 인코딩
+        const deleteUrl = `http://18.234.144.161:8080/trash/restore/trash/Main/${folderName}/${uploadFilePath}`;
+      
+        fetch(deleteUrl, {
+          method: 'DELETE',
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
       return [...prevImageUrls, ...filteredRestoredImages];
     });
     setDocumentUrls((prevDocumentUrls) => {
@@ -294,29 +330,41 @@ function FolderPage({ window }) {
         const restoredDocument = deleteList.find(
           (item) => item.docKey === documentKey
         );
-       
+
         if (restoredDocument) {
           // Return the restored document with correct details
           //console.log(restoredDocument);
           return {
             fileName: restoredDocument.fileName,
-            fileSize:restoredDocument.fileSize,
+            fileSize: restoredDocument.fileSize,
             docKey: documentKey,
             url: restoredDocument.url, // Update with the correct URL for the document
-             // Update with the correct filename for the document
+            // Update with the correct filename for the document
           };
         }
-  
+
         return null;
       });
-  
+
       const filteredRestoredDocuments = restoredDocuments.filter(Boolean);
-      console.log(filteredRestoredDocuments);
-  
+      filteredRestoredDocuments.forEach((item) => {
+        const uploadFilePath = item.fileName; // 파일 경로 인코딩
+        const deleteUrl = `http://18.234.144.161:8080/trash/restore/trash/Main/${folderName}/${uploadFilePath}`;
+      
+        fetch(deleteUrl, {
+          method: 'DELETE',
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
       return [...prevDocumentUrls, ...filteredRestoredDocuments];
     });
-  
-  
+
     setDeleteList((prevDeleteList) =>
       prevDeleteList.filter(
         (item) =>
@@ -332,7 +380,7 @@ function FolderPage({ window }) {
 
   const handleUpload = (file) => {
     const formData = new FormData();
-    formData.append('dir', `Maintest2/${folderName}/`);
+    formData.append('dir', `Main/${folderName}/`);
     formData.append('file', file);
   
     fetch('http://35.78.185.19:8000/files/upload', {
@@ -343,7 +391,7 @@ function FolderPage({ window }) {
         if (response.ok) {
           console.log("response!:", response);
           const fileName = file.name;
-          fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
+          fetch(`http://35.78.185.19:8000/files/download?fileName=Main/${encodeURIComponent(folderName)}/${encodeURIComponent(fileName)}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -413,7 +461,7 @@ function FolderPage({ window }) {
         const fileName = imageData.fileName;
         console.log(fileName)
   
-        fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
+        fetch(`http://35.78.185.19:8000/files/download?fileName=Main/${encodeURIComponent(folderName)}/${encodeURIComponent(fileName)}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -448,7 +496,7 @@ function FolderPage({ window }) {
         const fileName = documentData.fileName;
         console.log(fileName)
   
-        fetch(`http://35.78.185.19:8000/files/download/${encodeURIComponent(fileName)}`, {
+        fetch(`http://35.78.185.19:8000/files/download?fileName=Main/${encodeURIComponent(folderName)}/${encodeURIComponent(fileName)}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
